@@ -14,6 +14,7 @@ export const CHANNEL_NAMES = [
   'project.list', 'project.get', 'project.create', 'project.update', 'project.delete',
   'brief.get', 'brief.save', 'brief.versions', 'brief.restore', 'brief.analyzeUrl', 'brief.generateInsights',
   'ai.getConfig', 'ai.saveConfig', 'ai.clearKey', 'ai.test',
+  'image.getConfig', 'image.saveConfig', 'image.clearKey', 'image.test', 'image.generate',
   'studio.generate',
   'creative.list', 'creative.create', 'creative.update', 'creative.setStatus', 'creative.versions', 'creative.delete',
   'asset.import', 'asset.list', 'asset.updateTags', 'asset.delete', 'asset.export',

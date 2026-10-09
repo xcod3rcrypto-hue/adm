@@ -77,6 +77,17 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Status: Aprovado.')).toBeVisible();
     await page.screenshot({ path: join(shots, '04-criativos.png') });
 
+    // Geração de imagem com Gemini: sem chave, o botão orienta a configurar
+    await page.getByRole('tab', { name: 'Imagens e vídeos' }).click();
+    await page.getByRole('button', { name: 'Gerar imagem com IA' }).click();
+    const genDialog = page.getByRole('dialog');
+    await expect(genDialog.getByText('Configure a chave da API do Gemini para gerar imagens.')).toBeVisible();
+    await genDialog.getByLabel('Descreva a imagem').fill('Foto realista de uma antena no telhado ao pôr do sol');
+    await expect(genDialog.getByRole('button', { name: 'Gerar imagem', exact: true })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '04a-gerar-imagem.png') });
+    await genDialog.getByRole('button', { name: 'Fechar', exact: true }).last().click();
+    await page.getByRole('tab', { name: 'Textos' }).click();
+
     // Rascunho de campanha
     await page.getByRole('link', { name: 'Campanhas' }).click();
     await page.getByRole('button', { name: 'Novo rascunho' }).first().click();
@@ -175,7 +186,8 @@ test.describe.serial('ADVERTEX AI Studio', () => {
 
     // Configurações e auditoria
     await page.getByRole('link', { name: 'Configurações' }).click();
-    await expect(page.getByText('Sem chave')).toBeVisible();
+    await expect(page.getByText('Sem chave')).toHaveCount(2);
+    await expect(page.getByText('Geração de imagens (Gemini)')).toBeVisible();
     await expect(page.getByText('(desenvolvimento)').or(page.getByText('(instalado)'))).toBeVisible();
     await expect(page.getByText('project.create')).toBeVisible();
     await expect(page.getByText('Atualização automática disponível apenas no app instalado.')).toBeVisible();

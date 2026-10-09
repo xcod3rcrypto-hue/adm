@@ -222,3 +222,43 @@ export function buildSearchAdFromPagePrompt(p: {
       'Conte os caracteres com cuidado: textos acima do limite são rejeitados pelo Google. Não invente preços, prazos, prêmios ou números que não estejam na página.',
   };
 }
+
+// ---------------------------------------------------------------------------
+// Imagens de criativos (Gemini)
+// ---------------------------------------------------------------------------
+
+export const IMAGE_FORMAT_HINT: Record<string, string> = {
+  '1:1': 'formato quadrado para feed (Meta/Google Display)',
+  '4:5': 'formato vertical 4:5 para feed do Instagram/Facebook',
+  '9:16': 'formato vertical 9:16 para Stories e Reels',
+  '16:9': 'formato horizontal 16:9 para YouTube/Display',
+};
+
+/** Monta o prompt de imagem publicitária, com o briefing como contexto. */
+export function buildImagePrompt(p: { description: string; aspectRatio: string; brief: BriefData | null; withText: boolean; hasReference: boolean }): string {
+  const b = p.brief;
+  const context = b
+    ? [
+        `Produto/serviço: ${b.productOrService}`,
+        b.targetAudience && `Público: ${b.targetAudience}`,
+        b.differentiators && `Diferenciais: ${b.differentiators}`,
+        b.toneOfVoice && `Tom da marca: ${b.toneOfVoice}`,
+        b.region && `Região: ${b.region}`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    : '';
+  return [
+    'Crie uma imagem publicitária profissional, de alta qualidade, pronta para anúncio em redes sociais e Google.',
+    `Formato: ${IMAGE_FORMAT_HINT[p.aspectRatio] ?? p.aspectRatio}. Composição pensada para esse enquadramento, com o elemento principal bem destacado e área de respiro.`,
+    `Pedido do anunciante: ${p.description}`,
+    context && `Contexto do negócio (use como referência, não como texto na imagem):\n${context}`,
+    p.hasReference && 'Use a(s) imagem(ns) anexada(s) como referência do produto/identidade visual, mantendo a fidelidade ao produto.',
+    p.withText
+      ? 'Se incluir texto na imagem, use no máximo 6 palavras, em português do Brasil, com grafia correta, grande e legível.'
+      : 'Não inclua textos, letras, logotipos de terceiros nem marcas d’água na imagem.',
+    'Estilo fotográfico/realista e iluminação profissional, salvo se o pedido indicar outro estilo. Evite pessoas reais identificáveis, celebridades e marcas registradas de terceiros.',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+}

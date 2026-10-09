@@ -29,6 +29,9 @@ import {
   type AppNotification,
   type UpdateState,
   type SearchAdGroup,
+  type ImageAiConfigView,
+  type ImageGenerationResult,
+  ImageGenerationRequest,
   type SearchAdDraft,
   type KeywordIdeasResult,
   KeywordIdeasRequest,
@@ -112,6 +115,12 @@ export const ipcInputs = {
   }),
   'ai.clearKey': none,
   'ai.test': none,
+
+  'image.getConfig': none,
+  'image.saveConfig': z.object({ model: z.string().trim().min(3).max(100), apiKey: z.string().trim().min(10).max(500).optional() }),
+  'image.clearKey': none,
+  'image.test': none,
+  'image.generate': z.object({ ...org, request: ImageGenerationRequest }),
 
   'studio.generate': z.object({ ...org, request: StudioRequest }),
 
@@ -280,6 +289,11 @@ export interface ChannelOutputs {
   'ai.saveConfig': AiConfigView;
   'ai.clearKey': AiConfigView;
   'ai.test': { model: string; reply: string };
+  'image.getConfig': ImageAiConfigView;
+  'image.saveConfig': ImageAiConfigView;
+  'image.clearKey': ImageAiConfigView;
+  'image.test': { model: string };
+  'image.generate': ImageGenerationResult;
   'studio.generate': StudioResult;
   'creative.list': Creative[];
   'creative.create': Creative;

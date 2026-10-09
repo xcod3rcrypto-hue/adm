@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Download, UploadCloud, FileText, GitCompare, ImagePlus, Images, Pencil, Plus, Send, Tag, Trash2, XCircle } from 'lucide-react';
-import { CreativeKind, FunnelStage, formatBytes, formatDateTime, type Asset, type Creative, type CreativeStatus } from '@advertex/shared';
+import { CheckCircle2, Download, UploadCloud, FileText, GitCompare, ImagePlus, Images, Pencil, Plus, Send, Settings2, Sparkles, Tag, Trash2, XCircle } from 'lucide-react';
+import { CreativeKind, FunnelStage, formatBytes, type ImageAspectRatio, formatDateTime, type Asset, type Creative, type CreativeStatus } from '@advertex/shared';
 import { validateText } from '@advertex/advertising-core';
 import { api } from '../lib/api';
 import { useOrgId } from '../lib/org';
+import { useNavigate } from 'react-router-dom';
 import { CREATIVE_STATUS_LABEL, KIND_LABEL, KIND_PLATFORM, PLATFORM_LABEL, STAGE_LABEL } from '../lib/labels';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Input, LoadingState, Modal, PageHeader, Select, Tabs, Textarea, useToast } from '../components/ui';
 
@@ -399,6 +400,7 @@ function AssetsTab() {
   const [tagInput, setTagInput] = useState('');
   const [deleting, setDeleting] = useState<Asset | null>(null);
   const [uploading, setUploading] = useState<Asset | null>(null);
+  const [generating, setGenerating] = useState(false);
   const assets = useQuery({ queryKey: ['assets', organizationId, search], queryFn: () => api('asset.list', { organizationId, projectId: null, search }) });
 
   const importMut = useMutation({
@@ -444,6 +446,9 @@ function AssetsTab() {
           {assets.data?.length ?? 0} arquivo(s) · {formatBytes(total)} · PNG, JPG, GIF, WEBP, MP4, MOV, WEBM até 50 MB
         </p>
         <div className="flex-1" />
+        <Button variant="outline" icon={<Sparkles className="size-4" />} onClick={() => setGenerating(true)}>
+          Gerar imagem com IA
+        </Button>
         <Button icon={<ImagePlus className="size-4" />} loading={importMut.isPending} onClick={() => importMut.mutate()}>
           Importar arquivos
         </Button>
@@ -517,6 +522,7 @@ function AssetsTab() {
         </Modal>
       )}
       {uploading && <UploadToPlatformModal asset={uploading} onClose={() => setUploading(null)} />}
+      {generating && <GenerateImageModal images={(assets.data ?? []).filter((a) => a.mimeType.startsWith('image/'))} onClose={() => setGenerating(false)} />}
       <ConfirmDialog
         open={!!deleting}
         danger
@@ -528,6 +534,186 @@ function AssetsTab() {
         onClose={() => setDeleting(null)}
       />
     </>
+  );
+}
+
+const ASPECT_OPTIONS: Array<{ value: ImageAspectRatio; label: string }> = [
+  { value: '1:1', label: '1:1 — Feed quadrado' },
+  { value: '4:5', label: '4:5 — Feed vertical (Meta)' },
+  { value: '9:16', label: '9:16 — Stories / Reels' },
+  { value: '16:9', label: '16:9 — Display / YouTube' },
+  { value: '4:3', label: '4:3 — Paisagem' },
+  { value: '3:4', label: '3:4 — Retrato' },
+];
+
+function GenerateImageModal({ images, onClose }: { images: Asset[]; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const cfg = useQuery({ queryKey: ['image-ai-config'], queryFn: () => api('image.getConfig') });
+  const projects = useQuery({ queryKey: ['projects', organizationId, false], queryFn: () => api('project.list', { organizationId, includeArchived: false }) });
+  const [projectId, setProjectId] = useState('');
+  const [description, setDescription] = useState('');
+  const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>('1:1');
+  const [imageSize, setImageSize] = useState<'1K' | '2K' | '4K'>('2K');
+  const [count, setCount] = useState(1);
+  const [useBrief, setUseBrief] = useState(true);
+  const [withText, setWithText] = useState(false);
+  const [refs, setRefs] = useState<string[]>([]);
+
+  const gen = useMutation({
+    mutationFn: () =>
+      api('image.generate', {
+        organizationId,
+        request: { projectId: projectId || null, description, aspectRatio, imageSize, count, useBrief, withText, referenceAssetIds: refs },
+      }),
+    onSuccess: async (r) => {
+      await qc.invalidateQueries({ queryKey: ['assets'] });
+      if (r.assets.length) toast.success(`${r.assets.length} imagem(ns) criada(s) e salva(s) na biblioteca.`);
+    },
+    onError: (e) => toast.error(e),
+  });
+
+  const isPro = cfg.data?.model.includes('pro') ?? true;
+  const noKey = cfg.data && !cfg.data.hasApiKey;
+
+  return (
+    <Modal
+      open
+      size="xl"
+      onClose={onClose}
+      title="Gerar imagem com IA (Gemini)"
+      description={cfg.data ? `Modelo: ${cfg.data.models.find((m) => m.id === cfg.data.model)?.label ?? cfg.data.model}` : undefined}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Fechar
+          </Button>
+          <Button icon={<Sparkles className="size-4" />} loading={gen.isPending} disabled={!!noKey || description.trim().length < 10} onClick={() => gen.mutate()}>
+            {gen.isPending ? 'Gerando… (pode levar até 1 min por imagem)' : `Gerar ${count > 1 ? `${count} imagens` : 'imagem'}`}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {noKey && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-2 p-3 text-sm">
+            <span>Configure a chave da API do Gemini para gerar imagens.</span>
+            <Button
+              size="sm"
+              variant="outline"
+              icon={<Settings2 className="size-3.5" />}
+              onClick={() => {
+                onClose();
+                navigate('/configuracoes');
+              }}
+            >
+              Abrir Configurações
+            </Button>
+          </div>
+        )}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Projeto (usa o briefing e a marca)" htmlFor="gi-proj">
+            <Select id="gi-proj" value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+              <option value="">Sem projeto</option>
+              {projects.data?.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Formato" htmlFor="gi-aspect">
+            <Select id="gi-aspect" value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value as ImageAspectRatio)}>
+              {ASPECT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Resolução" htmlFor="gi-size" hint={isPro ? '4K custa mais por imagem.' : 'O modelo Flash gera em ~1K; escolha o Pro para 2K/4K.'}>
+            <Select id="gi-size" value={imageSize} disabled={!isPro} onChange={(e) => setImageSize(e.target.value as '1K' | '2K' | '4K')}>
+              <option value="1K">1K</option>
+              <option value="2K">2K (recomendado)</option>
+              <option value="4K">4K</option>
+            </Select>
+          </Field>
+          <Field label="Quantidade de variações" htmlFor="gi-count">
+            <Select id="gi-count" value={String(count)} onChange={(e) => setCount(Number(e.target.value))}>
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+        <Field label="Descreva a imagem" htmlFor="gi-desc" hint="Produto, cena, pessoas, estilo (foto realista, 3D, flat), cores, iluminação e o que deve chamar a atenção.">
+          <Textarea
+            id="gi-desc"
+            rows={4}
+            maxLength={2000}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Ex.: Foto realista de uma antena Starlink no telhado de uma casa de fazenda ao pôr do sol, família feliz usando notebook na varanda, luz dourada, sensação de conexão rápida."
+          />
+        </Field>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={useBrief} disabled={!projectId} onChange={(e) => setUseBrief(e.target.checked)} />
+            Usar briefing do projeto (público, tom e marca)
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={withText} onChange={(e) => setWithText(e.target.checked)} />
+            Incluir texto/chamada na imagem
+          </label>
+        </div>
+        {images.length > 0 && (
+          <fieldset>
+            <legend className="mb-2 text-xs font-medium text-muted">Imagens de referência (opcional, até 3 — produto, logo, estilo)</legend>
+            <div className="grid max-h-44 grid-cols-4 gap-2 overflow-y-auto md:grid-cols-6">
+              {images.slice(0, 60).map((a) => {
+                const on = refs.includes(a.id);
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    aria-pressed={on}
+                    title={a.fileName}
+                    disabled={!on && refs.length >= 3}
+                    onClick={() => setRefs(on ? refs.filter((x) => x !== a.id) : [...refs, a.id])}
+                    className={`overflow-hidden rounded-lg border-2 disabled:opacity-40 ${on ? 'border-[#8b6cff]' : 'border-transparent'}`}
+                  >
+                    <AssetThumb asset={a} className="h-16" />
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
+        {gen.data && (
+          <div className="flex flex-col gap-2">
+            {gen.data.failed > 0 && <p className="text-sm text-warning">{gen.data.failed} variação(ões) falharam.</p>}
+            {gen.data.notes.map((n, i) => (
+              <p key={i} className="text-xs text-subtle">
+                {n}
+              </p>
+            ))}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {gen.data.assets.map((a) => (
+                <Card key={a.id} className="overflow-hidden">
+                  <AssetThumb asset={a} className="h-40 object-contain" />
+                  <p className="truncate p-2 text-xs text-subtle">{a.width && a.height ? `${a.width}×${a.height}` : a.fileName}</p>
+                </Card>
+              ))}
+            </div>
+            <p className="text-xs text-subtle">As imagens já estão na biblioteca (tag #ia-gemini) e podem ser vinculadas aos criativos ou enviadas às contas de anúncios.</p>
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }
 

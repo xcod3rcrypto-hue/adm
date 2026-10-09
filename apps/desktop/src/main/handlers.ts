@@ -23,6 +23,8 @@ const EXTERNAL_ALLOWLIST = [
   'platform.claude.com',
   'docs.claude.com',
   'docs.anthropic.com',
+  'aistudio.google.com',
+  'ai.google.dev',
 ];
 
 export function isAllowedExternal(url: string): boolean {
@@ -117,6 +119,12 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'ai.saveConfig': (input, ctx) => core.saveAiConfig(ctx, input),
     'ai.clearKey': (_i, ctx) => core.clearAiKey(ctx),
     'ai.test': (_i, ctx) => core.testAi(ctx),
+
+    'image.getConfig': (_i, ctx) => core.getImageAiConfig(ctx),
+    'image.saveConfig': (input, ctx) => core.saveImageAiConfig(ctx, input),
+    'image.clearKey': (_i, ctx) => core.clearImageAiKey(ctx),
+    'image.test': (_i, ctx) => core.testImageAi(ctx),
+    'image.generate': ({ organizationId, request }, ctx) => core.generateCreativeImages(ctx, organizationId, request),
 
     'studio.generate': ({ organizationId, request }, ctx) => core.generateVariations(ctx, organizationId, request),
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, Gauge, RefreshCw, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
+import { Bot, Building2, ImageIcon, ExternalLink, FlaskConical, FolderOpen, Gauge, RefreshCw, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
 import { formatDateTime } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
-import { Badge, Button, Card, CardHeader, ConfirmDialog, ErrorState, Field, Input, LoadingState, Notice, PageHeader, useToast } from '../components/ui';
+import { Badge, Button, Card, CardHeader, ConfirmDialog, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Select, useToast } from '../components/ui';
 
 export function SettingsPage() {
   return (
@@ -13,6 +13,7 @@ export function SettingsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <OrganizationCard />
         <AiCard />
+        <ImageAiCard />
         <UpdatesCard />
         <LimitsCard />
         <DemoCard />
@@ -131,6 +132,102 @@ function AiCard() {
           </Field>
           <Field label="Modelo" htmlFor="ai-model" hint="Padrão: claude-opus-5-5.">
             <Input id="ai-model" value={model} onChange={(e) => setModel(e.target.value)} />
+          </Field>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" loading={save.isPending} disabled={!cfg.data.secureStorageAvailable}>
+              Salvar
+            </Button>
+            <Button variant="outline" loading={test.isPending} disabled={!cfg.data.hasApiKey} onClick={() => test.mutate()}>
+              Testar conexão
+            </Button>
+            {cfg.data.hasApiKey && (
+              <Button variant="ghost" icon={<Trash2 className="size-4" />} loading={clear.isPending} onClick={() => clear.mutate()}>
+                Remover chave
+              </Button>
+            )}
+          </div>
+          {testResult && <Notice tone="success">{testResult}</Notice>}
+        </form>
+      )}
+    </Card>
+  );
+}
+
+function ImageAiCard() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const cfg = useQuery({ queryKey: ['image-ai-config'], queryFn: () => api('image.getConfig') });
+  const [model, setModel] = useState('');
+  const [key, setKey] = useState('');
+  const [testResult, setTestResult] = useState<string | null>(null);
+  useEffect(() => {
+    if (cfg.data) setModel(cfg.data.model);
+  }, [cfg.data]);
+
+  const save = useMutation({
+    mutationFn: () => api('image.saveConfig', { model, apiKey: key || undefined }),
+    onSuccess: (v) => {
+      setKey('');
+      qc.setQueryData(['image-ai-config'], v);
+      toast.success('Configuração do Gemini salva.');
+    },
+    onError: (e) => toast.error(e),
+  });
+  const test = useMutation({
+    mutationFn: () => api('image.test'),
+    onSuccess: (r) => setTestResult(`Conexão OK — modelo ${r.model} disponível na sua chave.`),
+    onError: (e) => {
+      setTestResult(null);
+      toast.error(e);
+    },
+  });
+  const clear = useMutation({
+    mutationFn: () => api('image.clearKey'),
+    onSuccess: (v) => {
+      qc.setQueryData(['image-ai-config'], v);
+      setTestResult(null);
+      toast.success('Chave do Gemini removida.');
+    },
+    onError: (e) => toast.error(e),
+  });
+
+  return (
+    <Card>
+      <CardHeader
+        title={<span className="flex items-center gap-2"><ImageIcon className="size-4" /> Geração de imagens (Gemini)</span>}
+        description="Cria imagens dos criativos com o Nano Banana Pro do Google, usando a sua chave do Google AI Studio."
+        actions={cfg.data && <Badge tone={cfg.data.hasApiKey ? 'success' : 'neutral'}>{cfg.data.hasApiKey ? 'Chave configurada' : 'Sem chave'}</Badge>}
+      />
+      {cfg.isLoading && <div className="p-5"><LoadingState rows={2} /></div>}
+      {cfg.error && <div className="p-5"><ErrorState error={cfg.error} /></div>}
+      {cfg.data && (
+        <form
+          className="flex flex-col gap-4 p-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save.mutate();
+          }}
+        >
+          {!cfg.data.secureStorageAvailable && <Notice tone="danger">O armazenamento seguro do Windows não está disponível; não é possível salvar chaves.</Notice>}
+          <Notice tone="info">
+            Crie a chave em{' '}
+            <button type="button" className="inline-flex items-center gap-1 text-[#b9a8ff] hover:underline" onClick={() => void api('app.openExternal', { url: 'https://aistudio.google.com/apikey' })}>
+              aistudio.google.com <ExternalLink className="size-3" />
+            </button>
+            . O Nano Banana Pro exige faturamento ativo no projeto do Google; o uso é cobrado pelo Google na sua conta. A chave fica cifrada neste computador.
+          </Notice>
+          <Field label="Chave da API do Gemini" htmlFor="img-key" hint={cfg.data.hasApiKey ? 'Uma chave já está salva (cifrada). Preencha apenas para substituí-la.' : 'Começa com AIza'}>
+            <Input id="img-key" type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} placeholder={cfg.data.hasApiKey ? '••••••••••••' : 'AIza…'} />
+          </Field>
+          <Field label="Modelo de imagem" htmlFor="img-model">
+            <Select id="img-model" value={model} onChange={(e) => setModel(e.target.value)}>
+              {cfg.data.models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.label}
+                </option>
+              ))}
+              {!cfg.data.models.some((m) => m.id === model) && model && <option value={model}>{model}</option>}
+            </Select>
           </Field>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" loading={save.isPending} disabled={!cfg.data.secureStorageAvailable}>

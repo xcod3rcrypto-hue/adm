@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, openSync, readSync, closeSync, statSync, unlinkSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, openSync, readSync, closeSync, statSync, unlinkSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve, sep } from 'node:path';
 import { AppError, type Asset } from '@advertex/shared';
 import type { AppContext } from '../context';
@@ -207,4 +207,32 @@ export function deleteAsset(ctx: AppContext, organizationId: string, id: string)
   ctx.db.run('DELETE FROM assets WHERE id = ? AND organization_id = ?', [id, organizationId]);
   if (file) unlinkSync(file.path);
   recordAudit(ctx, { organizationId, action: 'asset.delete', entityType: 'asset', entityId: id, details: { fileName: asset.fileName } });
+}
+
+/**
+ * Grava na biblioteca um arquivo gerado em memória (ex.: imagem criada por IA).
+ * O tipo é verificado pela assinatura do conteúdo, como na importação.
+ */
+export function storeAssetBuffer(ctx: AppContext, organizationId: string, projectId: string | null, fileName: string, data: Buffer, tags: string[] = []): Asset {
+  requireOrg(ctx, organizationId);
+  if (projectId) requireOwned(ctx, 'projects', projectId, organizationId, 'Projeto');
+  if (data.length === 0) throw new AppError('VALIDATION', 'Arquivo vazio.');
+  if (data.length > MAX_ASSET_BYTES) throw new AppError('VALIDATION', 'Arquivo maior que 50 MB.');
+  const type = detectFileType(data);
+  if (!type || !type.mime.startsWith('image/')) throw new AppError('VALIDATION', 'O conteúdo gerado não é uma imagem suportada.');
+  const sha256 = createHash('sha256').update(data).digest('hex');
+  const dup = ctx.db.get<{ id: string }>('SELECT id FROM assets WHERE organization_id = ? AND sha256 = ?', [organizationId, sha256]);
+  if (dup) return getAsset(ctx, organizationId, dup.id);
+  const id = ctx.newId();
+  const storedName = `${organizationId}/${id}.${type.ext}`;
+  mkdirSync(join(ctx.assetsDir, organizationId), { recursive: true });
+  writeFileSync(join(ctx.assetsDir, storedName), data);
+  const safeName = `${basename(fileName).replace(/[^\w.\- ]+/g, '_').slice(0, 150) || 'imagem'}.${type.ext}`;
+  ctx.db.run(
+    `INSERT INTO assets (id, organization_id, project_id, file_name, stored_name, mime_type, size_bytes, sha256, width, height, tags, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [id, organizationId, projectId, safeName, storedName, type.mime, data.length, sha256, type.width, type.height, JSON.stringify(tags), ctx.now()],
+  );
+  recordAudit(ctx, { organizationId, action: 'asset.generate', entityType: 'asset', entityId: id, details: { fileName: safeName, mime: type.mime, size: data.length } });
+  return getAsset(ctx, organizationId, id);
 }

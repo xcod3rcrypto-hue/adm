@@ -976,3 +976,36 @@ export interface SearchAdDraft {
   strategy: string;
   notes: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Geração de imagens (Gemini / Nano Banana)
+// ---------------------------------------------------------------------------
+
+export interface ImageAiConfigView {
+  model: string;
+  hasApiKey: boolean;
+  secureStorageAvailable: boolean;
+  models: Array<{ id: string; label: string }>;
+}
+
+export const ImageAspectRatio = z.enum(['1:1', '4:5', '9:16', '16:9', '3:4', '4:3']);
+export type ImageAspectRatio = z.infer<typeof ImageAspectRatio>;
+
+export const ImageGenerationRequest = z.object({
+  projectId: Id.nullable().default(null),
+  description: text(2000).min(10, 'Descreva a imagem (ao menos 10 caracteres)'),
+  aspectRatio: ImageAspectRatio.default('1:1'),
+  imageSize: z.enum(['1K', '2K', '4K']).default('2K'),
+  count: z.number().int().min(1).max(4).default(1),
+  useBrief: z.boolean().default(true),
+  withText: z.boolean().default(false),
+  referenceAssetIds: z.array(Id).max(3).default([]),
+});
+export type ImageGenerationRequest = z.input<typeof ImageGenerationRequest>;
+
+export interface ImageGenerationResult {
+  model: string;
+  assets: Asset[];
+  failed: number;
+  notes: string[];
+}

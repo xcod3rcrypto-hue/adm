@@ -241,6 +241,11 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     await this.post(campaignRemoteId, { status: status === 'active' ? 'ACTIVE' : 'PAUSED' });
   }
 
+  async deleteCampaign(_accountRemoteId: string, campaignRemoteId: string): Promise<void> {
+    assertNumericId(campaignRemoteId);
+    await this.post(campaignRemoteId, { status: 'DELETED' });
+  }
+
   async updateDailyBudget(_accountRemoteId: string, campaignRemoteId: string, amount: number, currency: string): Promise<void> {
     assertNumericId(campaignRemoteId);
     await this.post(campaignRemoteId, { daily_budget: String(majorToMinor(amount, currency)) });

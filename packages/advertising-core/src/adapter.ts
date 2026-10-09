@@ -102,6 +102,8 @@ export interface AdPlatformWriter {
   setCampaignStatus(accountRemoteId: string, campaignRemoteId: string, status: 'active' | 'paused'): Promise<void>;
   updateDailyBudget(accountRemoteId: string, campaignRemoteId: string, amount: number, currency: string): Promise<void>;
   uploadImage(accountRemoteId: string, fileName: string, data: Uint8Array): Promise<UploadedAsset>;
+  /** Exclui a campanha na plataforma (irreversível: Meta DELETED, Google REMOVED). */
+  deleteCampaign(accountRemoteId: string, campaignRemoteId: string): Promise<void>;
 }
 
 /** Erro retornado por uma API de anúncios, sem dados sensíveis. */

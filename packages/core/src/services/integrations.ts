@@ -5,6 +5,7 @@ import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, isManagerAccountName, ref
 import type { AppContext } from '../context';
 import { parseJson, requireOrg } from '../util';
 import { recordAudit } from './audit';
+import { getSetting } from './settings';
 import { deleteSecret, getSecret, hasSecret, putSecret, scopes } from './secrets';
 
 interface ConnRow {
@@ -320,8 +321,11 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
   try {
     const list = await listRemoteCampaigns(reader, account.remote_id, account.currency);
     const now = ctx.now();
+    // Campanhas que o usuário tirou do app (Campanhas → Excluir → só do app) não voltam.
+    const hidden = new Set(getSetting<string[]>(ctx, `campaigns.hidden.${organizationId}`, []));
     ctx.db.transaction(() => {
       for (const c of list) {
+        if (hidden.has(`${platform}:${c.remoteId}`)) continue;
         const existing = ctx.db.get<{ id: string }>('SELECT id FROM campaigns WHERE organization_id = ? AND platform = ? AND remote_id = ?', [organizationId, platform, c.remoteId]);
         if (existing) {
           ctx.db.run(
@@ -331,6 +335,7 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
           );
           updated += 1;
         } else {
+          if (c.status === 'removed') continue; // excluída na plataforma: não importa
           ctx.db.run(
             `INSERT INTO campaigns (id, organization_id, advertising_account_id, platform, remote_id, name, objective, status, daily_budget, currency, start_date, end_date, sync_state, last_synced_at, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'synced', ?, ?, ?)`,

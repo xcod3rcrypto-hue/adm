@@ -221,6 +221,9 @@ export const ipcInputs = {
 
   'factory.run': z.object({ ...org, request: FactoryRequest }),
 
+  'campaign.deleteRemote': z.object({ ...org, id: Id, confirmName: z.string().max(300) }),
+  'campaign.removeLocal': z.object({ ...org, id: Id }),
+
   'meta.adSets': z.object({ ...org, campaignId: Id }),
   'meta.saveAdSet': z.object({ ...org, campaignId: Id, id: Id.nullable(), data: MetaAdSetInput }),
   'meta.deleteAdSet': z.object({ ...org, id: Id }),
@@ -383,6 +386,8 @@ export interface ChannelOutputs {
   'autopilot.apply': { applied: number; failed: Array<{ id: string; error: string }> };
   'autopilot.dismiss': AutopilotOverview;
   'factory.run': FactoryResult;
+  'campaign.deleteRemote': Campaign;
+  'campaign.removeLocal': void;
   'meta.adSets': MetaAdSet[];
   'meta.saveAdSet': MetaAdSet;
   'meta.deleteAdSet': void;

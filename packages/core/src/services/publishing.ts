@@ -382,3 +382,54 @@ export async function uploadAssetToPlatform(ctx: AppContext, organizationId: str
   );
   return { remoteId: out.remoteId! };
 }
+
+const hiddenKey = (org: string) => `campaigns.hidden.${org}`;
+
+/** IDs remotos que o usuário tirou do app: a sincronização não os traz de volta. */
+export function hiddenRemoteCampaigns(ctx: AppContext, organizationId: string): string[] {
+  return getSetting<string[]>(ctx, hiddenKey(organizationId), []);
+}
+
+/**
+ * Exclui a campanha NA PLATAFORMA (irreversível) e a marca como excluída aqui,
+ * mantendo o histórico de métricas. Exige digitar o nome da campanha.
+ */
+export async function deleteCampaignRemote(ctx: AppContext, organizationId: string, campaignId: string, confirmName: string): Promise<Campaign> {
+  const { c, account } = requireRemote(ctx, organizationId, campaignId);
+  if (confirmName.trim() !== c.name.trim()) throw new AppError('VALIDATION', 'Digite o nome exato da campanha para confirmar a exclusão.');
+  const writer = platformWriter(ctx, organizationId, c.platform);
+  await runPlatformOperation(
+    ctx,
+    {
+      organizationId,
+      campaignId: c.id,
+      platform: c.platform,
+      operation: 'deleteCampaign',
+      idempotencyKey: `deleteCampaign:${c.id}`,
+      request: { remoteId: c.remoteId, name: c.name },
+    },
+    async () => {
+      await writer.deleteCampaign(account.remote_id, c.remoteId!);
+      return { remoteId: c.remoteId };
+    },
+  );
+  ctx.db.run("UPDATE campaigns SET status = 'removed', last_synced_at = ?, last_error = NULL, updated_at = ? WHERE id = ? AND organization_id = ?", [ctx.now(), ctx.now(), c.id, organizationId]);
+  return getCampaign(ctx, organizationId, campaignId);
+}
+
+/**
+ * Tira a campanha do app (não altera nada na plataforma). Conjuntos, anúncios e
+ * métricas locais dela são apagados; a sincronização não a importa de novo.
+ */
+export function removeCampaignLocal(ctx: AppContext, organizationId: string, campaignId: string): void {
+  const c = getCampaign(ctx, organizationId, campaignId);
+  ctx.db.transaction(() => {
+    if (c.remoteId) {
+      const hidden = new Set(hiddenRemoteCampaigns(ctx, organizationId));
+      hidden.add(`${c.platform}:${c.remoteId}`);
+      setSetting(ctx, hiddenKey(organizationId), [...hidden]);
+    }
+    ctx.db.run('DELETE FROM campaigns WHERE id = ? AND organization_id = ?', [c.id, organizationId]);
+    recordAudit(ctx, { organizationId, action: 'campaign.local.remove', entityType: 'campaign', entityId: c.id, details: { name: c.name, remoteId: c.remoteId, platform: c.platform } });
+  });
+}

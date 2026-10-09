@@ -177,6 +177,15 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),
     'recommendation.setStatus': ({ organizationId, id, status }, ctx) => core.setRecommendationStatus(ctx, organizationId, id, status),
 
+    'experiment.list': ({ organizationId }, ctx) => core.listExperiments(ctx, organizationId),
+    'experiment.create': ({ organizationId, data }, ctx) => core.createExperiment(ctx, organizationId, data),
+    'experiment.update': ({ organizationId, id, data }, ctx) => core.updateExperiment(ctx, organizationId, id, data),
+    'experiment.importMetrics': ({ organizationId, id }, ctx) => core.importExperimentMetrics(ctx, organizationId, id),
+    'experiment.evaluate': ({ organizationId, id }, ctx) => core.evaluateExperimentById(ctx, organizationId, id),
+    'experiment.conclude': ({ organizationId, id, conclusion }, ctx) => core.concludeExperiment(ctx, organizationId, id, conclusion),
+    'experiment.setStatus': ({ organizationId, id, status }, ctx) => core.setExperimentStatus(ctx, organizationId, id, status),
+    'experiment.delete': ({ organizationId, id }, ctx) => core.deleteExperiment(ctx, organizationId, id),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
 }

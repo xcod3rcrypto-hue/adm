@@ -14,6 +14,7 @@ import { CampaignsPage } from './pages/Campaigns';
 import { IntegrationsPage } from './pages/Integrations';
 import { SettingsPage } from './pages/Settings';
 import { IntelligencePage } from './pages/Intelligence';
+import { ExperimentsPage } from './pages/Experiments';
 
 export function App() {
   const { org, isLoading, error } = useOrg();
@@ -46,6 +47,7 @@ export function App() {
         <Route path="/criativos" element={<CreativesPage />} />
         <Route path="/campanhas" element={<CampaignsPage />} />
         <Route path="/inteligencia" element={<IntelligencePage />} />
+        <Route path="/experimentos" element={<ExperimentsPage />} />
         <Route path="/integracoes" element={<IntegrationsPage />} />
         <Route path="/configuracoes" element={<SettingsPage />} />
         <Route path="/boas-vindas" element={<OnboardingPage embedded />} />

@@ -24,5 +24,6 @@ export const CHANNEL_NAMES = [
   'integration.google.save', 'integration.google.authorize', 'integration.google.syncAccounts', 'integration.google.syncCampaigns', 'integration.google.syncInsights',
   'integration.disconnect',
   'intelligence.get', 'intelligence.run', 'recommendation.setStatus',
+  'experiment.list', 'experiment.create', 'experiment.update', 'experiment.importMetrics', 'experiment.evaluate', 'experiment.conclude', 'experiment.setStatus', 'experiment.delete',
   'audit.list',
 ] as const;

@@ -1,4 +1,4 @@
-import type { CampaignStatus, CreativeKind, CreativeStatus, DiagnosticKind, DiagnosticSeverity, FunnelStage, Platform, ProjectStatus, RecommendationStatus, SuggestedAction, SyncState } from '@advertex/shared';
+import type { CampaignStatus, CreativeKind, CreativeStatus, DiagnosticKind, DiagnosticSeverity, ExperimentMetric, ExperimentStatus, FunnelStage, Platform, ProjectStatus, RecommendationStatus, SuggestedAction, SyncState } from '@advertex/shared';
 
 export const PLATFORM_LABEL: Record<Platform, string> = { meta: 'Meta Ads', google: 'Google Ads' };
 
@@ -82,4 +82,18 @@ export const ACTION_LABEL: Record<SuggestedAction['type'], string> = {
   refresh_creative: 'Renovar criativos',
   pause_campaign: 'Pausar campanha',
   adjust_budget: 'Ajustar orçamento',
+};
+
+export const EXPERIMENT_METRIC_LABEL: Record<ExperimentMetric, string> = {
+  ctr: 'CTR',
+  conversion_rate: 'Taxa de conversão',
+  cpa: 'CPA',
+};
+
+export const EXPERIMENT_STATUS_LABEL: Record<ExperimentStatus, string> = {
+  planned: 'Planejado',
+  running: 'Em andamento',
+  concluded: 'Concluído',
+  inconclusive: 'Inconclusivo',
+  cancelled: 'Cancelado',
 };

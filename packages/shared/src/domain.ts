@@ -473,3 +473,85 @@ export interface IntelligenceReport {
   recommendations: Recommendation[];
   limitations: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Experimentos
+// ---------------------------------------------------------------------------
+
+export const ExperimentMetric = z.enum(['ctr', 'conversion_rate', 'cpa']);
+export type ExperimentMetric = z.infer<typeof ExperimentMetric>;
+
+export const ExperimentStatus = z.enum(['planned', 'running', 'concluded', 'inconclusive', 'cancelled']);
+export type ExperimentStatus = z.infer<typeof ExperimentStatus>;
+
+const isoDateOrNull = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null);
+
+export const ExperimentVariantInput = z.object({
+  id: Id.optional(),
+  label: text(80).min(1, 'Nomeie a variante'),
+  creativeId: Id.nullable().default(null),
+  campaignId: Id.nullable().default(null),
+  impressions: z.number().int().min(0).default(0),
+  clicks: z.number().int().min(0).default(0),
+  conversions: z.number().min(0).default(0),
+  spend: z.number().min(0).default(0),
+});
+export type ExperimentVariantInput = z.input<typeof ExperimentVariantInput>;
+
+export const ExperimentInput = z
+  .object({
+    projectId: Id.nullable().default(null),
+    hypothesis: text(1000).min(10, 'Descreva a hipótese (ao menos 10 caracteres)'),
+    variable: text(200).min(2, 'Informe a variável testada'),
+    primaryMetric: ExperimentMetric,
+    periodFrom: isoDateOrNull,
+    periodTo: isoDateOrNull,
+    decisionCriteria: text(1000).default(''),
+    variants: z.array(ExperimentVariantInput).min(2, 'Cadastre ao menos duas variantes (controle e alternativa)').max(6),
+  })
+  .refine((d) => !d.periodFrom || !d.periodTo || d.periodTo >= d.periodFrom, { message: 'A data final deve ser posterior à inicial', path: ['periodTo'] });
+export type ExperimentInput = z.input<typeof ExperimentInput>;
+
+export interface ExperimentVariant {
+  id: string;
+  label: string;
+  creativeId: string | null;
+  creativeTitle: string | null;
+  campaignId: string | null;
+  campaignName: string | null;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  spend: number;
+}
+
+export interface ExperimentResult {
+  metric: ExperimentMetric;
+  outcome: 'winner' | 'inconclusive';
+  winnerId: string | null;
+  alpha: number;
+  minSample: string;
+  reason: string;
+  evaluatedAt: string;
+  variants: Array<{ id: string; label: string; value: number | null; sampleOk: boolean }>;
+  comparisons: Array<{ variantId: string; label: string; lift: number | null; pValue: number | null; significant: boolean; better: boolean | null }>;
+}
+
+export interface Experiment {
+  id: string;
+  organizationId: string;
+  projectId: string | null;
+  projectName: string | null;
+  hypothesis: string;
+  variable: string;
+  primaryMetric: ExperimentMetric;
+  periodFrom: string | null;
+  periodTo: string | null;
+  decisionCriteria: string;
+  status: ExperimentStatus;
+  variants: ExperimentVariant[];
+  result: ExperimentResult | null;
+  conclusion: string;
+  createdAt: string;
+  updatedAt: string;
+}

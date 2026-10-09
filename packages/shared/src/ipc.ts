@@ -24,6 +24,8 @@ import {
   type DashboardSummary,
   type IntegrationView,
   type IntelligenceReport,
+  type Experiment,
+  ExperimentInput,
   type Recommendation,
   RecommendationStatus,
   type OnboardingState,
@@ -138,6 +140,15 @@ export const ipcInputs = {
   'intelligence.run': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
   'recommendation.setStatus': z.object({ ...org, id: Id, status: RecommendationStatus }),
 
+  'experiment.list': z.object(org),
+  'experiment.create': z.object({ ...org, data: ExperimentInput }),
+  'experiment.update': z.object({ ...org, id: Id, data: ExperimentInput }),
+  'experiment.importMetrics': z.object({ ...org, id: Id }),
+  'experiment.evaluate': z.object({ ...org, id: Id }),
+  'experiment.conclude': z.object({ ...org, id: Id, conclusion: z.string().trim().max(4000).default('') }),
+  'experiment.setStatus': z.object({ ...org, id: Id, status: z.enum(['planned', 'running', 'cancelled']) }),
+  'experiment.delete': z.object({ ...org, id: Id }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -212,6 +223,14 @@ export interface ChannelOutputs {
   'intelligence.get': IntelligenceReport;
   'intelligence.run': IntelligenceReport;
   'recommendation.setStatus': Recommendation;
+  'experiment.list': Experiment[];
+  'experiment.create': Experiment;
+  'experiment.update': Experiment;
+  'experiment.importMetrics': Experiment;
+  'experiment.evaluate': Experiment;
+  'experiment.conclude': Experiment;
+  'experiment.setStatus': Experiment;
+  'experiment.delete': void;
   'audit.list': AuditEntry[];
 }
 

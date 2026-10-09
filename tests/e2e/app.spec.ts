@@ -87,6 +87,26 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('cell', { name: /^Leads — Verão Sem projeto/ })).toBeVisible();
     await page.screenshot({ path: join(shots, '05-campanhas.png') });
 
+    // Experimento A/B com teste estatístico
+    await page.getByRole('link', { name: 'Experimentos' }).click();
+    await page.getByRole('button', { name: 'Novo experimento' }).first().click();
+    await page.getByLabel('Hipótese').fill('Se destacarmos o frete grátis no título, o CTR aumenta');
+    await page.getByLabel('Variável testada').fill('Título');
+    await page.locator('#v-0-imp').fill('10000');
+    await page.locator('#v-0-clk').fill('200');
+    await page.locator('#v-1-imp').fill('10000');
+    await page.locator('#v-1-clk').fill('300');
+    await page.getByRole('button', { name: 'Salvar experimento' }).click();
+    await expect(page.getByText('Experimento salvo.')).toBeVisible();
+    await page.getByRole('button', { name: 'Calcular resultado' }).click();
+    await expect(page.getByText('Resultado significativo')).toBeVisible();
+    await page.getByRole('button', { name: 'Encerrar', exact: true }).click();
+    await page.getByLabel('Aprendizado e próximos passos').fill('Frete grátis no título aumenta o CTR em 50%.');
+    await page.getByRole('button', { name: 'Encerrar e registrar' }).click();
+    await expect(page.getByText('Experimento concluído com vencedor.')).toBeVisible();
+    await expect(page.getByText('Aprendizado registrado')).toBeVisible();
+    await page.screenshot({ path: join(shots, '05b-experimentos.png'), fullPage: true });
+
     // Integrações: sem credenciais não há conexão simulada
     await page.getByRole('link', { name: 'Integrações' }).click();
     await expect(page.getByText('Não configurado').first()).toBeVisible();

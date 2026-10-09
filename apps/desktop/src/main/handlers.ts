@@ -235,6 +235,7 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
 
     'factory.run': ({ organizationId, request }, ctx) => core.runCreativeFactory(ctx, organizationId, request),
 
+    'campaign.syncAll': ({ organizationId }, ctx) => core.syncAllCampaigns(ctx, organizationId),
     'campaign.deleteRemote': ({ organizationId, id, confirmName }, ctx) => core.deleteCampaignRemote(ctx, organizationId, id, confirmName),
     'campaign.removeLocal': ({ organizationId, id }, ctx) => core.removeCampaignLocal(ctx, organizationId, id),
     'meta.adSets': ({ organizationId, campaignId }, ctx) => core.listMetaAdSets(ctx, organizationId, campaignId),

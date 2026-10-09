@@ -318,6 +318,7 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
   const conn = reader.conn;
   let imported = 0;
   let updated = 0;
+  let removed = 0;
   try {
     const list = await listRemoteCampaigns(reader, account.remote_id, account.currency);
     const now = ctx.now();
@@ -344,10 +345,21 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
           imported += 1;
         }
       }
+      // Excluídas na plataforma não vêm na lista: marca como removidas aqui (o histórico continua).
+      const seen = new Set(list.map((c) => c.remoteId));
+      const local = ctx.db.all<{ id: string; remote_id: string }>(
+        "SELECT id, remote_id FROM campaigns WHERE organization_id = ? AND platform = ? AND advertising_account_id = ? AND remote_id IS NOT NULL AND status != 'removed'",
+        [organizationId, platform, account.id],
+      );
+      for (const l of local) {
+        if (seen.has(l.remote_id)) continue;
+        ctx.db.run("UPDATE campaigns SET status = 'removed', sync_state = 'synced', last_synced_at = ?, updated_at = ? WHERE id = ?", [now, now, l.id]);
+        removed += 1;
+      }
       ctx.db.run('UPDATE advertising_accounts SET last_synced_at = ? WHERE id = ?', [now, account.id]);
     });
     setState(ctx, conn.id, 'connected', { error: null });
-    recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, details: { imported, updated } });
+    recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, details: { imported, updated, removed } });
   } catch (err) {
     recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, outcome: 'failure', details: { error: errMsg(err) } });
     throw err;
@@ -358,7 +370,32 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
         ? ' Esta é uma conta de administrador (MCC): as campanhas ficam nas contas de anúncios vinculadas a ela.'
         : ' A conta não tem campanhas (exceto removidas).'
       : '';
-  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).${hint}` };
+  const gone = removed ? ` ${removed} excluída(s) na plataforma marcada(s) como removida(s).` : '';
+  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).${gone}${hint}` };
+}
+
+/**
+ * Sincroniza as campanhas de todas as contas conectadas (Meta e Google) — usado
+ * pela atualização automática da tela de Campanhas e pelo agendador.
+ */
+export async function syncAllCampaigns(ctx: AppContext, organizationId: string): Promise<{ accounts: number; errors: string[]; syncedAt: string }> {
+  if (requireOrg(ctx, organizationId).is_demo) return { accounts: 0, errors: [], syncedAt: ctx.now() };
+  const accounts = ctx.db.all<{ id: string; platform: Platform; name: string }>(
+    'SELECT a.id, a.platform, a.name FROM advertising_accounts a JOIN integration_connections c ON c.id = a.connection_id WHERE a.organization_id = ? ORDER BY a.platform, a.name',
+    [organizationId],
+  );
+  const errors: string[] = [];
+  let ok = 0;
+  for (const a of accounts) {
+    if (a.platform === 'google' && isManagerAccountName(a.name)) continue;
+    try {
+      await syncCampaigns(ctx, organizationId, a.platform, a.id);
+      ok += 1;
+    } catch (err) {
+      errors.push(`${a.name}: ${errMsg(err)}`);
+    }
+  }
+  return { accounts: ok, errors, syncedAt: ctx.now() };
 }
 
 const DEFINITIONS: Record<Platform, string> = {

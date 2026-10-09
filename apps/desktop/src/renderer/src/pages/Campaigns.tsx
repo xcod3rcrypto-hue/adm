@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { CheckCircle2, History, Layers, ListTree, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
+import { CheckCircle2, History, Layers, RefreshCw, ListTree, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
 import { CampaignInput, formatCurrency, formatDateTime, type Campaign, type Platform, type PlatformOperation } from '@advertex/shared';
 import { OBJECTIVES, objectiveLabel } from '@advertex/advertising-core';
 import { api } from '../lib/api';
@@ -30,10 +30,34 @@ export function CampaignsPage() {
   const [structureOf, setStructureOf] = useState<Campaign | null>(null);
   const [metaOf, setMetaOf] = useState<{ campaign: Campaign; openId: string | null } | null>(null);
   const [params, setParams] = useSearchParams();
+  const [showRemoved, setShowRemoved] = useState(false);
   const campaigns = useQuery({
     queryKey: ['campaigns', organizationId, platform],
     queryFn: () => api('campaign.list', { organizationId, platform: platform === 'all' ? null : platform }),
   });
+  // Ao vivo: sincroniza as campanhas das contas ao abrir a tela, a cada 2 minutos e ao voltar para a janela.
+  const live = useMutation({
+    mutationFn: () => api('campaign.syncAll', { organizationId }),
+    onSuccess: async (r) => {
+      r.errors.slice(0, 1).forEach((e) => toast.error(e));
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+  });
+  const liveMutate = live.mutate;
+  useEffect(() => {
+    if (org?.isDemo) return;
+    liveMutate();
+    const t = setInterval(() => liveMutate(), 2 * 60_000);
+    const onFocus = () => liveMutate();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [organizationId, org?.isDemo, liveMutate]);
+  const removedCount = (campaigns.data ?? []).filter((c) => c.status === 'removed').length;
+  const visible = (campaigns.data ?? []).filter((c) => showRemoved || c.status !== 'removed');
+
   // Vindo da Fábrica: abre direto o conjunto criado (?meta=<campanha>&conjunto=<id>).
   useEffect(() => {
     const id = params.get('meta');
@@ -82,6 +106,11 @@ export function CampaignsPage() {
                 { value: 'google', label: 'Google Ads' },
               ]}
             />
+            {!org?.isDemo && (
+              <Button variant="outline" icon={<RefreshCw className={`size-4 ${live.isPending ? 'animate-spin' : ''}`} />} onClick={() => live.mutate()} disabled={live.isPending}>
+                {live.isPending ? 'Atualizando…' : live.data ? `Atualizado às ${new Date(live.data.syncedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Atualizar agora'}
+              </Button>
+            )}
             <Button icon={<Plus className="size-4" />} onClick={() => setEditing('new')}>
               Novo rascunho
             </Button>
@@ -109,6 +138,12 @@ export function CampaignsPage() {
           }
         />
       )}
+      {removedCount > 0 && (
+        <label className="mb-3 flex items-center gap-2 text-sm text-muted">
+          <input type="checkbox" checked={showRemoved} onChange={(e) => setShowRemoved(e.target.checked)} />
+          Mostrar campanhas excluídas na plataforma ({removedCount})
+        </label>
+      )}
       {campaigns.data && campaigns.data.length > 0 && (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
@@ -124,7 +159,7 @@ export function CampaignsPage() {
               </tr>
             </thead>
             <tbody>
-              {campaigns.data.map((c) => {
+              {visible.map((c) => {
                 const local = !c.remoteId && (c.syncState === 'local_only' || c.syncState === 'error');
                 return (
                   <tr key={c.id} className="border-t border-border align-top">

@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
 import { BrowserWindow, Menu, app, dialog, net, protocol, safeStorage, session, shell, type IpcMainInvokeEvent } from 'electron';
 import { AnthropicProvider } from '@advertex/ai-core';
-import { Database, defaultIds, resolveAssetFile, runDueAutomations, runDueAutopilots, type AppContext, type SecretCipher } from '@advertex/core';
+import { Database, defaultIds, resolveAssetFile, runDueAutomations, runDueAutopilots, syncAllCampaigns, type AppContext, type SecretCipher } from '@advertex/core';
 import { createFileLogger } from './logger';
 import { registerIpc } from './ipc';
 import { createHandlers, isAllowedExternal } from './handlers';
@@ -147,6 +147,7 @@ async function bootstrap(): Promise<void> {
 
 let automationTimer: NodeJS.Timeout | null = null;
 let automationRunning = false;
+let lastCampaignSync = 0;
 
 /** Avalia regras de automação vencidas a cada 5 minutos enquanto o app está aberto. */
 function startAutomationScheduler(ctx: AppContext): void {
@@ -157,6 +158,15 @@ function startAutomationScheduler(ctx: AppContext): void {
       .then((n) => n > 0 && logger.info('automation.scheduler', { rulesRun: n }))
       // Piloto automático: rotina diária só para quem ligou nas configurações do piloto.
       .then(() => runDueAutopilots({ ...ctx, correlationId: `autopilot-${Date.now()}` }))
+      // Campanhas "ao vivo": criadas, pausadas ou excluídas direto na Meta/Google aparecem aqui.
+      .then(async (n) => {
+        if (Date.now() - lastCampaignSync >= 10 * 60_000) {
+          lastCampaignSync = Date.now();
+          const orgs = ctx.db.all<{ id: string }>('SELECT id FROM organizations WHERE is_demo = 0');
+          for (const o of orgs) await syncAllCampaigns({ ...ctx, correlationId: `campaign-sync-${Date.now()}` }, o.id).catch(() => undefined);
+        }
+        return n;
+      })
       .then((n) => n && n > 0 && logger.info('autopilot.scheduler', { organizations: n }))
       .catch((err: unknown) => logger.error('automation.scheduler.failed', { error: err instanceof Error ? err : String(err) }))
       .finally(() => {

@@ -85,6 +85,21 @@ Em **Configurações → Geração de imagens (Gemini)** cole a chave do Google 
 - As imagens geradas vão para a biblioteca com a tag `#ia-gemini` e podem ser vinculadas a criativos ou enviadas às contas de anúncios.
 - O Nano Banana Pro exige faturamento ativo no projeto do Google; o custo é cobrado pelo Google.
 
+## Cérebro criativo, Piloto automático e Fábrica
+
+**Leituras novas (somente leitura):**
+- Meta: `GET act_{id}/insights?level=ad` (gasto, impressões, cliques, conversões por anúncio no período) e `GET act_{id}/ads` com `creative{title,body,call_to_action_type,image_url,thumbnail_url,object_story_spec,asset_feed_spec}` para o texto e a miniatura do criativo.
+- Google: GAQL em `ad_group_ad` (títulos/descrições do RSA e métricas agregadas no período) e em `search_term_view` (termos de pesquisa reais, últimos 30 dias).
+
+**Escritas do Piloto (somente após aprovação, ou negativas auto-aplicadas se você ligar):**
+- Google: palavra negativa EXATA na campanha (`campaignCriteria:mutate`), palavra-chave EXATA no grupo (`adGroupCriteria:mutate`), pausar anúncio (`adGroupAds:mutate`, `status=PAUSED`).
+- Meta: pausar anúncio (`POST /{ad_id}` com `status=PAUSED`).
+- Orçamento: o mesmo fluxo de "Alterar orçamento" das campanhas, com os limites de publicação.
+
+Cada ação tem chave de idempotência (`autopilot:{id}`): reaplicar não duplica; resultado incerto é verificado na plataforma antes de repetir. O botão de emergência das Automações bloqueia o Piloto. Na organização de demonstração, aplicar é apenas simulado.
+
+**Como o Cérebro decide:** padrões são calculados dentro de cada plataforma; um padrão só aparece com ao menos 2 anúncios de cada lado, 1.000 impressões por lado (CTR) ou 30 cliques por lado (conversão), efeito mínimo de 15% e confiança ≥ 90% — a menor entre o teste z de proporções e o teste t de Welch por anúncio. Associação não é causa: confirme com um experimento.
+
 ## Garantias comuns
 
 - **Leituras:** timeout de 30 s, até 3 retentativas com backoff e jitter (respeitando `Retry-After`), circuit breaker.

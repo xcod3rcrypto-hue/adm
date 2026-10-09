@@ -1,6 +1,6 @@
 import { copyFileSync, writeFileSync } from 'node:fs';
 import { BrowserWindow, app, dialog, shell } from 'electron';
-import { AppError } from '@advertex/shared';
+import { AppError, type PageAnalysis } from '@advertex/shared';
 import * as core from '@advertex/core';
 import type { HandlerMap } from './ipc';
 import type { Updater } from './updater';
@@ -185,13 +185,21 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'search.keywordIdeasAi': ({ organizationId, campaignId, seeds }, ctx) => core.keywordIdeasFromAi(ctx, organizationId, campaignId, seeds),
     'search.adFromPage': async ({ organizationId, campaignId, url, seeds }, ctx) => {
       core.getOrganization(ctx, organizationId);
-      let page;
+      let page: PageAnalysis;
+      let fetchError: string | undefined;
       try {
         page = await core.fetchPublicPage(url);
       } catch (err) {
-        throw new AppError('EXTERNAL_API', `Não foi possível ler a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`, { cause: err });
+        // Links que não abrem (bloqueio, lentidão) não impedem a geração: segue com briefing e sementes.
+        const message = err instanceof Error ? err.message : 'erro desconhecido';
+        if (/privad|reservad|permitid|inválida|Somente|locais|bloqueou|autenticação/i.test(message)) {
+          throw new AppError('EXTERNAL_API', `Não foi possível ler a página: ${message}`, { cause: err });
+        }
+        ctx.logger.warn('Falha ao ler a página do anúncio; gerando sem o conteúdo', { error: message });
+        fetchError = message;
+        page = { url, finalUrl: url, fetchedAt: new Date().toISOString(), status: 0, title: '', description: '', headings: [], textExcerpt: '' };
       }
-      return core.generateSearchAdFromPage(ctx, organizationId, campaignId, page, seeds);
+      return core.generateSearchAdFromPage(ctx, organizationId, campaignId, page, seeds, fetchError);
     },
     'publishing.getLimits': ({ organizationId }, ctx) => core.getPublishingLimits(ctx, organizationId),
     'publishing.saveLimits': ({ organizationId, limits }, ctx) => core.savePublishingLimits(ctx, organizationId, limits),
@@ -211,6 +219,21 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'integration.google.syncCampaigns': ({ organizationId, accountId }, ctx) => core.syncCampaigns(ctx, organizationId, 'google', accountId),
     'integration.google.syncInsights': ({ organizationId, accountId, from, to }, ctx) => core.syncInsights(ctx, organizationId, 'google', accountId, { from, to }),
     'integration.disconnect': ({ organizationId, platform }, ctx) => core.disconnect(ctx, organizationId, platform),
+
+    'brain.report': ({ organizationId, platform, projectId }, ctx) => core.getBrainReport(ctx, organizationId, { platform, projectId }),
+    'brain.sync': ({ organizationId, platform, request }, ctx) => core.syncAdPerformance(ctx, organizationId, platform, request),
+    'brain.tag': ({ organizationId }, ctx) => core.tagCreativesWithAi(ctx, organizationId),
+    'brain.playbook': ({ organizationId }, ctx) => core.generatePlaybook(ctx, organizationId),
+    'brain.setUseLearnings': ({ organizationId, enabled }, ctx) => core.setUseLearnings(ctx, organizationId, enabled),
+    'brain.ads': ({ organizationId, platform }, ctx) => core.listAdPerformance(ctx, organizationId, { platform }),
+
+    'autopilot.overview': ({ organizationId }, ctx) => core.getAutopilotOverview(ctx, organizationId),
+    'autopilot.saveSettings': ({ organizationId, settings }, ctx) => core.saveAutopilotSettings(ctx, organizationId, settings),
+    'autopilot.run': ({ organizationId, sync }, ctx) => core.runAutopilot(ctx, organizationId, { sync }),
+    'autopilot.apply': ({ organizationId, ids }, ctx) => core.applyAutopilotActions(ctx, organizationId, ids),
+    'autopilot.dismiss': ({ organizationId, id }, ctx) => core.dismissAutopilotAction(ctx, organizationId, id),
+
+    'factory.run': ({ organizationId, request }, ctx) => core.runCreativeFactory(ctx, organizationId, request),
 
     'intelligence.get': ({ organizationId }, ctx) => core.getIntelligence(ctx, organizationId),
     'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),

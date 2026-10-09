@@ -119,6 +119,12 @@ export function saveMeta(ctx: AppContext, organizationId: string, input: { acces
   return view(ctx, organizationId, 'meta');
 }
 
+/** Cliente da Meta com as credenciais da organização (leituras e ações pontuais). */
+export function metaAdsClient(ctx: AppContext, organizationId: string): MetaAdsAdapter {
+  assertNotDemo(ctx, organizationId);
+  return metaAdapter(ctx, organizationId).adapter;
+}
+
 function metaAdapter(ctx: AppContext, organizationId: string): { adapter: MetaAdsAdapter; conn: ConnRow } {
   const conn = getConn(ctx, organizationId, 'meta');
   const token = getSecret(ctx, scopes.org(organizationId, 'meta', 'accessToken'));
@@ -294,7 +300,7 @@ export async function syncAccounts(ctx: AppContext, organizationId: string, plat
   return accounts(ctx, organizationId, platform);
 }
 
-function getAccount(ctx: AppContext, organizationId: string, platform: Platform, accountId: string) {
+export function getAccount(ctx: AppContext, organizationId: string, platform: Platform, accountId: string) {
   const a = ctx.db.get<{ id: string; remote_id: string; currency: string | null }>(
     'SELECT id, remote_id, currency FROM advertising_accounts WHERE id = ? AND organization_id = ? AND platform = ?',
     [accountId, organizationId, platform],

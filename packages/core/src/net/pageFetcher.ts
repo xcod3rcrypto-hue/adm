@@ -14,7 +14,9 @@ export interface FetchPageOptions {
   lookup?: (host: string) => Promise<LookupAddress[]>;
 }
 
-const UA = 'ADVERTEX-AI-Studio/0.1 (analise sob demanda de pagina publica)';
+// Muitos sites (Cloudflare, WAFs) seguram ou derrubam conexões de agentes desconhecidos;
+// o identificador de navegador evita o bloqueio e mantém o nome do app no final.
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 ADVERTEX-AI-Studio/0.2';
 
 const defaultResolve = (host: string) =>
   new Promise<LookupAddress[]>((resolve, reject) => dnsLookup(host, { all: true }, (err, addrs) => (err ? reject(err) : resolve(addrs))));
@@ -30,8 +32,10 @@ function safeLookup(resolve: (host: string) => Promise<LookupAddress[]>): Lookup
         if (addrs.length === 0) throw new Error('Host sem endereços.');
         const bad = addrs.find((a) => !isPublicIp(a.address));
         if (bad) throw new Error('O domínio aponta para um endereço privado ou reservado.');
-        const chosen = addrs[0]!;
-        if (options.all) callback(null, addrs);
+        // IPv4 primeiro: em redes sem IPv6 funcional a conexão IPv6 fica pendurada até o tempo esgotar.
+        const ordered = [...addrs].sort((a, b) => a.family - b.family);
+        const chosen = ordered[0]!;
+        if (options.all) callback(null, ordered);
         else callback(null, chosen.address, chosen.family);
       })
       .catch((err: Error) => callback(err as NodeJS.ErrnoException, '', 0));
@@ -52,7 +56,7 @@ function requestOnce(url: URL, opts: Required<Pick<FetchPageOptions, 'timeoutMs'
       {
         method: 'GET',
         lookup: opts.lookup,
-        headers: { 'User-Agent': UA, Accept: 'text/html,application/xhtml+xml', 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.5' },
+        headers: { 'User-Agent': UA, Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.5' },
         timeout: opts.timeoutMs,
       },
       (res) => {
@@ -88,14 +92,17 @@ function requestOnce(url: URL, opts: Required<Pick<FetchPageOptions, 'timeoutMs'
         stream.on('error', reject);
       },
     );
+    // Limite total (conexão + download), além do limite de inatividade do socket.
+    const deadline = setTimeout(() => req.destroy(new Error('Tempo esgotado ao acessar a página.')), opts.timeoutMs + 5_000);
     req.on('timeout', () => req.destroy(new Error('Tempo esgotado ao acessar a página.')));
     req.on('error', reject);
+    req.on('close', () => clearTimeout(deadline));
     req.end();
   });
 }
 
 export async function fetchPublicPage(rawUrl: string, options: FetchPageOptions = {}): Promise<PageAnalysis> {
-  const timeoutMs = options.timeoutMs ?? 10_000;
+  const timeoutMs = options.timeoutMs ?? 20_000;
   const maxBytes = options.maxBytes ?? 2 * 1024 * 1024;
   const maxRedirects = options.maxRedirects ?? 5;
   const lookup = safeLookup(options.lookup ?? defaultResolve);

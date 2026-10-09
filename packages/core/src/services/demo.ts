@@ -2,6 +2,7 @@ import type { Organization } from '@advertex/shared';
 import { isoDay } from '@advertex/shared';
 import type { AppContext } from '../context';
 import { recordAudit } from './audit';
+import { seedDemoBrain } from './demoBrain';
 import { createOrganization, getOrganization, setActiveOrganization } from './organizations';
 import { setSetting, getSetting } from './settings';
 
@@ -98,8 +99,10 @@ export function enableDemo(ctx: AppContext, today: Date = new Date()): Organizat
       { platform: 'google', name: 'Demo · Performance Max', objective: 'PERFORMANCE_MAX', budget: 150, project: 0, base: 0.9, pattern: null },
     ] as const;
 
+    const campaignIds: string[] = [];
     for (const c of campaigns) {
       const campaignId = ctx.newId();
+      campaignIds.push(campaignId);
       ctx.db.run(
         `INSERT INTO campaigns (id, organization_id, project_id, platform, name, objective, status, daily_budget, currency, notes, sync_state, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, 'active', ?, 'BRL', ?, 'local_only', ?, ?)`,
@@ -139,6 +142,8 @@ export function enableDemo(ctx: AppContext, today: Date = new Date()): Organizat
         );
       }
     }
+
+    seedDemoBrain(ctx, org.id, { metaProspect: campaignIds[0]!, metaRemarketing: campaignIds[1]!, googleSearch: campaignIds[3]! }, rand, today);
 
     const creatives: Array<[string, string, string, string]> = [
       ['Demo · Texto principal — origem', 'meta_primary_text', 'meta', 'Do pé de café à sua xícara em 7 dias. Torra semanal e frete grátis na primeira compra.'],

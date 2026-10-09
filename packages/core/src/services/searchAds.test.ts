@@ -160,6 +160,13 @@ describe('Rede de Pesquisa', () => {
     expect(d.keywords[0]).toMatchObject({ avgMonthlySearches: 12100, suggestedMatchType: 'EXACT' });
     expect(d.notes.join(' ')).toMatch(/1 texto\(s\) acima do limite/);
 
+    // Página que não abre: gera mesmo assim a partir do link, briefing e sementes, avisando nas notas.
+    const empty: PageAnalysis = { ...page, status: 0, title: '', description: '' };
+    const fallback = await generateSearchAdFromPage(ctx, org.id, campaign.id, empty, ['internet rural'], 'Tempo esgotado ao acessar a página.');
+    expect(fallback.headlines.length).toBeGreaterThanOrEqual(3);
+    expect(fallback.notes[0]).toMatch(/não pôde ser lida/);
+    expect(generateStructured.mock.calls.at(-1)?.[0].prompt).toContain('Não foi possível ler o conteúdo');
+
     const ai = await keywordIdeasFromAi(ctx, org.id, campaign.id, ['starlink']);
     expect(ai).toMatchObject({ source: 'ai', negatives: ['grátis'] });
     expect(ai.ideas[0]).toMatchObject({ text: 'antena starlink', suggestedMatchType: 'PHRASE' });

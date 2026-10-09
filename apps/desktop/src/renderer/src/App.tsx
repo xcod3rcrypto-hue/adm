@@ -13,6 +13,9 @@ import { CreativesPage } from './pages/Creatives';
 import { CampaignsPage } from './pages/Campaigns';
 import { IntegrationsPage } from './pages/Integrations';
 import { SettingsPage } from './pages/Settings';
+import { CreativeBrainPage } from './pages/CreativeBrain';
+import { AutopilotPage } from './pages/Autopilot';
+import { FactoryPage } from './pages/Factory';
 import { IntelligencePage } from './pages/Intelligence';
 import { ExperimentsPage } from './pages/Experiments';
 import { AutomationsPage } from './pages/Automations';
@@ -50,6 +53,9 @@ export function App() {
         <Route path="/estudio" element={<StudioPage />} />
         <Route path="/criativos" element={<CreativesPage />} />
         <Route path="/campanhas" element={<CampaignsPage />} />
+        <Route path="/cerebro" element={<CreativeBrainPage />} />
+        <Route path="/piloto" element={<AutopilotPage />} />
+        <Route path="/fabrica" element={<FactoryPage />} />
         <Route path="/inteligencia" element={<IntelligencePage />} />
         <Route path="/experimentos" element={<ExperimentsPage />} />
         <Route path="/automacoes" element={<AutomationsPage />} />

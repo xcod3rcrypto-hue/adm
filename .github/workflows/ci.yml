@@ -77,14 +77,19 @@ jobs:
       - name: Definir versão da release (0.2.<número da execução>)
         shell: bash
         run: npm version "0.2.${{ github.run_number }}" --no-git-tag-version --allow-same-version
-      - name: Criar a tag da versão (a Release publicada precisa de uma tag existente)
-        shell: bash
-        run: |
-          TAG="v0.2.${{ github.run_number }}"
-          git tag "$TAG" "$GITHUB_SHA"
-          git push origin "$TAG"
       - run: npm run build
-      - name: Gerar instalador e publicar na Release (usada pela atualização automática)
-        run: npx electron-builder --win --x64 --publish always
+      - name: Gerar instalador e arquivos de atualização (latest.yml)
+        run: npx electron-builder --win --x64 --publish never
+      - name: Publicar a Release com instalador e latest.yml (uma única Release)
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="0.2.${{ github.run_number }}"
+          ls -la release
+          gh release create "v$VERSION" \
+            "release/ADVERTEX-AI-Studio-Setup-$VERSION.exe" \
+            "release/ADVERTEX-AI-Studio-Setup-$VERSION.exe.blockmap" \
+            release/latest.yml \
+            --target "$GITHUB_SHA" --title "$VERSION" --latest \
+            --notes "Atualização automática do ADVERTEX AI Studio $VERSION. Para instalar manualmente, baixe o arquivo .exe abaixo."

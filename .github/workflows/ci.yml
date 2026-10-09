@@ -77,6 +77,12 @@ jobs:
       - name: Definir versão da release (0.2.<número da execução>)
         shell: bash
         run: npm version "0.2.${{ github.run_number }}" --no-git-tag-version --allow-same-version
+      - name: Criar a tag da versão (a Release publicada precisa de uma tag existente)
+        shell: bash
+        run: |
+          TAG="v0.2.${{ github.run_number }}"
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "$TAG"
       - run: npm run build
       - name: Gerar instalador e publicar na Release (usada pela atualização automática)
         run: npx electron-builder --win --x64 --publish always

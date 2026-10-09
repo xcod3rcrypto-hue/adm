@@ -877,3 +877,135 @@ export interface UpdateState {
   error: string | null;
   checkedAt: string | null;
 }
+
+// ---------------------------------------------------------------------------
+// Rede de Pesquisa: palavras-chave, grupos de anúncios e anúncios responsivos
+// ---------------------------------------------------------------------------
+
+export const KeywordMatchType = z.enum(['BROAD', 'PHRASE', 'EXACT']);
+export type KeywordMatchType = z.infer<typeof KeywordMatchType>;
+
+/** Texto de palavra-chave aceito pelo Google (até 80 caracteres e 10 palavras). */
+const keywordText = z
+  .string()
+  .trim()
+  .min(1, 'Palavra-chave vazia')
+  .max(80, 'Máximo de 80 caracteres por palavra-chave')
+  .refine((t) => t.split(/\s+/).length <= 10, 'Máximo de 10 palavras por palavra-chave')
+  .refine((t) => !/[!@%,*=]/.test(t), 'Remova símbolos como ! @ % , * =');
+
+export const KeywordInput = z.object({ text: keywordText, matchType: KeywordMatchType.default('PHRASE') });
+export type KeywordInput = z.input<typeof KeywordInput>;
+
+export const KeywordIdeasRequest = z.object({
+  seeds: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
+  url: z.union([z.literal(''), z.url({ protocol: /^https?$/ })]).default(''),
+  language: z.enum(['pt', 'en', 'es']).default('pt'),
+  location: z.enum(['BR', 'PT', 'US']).default('BR'),
+});
+export type KeywordIdeasRequest = z.input<typeof KeywordIdeasRequest>;
+
+export interface KeywordIdea {
+  text: string;
+  source: 'google' | 'ai';
+  avgMonthlySearches: number | null;
+  competition: 'LOW' | 'MEDIUM' | 'HIGH' | null;
+  lowBid: number | null;
+  highBid: number | null;
+  suggestedMatchType: KeywordMatchType | null;
+  note: string | null;
+}
+
+export interface KeywordIdeasResult {
+  ideas: KeywordIdea[];
+  negatives: string[];
+  source: 'google' | 'ai';
+  notes: string[];
+}
+
+const uniqueTexts = (list: string[]) => new Set(list.map((t) => t.trim().toLowerCase())).size === list.length;
+
+export const ResponsiveSearchAdInput = z
+  .object({
+    finalUrl: z.url({ protocol: /^https?$/, error: 'Informe a URL da página de destino (http/https)' }).max(2048),
+    path1: z.string().trim().max(15, 'Caminho 1: até 15 caracteres').regex(/^[^\s/]*$/, 'Caminho sem espaços ou barras').default(''),
+    path2: z.string().trim().max(15, 'Caminho 2: até 15 caracteres').regex(/^[^\s/]*$/, 'Caminho sem espaços ou barras').default(''),
+    headlines: z.array(z.string().trim().min(1).max(60)).min(3, 'Inclua ao menos 3 títulos').max(15, 'Máximo de 15 títulos'),
+    descriptions: z.array(z.string().trim().min(1).max(180)).min(2, 'Inclua ao menos 2 descrições').max(4, 'Máximo de 4 descrições'),
+  })
+  .refine((a) => uniqueTexts(a.headlines), { message: 'Os títulos precisam ser diferentes entre si', path: ['headlines'] })
+  .refine((a) => uniqueTexts(a.descriptions), { message: 'As descrições precisam ser diferentes entre si', path: ['descriptions'] })
+  .refine((a) => !a.path2 || !!a.path1, { message: 'Preencha o caminho 1 antes do caminho 2', path: ['path2'] });
+export type ResponsiveSearchAdInput = z.input<typeof ResponsiveSearchAdInput>;
+
+export const SearchAdGroupInput = z.object({
+  name: text(255).min(2, 'Nomeie o grupo de anúncios'),
+  /** Lance máximo de CPC (na moeda da conta). Vazio = padrão do Google. */
+  cpcBid: z.number().positive().max(10_000).nullable().default(null),
+  keywords: z.array(KeywordInput).min(1, 'Adicione ao menos uma palavra-chave').max(200),
+  negativeKeywords: z.array(keywordText).max(200).default([]),
+  ad: ResponsiveSearchAdInput,
+});
+export type SearchAdGroupInput = z.input<typeof SearchAdGroupInput>;
+
+export interface SearchAdGroup {
+  id: string;
+  campaignId: string;
+  name: string;
+  remoteId: string | null;
+  cpcBid: number | null;
+  keywords: Array<{ text: string; matchType: KeywordMatchType }>;
+  negativeKeywords: string[];
+  ad: { finalUrl: string; path1: string; path2: string; headlines: string[]; descriptions: string[]; remoteId: string | null };
+  steps: { adGroup: boolean; keywords: boolean; negatives: boolean; ad: boolean };
+  syncState: SyncState;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Rascunho completo de anúncio de Pesquisa gerado a partir da página de destino. */
+export interface SearchAdDraft {
+  finalUrl: string;
+  path1: string;
+  path2: string;
+  headlines: string[];
+  descriptions: string[];
+  keywords: KeywordIdea[];
+  negatives: string[];
+  strategy: string;
+  notes: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Geração de imagens (Gemini / Nano Banana)
+// ---------------------------------------------------------------------------
+
+export interface ImageAiConfigView {
+  model: string;
+  hasApiKey: boolean;
+  secureStorageAvailable: boolean;
+  models: Array<{ id: string; label: string }>;
+}
+
+export const ImageAspectRatio = z.enum(['1:1', '4:5', '9:16', '16:9', '3:4', '4:3']);
+export type ImageAspectRatio = z.infer<typeof ImageAspectRatio>;
+
+export const ImageGenerationRequest = z.object({
+  projectId: Id.nullable().default(null),
+  description: text(2000).min(10, 'Descreva a imagem (ao menos 10 caracteres)'),
+  aspectRatio: ImageAspectRatio.default('1:1'),
+  imageSize: z.enum(['1K', '2K', '4K']).default('2K'),
+  count: z.number().int().min(1).max(4).default(1),
+  useBrief: z.boolean().default(true),
+  withText: z.boolean().default(false),
+  referenceAssetIds: z.array(Id).max(3).default([]),
+});
+export type ImageGenerationRequest = z.input<typeof ImageGenerationRequest>;
+
+export interface ImageGenerationResult {
+  model: string;
+  assets: Asset[];
+  failed: number;
+  notes: string[];
+}

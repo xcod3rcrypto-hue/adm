@@ -215,7 +215,11 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     }));
   }
 
-  private async mutate(customerId: string, resource: 'campaigns' | 'campaignBudgets' | 'assets', operations: unknown[]): Promise<string[]> {
+  private async mutate(
+    customerId: string,
+    resource: 'campaigns' | 'campaignBudgets' | 'assets' | 'adGroups' | 'adGroupCriteria' | 'campaignCriteria' | 'adGroupAds',
+    operations: unknown[],
+  ): Promise<string[]> {
     assertCustomerId(customerId);
     const r = await this.request<{ results?: Array<{ resourceName?: string }> }>('POST', `customers/${customerId}/${resource}:mutate`, { operations }, true);
     return (r.results ?? []).map((x) => x.resourceName ?? '');
@@ -297,6 +301,141 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     const [rn] = await this.mutate(customerId, 'assets', [{ create: { name: fileName.slice(0, 120), type: 'IMAGE', imageAsset: { data: Buffer.from(data).toString('base64') } } }]);
     if (!rn) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o ativo criado.', false);
     return { remoteId: rn };
+  }
+
+  // -------------------------------------------------------------------------
+  // Rede de Pesquisa: ideias de palavras-chave, grupos, palavras e anúncios
+  // -------------------------------------------------------------------------
+
+  /** Planejador de palavras-chave (KeywordPlanIdeaService). Leitura: pode repetir. */
+  async generateKeywordIdeas(
+    customerId: string,
+    req: { seeds: string[]; url: string; languageId: string; geoTargetId: string; limit?: number },
+  ): Promise<Array<{ text: string; avgMonthlySearches: number | null; competition: 'LOW' | 'MEDIUM' | 'HIGH' | null; lowBidMicros: number | null; highBidMicros: number | null }>> {
+    assertCustomerId(customerId);
+    if (req.seeds.length === 0 && !req.url) throw new Error('Informe palavras-semente ou uma URL.');
+    const seed =
+      req.seeds.length > 0 && req.url
+        ? { keywordAndUrlSeed: { url: req.url, keywords: req.seeds } }
+        : req.seeds.length > 0
+          ? { keywordSeed: { keywords: req.seeds } }
+          : { urlSeed: { url: req.url } };
+    const r = await this.request<{
+      results?: Array<{ text?: string; keywordIdeaMetrics?: { avgMonthlySearches?: string; competition?: string; lowTopOfPageBidMicros?: string; highTopOfPageBidMicros?: string } }>;
+    }>('POST', `customers/${customerId}:generateKeywordIdeas`, {
+      language: `languageConstants/${req.languageId}`,
+      geoTargetConstants: [`geoTargetConstants/${req.geoTargetId}`],
+      keywordPlanNetwork: 'GOOGLE_SEARCH',
+      includeAdultKeywords: false,
+      pageSize: Math.min(req.limit ?? 50, 200),
+      ...seed,
+    });
+    const num = (v: string | undefined) => (v === undefined || v === '' ? null : Number(v));
+    const comp = (v: string | undefined) => (v === 'LOW' || v === 'MEDIUM' || v === 'HIGH' ? v : null);
+    return (r.results ?? [])
+      .filter((x) => x.text)
+      .map((x) => ({
+        text: x.text!,
+        avgMonthlySearches: num(x.keywordIdeaMetrics?.avgMonthlySearches),
+        competition: comp(x.keywordIdeaMetrics?.competition),
+        lowBidMicros: num(x.keywordIdeaMetrics?.lowTopOfPageBidMicros),
+        highBidMicros: num(x.keywordIdeaMetrics?.highTopOfPageBidMicros),
+      }));
+  }
+
+  async findAdGroupByName(customerId: string, campaignRemoteId: string, name: string): Promise<string | null> {
+    assertNumericCampaign(campaignRemoteId);
+    const escaped = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const rows = await this.search<{ adGroup: { id: string; name: string } }>(
+      customerId,
+      `SELECT ad_group.id, ad_group.name FROM ad_group WHERE campaign.id = ${campaignRemoteId} AND ad_group.name = '${escaped}' AND ad_group.status != 'REMOVED'`,
+    );
+    return rows.find((r) => r.adGroup.name === name)?.adGroup.id ?? null;
+  }
+
+  async createAdGroup(customerId: string, campaignRemoteId: string, spec: { name: string; cpcBid: number | null }): Promise<{ remoteId: string }> {
+    assertNumericCampaign(campaignRemoteId);
+    const [rn] = await withStep('ao criar o grupo de anúncios', () =>
+      this.mutate(customerId, 'adGroups', [
+        {
+          create: {
+            name: spec.name,
+            campaign: `customers/${customerId}/campaigns/${campaignRemoteId}`,
+            status: 'ENABLED',
+            type: 'SEARCH_STANDARD',
+            ...(spec.cpcBid ? { cpcBidMicros: String(Math.round(spec.cpcBid * 1_000_000)) } : {}),
+          },
+        },
+      ]),
+    );
+    const id = rn?.split('/').pop();
+    if (!id) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o grupo de anúncios criado.', false);
+    return { remoteId: id };
+  }
+
+  async addKeywords(customerId: string, adGroupRemoteId: string, keywords: Array<{ text: string; matchType: 'BROAD' | 'PHRASE' | 'EXACT' }>): Promise<number> {
+    assertNumericCampaign(adGroupRemoteId);
+    const out = await withStep('ao adicionar palavras-chave', () =>
+      this.mutate(
+        customerId,
+        'adGroupCriteria',
+        keywords.map((k) => ({ create: { adGroup: `customers/${customerId}/adGroups/${adGroupRemoteId}`, status: 'ENABLED', keyword: { text: k.text, matchType: k.matchType } } })),
+      ),
+    );
+    return out.length;
+  }
+
+  async addNegativeKeywords(customerId: string, campaignRemoteId: string, texts: string[]): Promise<number> {
+    assertNumericCampaign(campaignRemoteId);
+    if (texts.length === 0) return 0;
+    const out = await withStep('ao adicionar palavras negativas', () =>
+      this.mutate(
+        customerId,
+        'campaignCriteria',
+        texts.map((t) => ({ create: { campaign: `customers/${customerId}/campaigns/${campaignRemoteId}`, negative: true, keyword: { text: t, matchType: 'PHRASE' } } })),
+      ),
+    );
+    return out.length;
+  }
+
+  /** Quantidade de anúncios ativos/pausados no grupo (verificação antes de repetir a criação). */
+  async countAds(customerId: string, adGroupRemoteId: string): Promise<{ count: number; firstId: string | null }> {
+    assertNumericCampaign(adGroupRemoteId);
+    const rows = await this.search<{ adGroupAd: { ad: { id: string } } }>(
+      customerId,
+      `SELECT ad_group_ad.ad.id FROM ad_group_ad WHERE ad_group.id = ${adGroupRemoteId} AND ad_group_ad.status != 'REMOVED'`,
+    );
+    return { count: rows.length, firstId: rows[0]?.adGroupAd.ad.id ?? null };
+  }
+
+  async createResponsiveSearchAd(
+    customerId: string,
+    adGroupRemoteId: string,
+    ad: { finalUrl: string; path1: string; path2: string; headlines: string[]; descriptions: string[] },
+  ): Promise<{ remoteId: string }> {
+    assertNumericCampaign(adGroupRemoteId);
+    const [rn] = await withStep('ao criar o anúncio responsivo', () =>
+      this.mutate(customerId, 'adGroupAds', [
+        {
+          create: {
+            adGroup: `customers/${customerId}/adGroups/${adGroupRemoteId}`,
+            status: 'ENABLED',
+            ad: {
+              finalUrls: [ad.finalUrl],
+              responsiveSearchAd: {
+                headlines: ad.headlines.map((text) => ({ text })),
+                descriptions: ad.descriptions.map((text) => ({ text })),
+                ...(ad.path1 ? { path1: ad.path1 } : {}),
+                ...(ad.path2 ? { path2: ad.path2 } : {}),
+              },
+            },
+          },
+        },
+      ]),
+    );
+    const id = rn?.split('~').pop();
+    if (!id) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o anúncio criado.', false);
+    return { remoteId: id };
   }
 }
 

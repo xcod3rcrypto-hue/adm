@@ -77,6 +77,17 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Status: Aprovado.')).toBeVisible();
     await page.screenshot({ path: join(shots, '04-criativos.png') });
 
+    // Geração de imagem com Gemini: sem chave, o botão orienta a configurar
+    await page.getByRole('tab', { name: 'Imagens e vídeos' }).click();
+    await page.getByRole('button', { name: 'Gerar imagem com IA' }).click();
+    const genDialog = page.getByRole('dialog');
+    await expect(genDialog.getByText('Configure a chave da API do Gemini para gerar imagens.')).toBeVisible();
+    await genDialog.getByLabel('Descreva a imagem').fill('Foto realista de uma antena no telhado ao pôr do sol');
+    await expect(genDialog.getByRole('button', { name: 'Gerar imagem', exact: true })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '04a-gerar-imagem.png') });
+    await genDialog.getByRole('button', { name: 'Fechar', exact: true }).last().click();
+    await page.getByRole('tab', { name: 'Textos' }).click();
+
     // Rascunho de campanha
     await page.getByRole('link', { name: 'Campanhas' }).click();
     await page.getByRole('button', { name: 'Novo rascunho' }).first().click();
@@ -95,6 +106,34 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('button', { name: 'Publicar pausada' })).toBeDisabled();
     await page.screenshot({ path: join(shots, '05a-publicar.png') });
     await page.getByRole('dialog').getByRole('button', { name: 'Cancelar' }).click();
+
+    // Rede de Pesquisa: grupo de anúncios com palavras-chave e anúncio responsivo (rascunho local)
+    await page.getByRole('button', { name: 'Novo rascunho' }).first().click();
+    await page.locator('#cp-name').fill('Pesquisa — Fotografia');
+    await page.locator('#cp-platform').selectOption('google');
+    await page.locator('#cp-obj').selectOption('SEARCH');
+    await page.getByLabel('Orçamento diário').fill('40');
+    await page.getByRole('button', { name: 'Salvar rascunho' }).click();
+    await expect(page.getByText('Rascunho salvo localmente.').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Anúncios e palavras-chave' }).click();
+    await page.getByRole('button', { name: 'Novo grupo de anúncios' }).click();
+    await page.getByLabel('Página de destino (URL final)').fill('https://exemplo.com.br/curso');
+    await page.getByLabel('Nova palavra-chave').fill('curso de fotografia online');
+    await page.getByRole('button', { name: 'Adicionar', exact: true }).click();
+    await expect(page.getByRole('cell', { name: '"curso de fotografia online"' })).toBeVisible();
+    await page.getByLabel('Título 1', { exact: true }).fill('Curso de Fotografia Online');
+    await page.getByLabel('Título 2', { exact: true }).fill('Aprenda do Zero');
+    await page.getByLabel('Título 3', { exact: true }).fill('Este título passa do limite de 30');
+    await expect(page.getByText('33/30')).toBeVisible();
+    await page.getByLabel('Título 3', { exact: true }).fill('Matrículas Abertas');
+    await page.getByLabel('Descrição 1').fill('Aulas práticas para iniciantes. Garanta sua vaga hoje.');
+    await page.getByLabel('Descrição 2').fill('Aprenda no seu ritmo, com suporte. Inscreva-se agora.');
+    await expect(page.getByLabel('Prévia do anúncio')).toContainText('Curso de Fotografia Online | Aprenda do Zero | Matrículas Abertas');
+    await page.screenshot({ path: join(shots, '05e-grupo-anuncios.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Salvar grupo' }).click();
+    await expect(page.getByText('Grupo de anúncios salvo.')).toBeVisible();
+    await expect(page.getByRole('dialog').getByText('Rascunho local', { exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
 
     // Experimento A/B com teste estatístico
     await page.getByRole('link', { name: 'Experimentos' }).click();
@@ -147,7 +186,8 @@ test.describe.serial('ADVERTEX AI Studio', () => {
 
     // Configurações e auditoria
     await page.getByRole('link', { name: 'Configurações' }).click();
-    await expect(page.getByText('Sem chave')).toBeVisible();
+    await expect(page.getByText('Sem chave')).toHaveCount(2);
+    await expect(page.getByText('Geração de imagens (Gemini)')).toBeVisible();
     await expect(page.getByText('(desenvolvimento)').or(page.getByText('(instalado)'))).toBeVisible();
     await expect(page.getByText('project.create')).toBeVisible();
     await expect(page.getByText('Atualização automática disponível apenas no app instalado.')).toBeVisible();

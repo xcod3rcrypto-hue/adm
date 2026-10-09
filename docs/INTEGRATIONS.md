@@ -68,6 +68,23 @@ GAQL via `customers/{id}/googleAds:search` (paginado): contas acessíveis, campa
 
 Os modelos de campanha do Google e da Meta **não são equivalentes**: o app guarda o objetivo/tipo de cada plataforma sem tentar convertê-los.
 
+## Rede de Pesquisa do Google (palavras-chave e anúncios)
+
+Em **Campanhas → Anúncios e palavras-chave** (campanhas Google de Pesquisa) você monta grupos de anúncios com palavras-chave (ampla, frase, exata), negativas e anúncio responsivo (3–15 títulos de até 30 caracteres, 2–4 descrições de até 90).
+
+- **Gerar a partir do link**: o app lê a página pública (com proteção contra SSRF) e a IA propõe 15 títulos, 4 descrições, caminhos e 20–40 palavras-chave; textos acima do limite são descartados.
+- **Ideias de palavras-chave**: pelo Planejador do Google Ads (`generateKeywordIdeas`, com volume e concorrência) ou pela IA.
+- **Envio**: cria grupo, palavras-chave, negativas e anúncio em etapas idempotentes; se uma etapa falhar, o reenvio continua de onde parou. Tudo é criado pausado.
+
+## Geração de imagens (Gemini — Nano Banana Pro)
+
+Em **Configurações → Geração de imagens (Gemini)** cole a chave do Google AI Studio (https://aistudio.google.com/apikey). A chave fica cifrada pelo armazenamento seguro do Windows e é enviada somente no cabeçalho `x-goog-api-key`.
+
+- Modelos: `gemini-3-pro-image-preview` (Nano Banana Pro, padrão, até 4K e texto legível) e `gemini-2.5-flash-image` (mais rápido e barato).
+- Em **Criativos → Imagens e vídeos → Gerar imagem com IA**: descrição, formato (1:1, 4:5, 9:16, 16:9…), resolução, até 4 variações, briefing do projeto e até 3 imagens de referência da biblioteca.
+- As imagens geradas vão para a biblioteca com a tag `#ia-gemini` e podem ser vinculadas a criativos ou enviadas às contas de anúncios.
+- O Nano Banana Pro exige faturamento ativo no projeto do Google; o custo é cobrado pelo Google.
+
 ## Garantias comuns
 
 - **Leituras:** timeout de 30 s, até 3 retentativas com backoff e jitter (respeitando `Retry-After`), circuit breaker.

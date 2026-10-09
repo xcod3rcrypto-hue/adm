@@ -1009,3 +1009,188 @@ export interface ImageGenerationResult {
   failed: number;
   notes: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Cérebro criativo: desempenho por anúncio, características e padrões
+// ---------------------------------------------------------------------------
+
+/** Ângulos/emoções/tons que a IA atribui a cada anúncio (valores fechados para permitir estatística). */
+export const CREATIVE_AI_FEATURES = {
+  angulo: ['beneficio', 'dor', 'curiosidade', 'prova_social', 'oferta', 'autoridade', 'urgencia', 'comparacao', 'novidade', 'identificacao'],
+  emocao: ['confianca', 'alivio', 'desejo', 'medo', 'alegria', 'curiosidade', 'orgulho', 'neutra'],
+  tom: ['direto', 'emocional', 'tecnico', 'divertido', 'inspirador', 'informativo'],
+  gancho: ['pergunta', 'afirmacao_ousada', 'numero_dado', 'historia', 'comando', 'problema', 'beneficio_direto'],
+} as const;
+export type CreativeAiFeature = keyof typeof CREATIVE_AI_FEATURES;
+
+export interface AdPerformance {
+  id: string;
+  platform: Platform;
+  accountName: string | null;
+  campaignId: string | null;
+  campaignName: string | null;
+  projectId: string | null;
+  remoteAdId: string;
+  adName: string;
+  status: string;
+  headline: string;
+  body: string;
+  cta: string;
+  imageUrl: string | null;
+  periodFrom: string;
+  periodTo: string;
+  currency: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  revenue: number | null;
+  ctr: number | null;
+  cpa: number | null;
+  conversionRate: number | null;
+  features: Record<string, string>;
+  aiTagged: boolean;
+  source: 'demo' | 'meta' | 'google';
+}
+
+export interface CreativePattern {
+  /** Padrões são calculados dentro de cada plataforma (CTR de Pesquisa e de feed não são comparáveis). */
+  platform: Platform | null;
+  feature: string;
+  featureLabel: string;
+  value: string;
+  valueLabel: string;
+  metric: 'ctr' | 'cvr';
+  direction: 'positive' | 'negative';
+  ads: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  spend: number;
+  rate: number;
+  baselineRate: number;
+  /** Variação relativa vs. os demais anúncios (0,5 = +50%). */
+  lift: number;
+  /** 1 − p-valor bicaudal. */
+  confidence: number;
+  sentence: string;
+}
+
+export interface CreativeBrainReport {
+  periodFrom: string | null;
+  periodTo: string | null;
+  totals: { ads: number; impressions: number; clicks: number; conversions: number; spend: number; ctr: number | null; conversionRate: number | null };
+  analyzedAds: number;
+  pendingAiTagging: number;
+  patterns: CreativePattern[];
+  winners: AdPerformance[];
+  losers: AdPerformance[];
+  playbook: { rules: string[]; summary: string; model: string; createdAt: string } | null;
+  useLearnings: boolean;
+  limitations: string[];
+}
+
+export const BrainSyncRequest = z.object({
+  accountId: Id,
+  days: z.union([z.literal(30), z.literal(90), z.literal(180)]).default(90),
+});
+export type BrainSyncRequest = z.input<typeof BrainSyncRequest>;
+
+// ---------------------------------------------------------------------------
+// Piloto automático
+// ---------------------------------------------------------------------------
+
+export const AutopilotActionKind = z.enum(['add_negative', 'add_keyword', 'pause_ad', 'increase_budget', 'decrease_budget']);
+export type AutopilotActionKind = z.infer<typeof AutopilotActionKind>;
+export type AutopilotActionStatus = 'proposed' | 'applied' | 'failed' | 'dismissed';
+
+export interface AutopilotAction {
+  id: string;
+  kind: AutopilotActionKind;
+  platform: Platform;
+  campaignId: string | null;
+  campaignName: string | null;
+  title: string;
+  rationale: string;
+  evidence: string[];
+  impact: string;
+  confidence: number;
+  target: Record<string, string | number | null>;
+  status: AutopilotActionStatus;
+  auto: boolean;
+  error: string | null;
+  createdAt: string;
+  appliedAt: string | null;
+}
+
+export const AutopilotSettings = z.object({
+  targetCpa: z.number().positive().max(1_000_000).nullable().default(null),
+  minClicksNegative: z.number().int().min(3).max(1000).default(12),
+  minConversionsKeyword: z.number().min(1).max(1000).default(2),
+  budgetStepPct: z.number().int().min(5).max(50).default(20),
+  autoRunDaily: z.boolean().default(false),
+  autoApplyNegatives: z.boolean().default(false),
+  aiRelevance: z.boolean().default(true),
+});
+export type AutopilotSettings = z.infer<typeof AutopilotSettings>;
+
+export interface SearchTermRow {
+  id: string;
+  campaignId: string | null;
+  campaignName: string | null;
+  term: string;
+  status: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  cpa: number | null;
+  currency: string;
+}
+
+export interface AutopilotOverview {
+  settings: AutopilotSettings;
+  lastRunAt: string | null;
+  lastRunSummary: string | null;
+  killSwitch: boolean;
+  proposed: AutopilotAction[];
+  history: AutopilotAction[];
+  searchTerms: { wasteful: SearchTermRow[]; converting: SearchTermRow[]; total: number; periodFrom: string | null; periodTo: string | null };
+  savingsEstimate: number;
+  currency: string;
+}
+
+export interface AutopilotRunResult {
+  synced: string[];
+  proposed: number;
+  autoApplied: number;
+  notes: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Fábrica de criativos
+// ---------------------------------------------------------------------------
+
+export const FactoryRequest = z.object({
+  projectId: Id,
+  kind: z.enum(['meta_primary_text', 'google_rsa_description', 'generic']).default('meta_primary_text'),
+  funnelStage: FunnelStage.default('conversion'),
+  angles: z.number().int().min(2).max(8).default(5),
+  formats: z.array(z.enum(['1:1', '4:5', '9:16', '16:9'])).max(4).default(['1:1']),
+  withImages: z.boolean().default(true),
+  imageSize: z.enum(['1K', '2K']).default('2K'),
+  /** Anúncio vencedor (do Cérebro) a multiplicar em variações. */
+  winnerAdId: Id.nullable().default(null),
+  instructions: text(1000).default(''),
+  createExperiment: z.boolean().default(true),
+});
+export type FactoryRequest = z.input<typeof FactoryRequest>;
+
+export interface FactoryResult {
+  creatives: Creative[];
+  assets: Asset[];
+  experimentId: string | null;
+  failedImages: number;
+  notes: string[];
+  model: string;
+}

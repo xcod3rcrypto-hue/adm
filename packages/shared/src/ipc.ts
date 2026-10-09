@@ -33,6 +33,14 @@ import {
   type ImageGenerationResult,
   ImageGenerationRequest,
   type SearchAdDraft,
+  type CreativeBrainReport,
+  type AdPerformance,
+  BrainSyncRequest,
+  type AutopilotOverview,
+  type AutopilotRunResult,
+  AutopilotSettings,
+  type FactoryResult,
+  FactoryRequest,
   type KeywordIdeasResult,
   KeywordIdeasRequest,
   SearchAdGroupInput,
@@ -195,6 +203,21 @@ export const ipcInputs = {
   'integration.google.syncInsights': z.object({ ...org, accountId: Id, from: isoDate, to: isoDate }),
   'integration.disconnect': z.object({ ...org, platform: Platform }),
 
+  'brain.report': z.object({ ...org, platform: Platform.nullable().default(null), projectId: Id.nullable().default(null) }),
+  'brain.sync': z.object({ ...org, platform: Platform, request: BrainSyncRequest }),
+  'brain.tag': z.object(org),
+  'brain.playbook': z.object(org),
+  'brain.setUseLearnings': z.object({ ...org, enabled: z.boolean() }),
+  'brain.ads': z.object({ ...org, platform: Platform.nullable().default(null) }),
+
+  'autopilot.overview': z.object(org),
+  'autopilot.saveSettings': z.object({ ...org, settings: AutopilotSettings }),
+  'autopilot.run': z.object({ ...org, sync: z.boolean().default(true) }),
+  'autopilot.apply': z.object({ ...org, ids: z.array(Id).min(1).max(100), confirm: z.literal(true) }),
+  'autopilot.dismiss': z.object({ ...org, id: Id }),
+
+  'factory.run': z.object({ ...org, request: FactoryRequest }),
+
   'intelligence.get': z.object(org),
   'intelligence.run': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
   'recommendation.setStatus': z.object({ ...org, id: Id, status: RecommendationStatus }),
@@ -338,6 +361,18 @@ export interface ChannelOutputs {
   'integration.google.syncCampaigns': SyncResult;
   'integration.google.syncInsights': SyncResult;
   'integration.disconnect': IntegrationView;
+  'brain.report': CreativeBrainReport;
+  'brain.sync': { imported: number; message: string };
+  'brain.tag': { tagged: number; remaining: number; model: string | null };
+  'brain.playbook': CreativeBrainReport;
+  'brain.setUseLearnings': CreativeBrainReport;
+  'brain.ads': AdPerformance[];
+  'autopilot.overview': AutopilotOverview;
+  'autopilot.saveSettings': AutopilotOverview;
+  'autopilot.run': AutopilotRunResult;
+  'autopilot.apply': { applied: number; failed: Array<{ id: string; error: string }> };
+  'autopilot.dismiss': AutopilotOverview;
+  'factory.run': FactoryResult;
   'intelligence.get': IntelligenceReport;
   'intelligence.run': IntelligenceReport;
   'recommendation.setStatus': Recommendation;

@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
 import { BrowserWindow, Menu, app, dialog, net, protocol, safeStorage, session, shell, type IpcMainInvokeEvent } from 'electron';
 import { AnthropicProvider } from '@advertex/ai-core';
-import { Database, defaultIds, resolveAssetFile, runDueAutomations, type AppContext, type SecretCipher } from '@advertex/core';
+import { Database, defaultIds, resolveAssetFile, runDueAutomations, runDueAutopilots, type AppContext, type SecretCipher } from '@advertex/core';
 import { createFileLogger } from './logger';
 import { registerIpc } from './ipc';
 import { createHandlers, isAllowedExternal } from './handlers';
@@ -155,6 +155,9 @@ function startAutomationScheduler(ctx: AppContext): void {
     automationRunning = true;
     runDueAutomations({ ...ctx, correlationId: `scheduler-${Date.now()}` })
       .then((n) => n > 0 && logger.info('automation.scheduler', { rulesRun: n }))
+      // Piloto automático: rotina diária só para quem ligou nas configurações do piloto.
+      .then(() => runDueAutopilots({ ...ctx, correlationId: `autopilot-${Date.now()}` }))
+      .then((n) => n && n > 0 && logger.info('autopilot.scheduler', { organizations: n }))
       .catch((err: unknown) => logger.error('automation.scheduler.failed', { error: err instanceof Error ? err : String(err) }))
       .finally(() => {
         automationRunning = false;

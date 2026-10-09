@@ -64,7 +64,7 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('link', { name: 'Lançamento Verão' })).toBeVisible();
 
     // Criativo manual com validação de limite
-    await page.getByRole('link', { name: 'Criativos' }).click();
+    await page.getByRole('link', { name: 'Criativos', exact: true }).click();
     await page.getByRole('button', { name: 'Novo criativo' }).click();
     await page.getByLabel('Título interno').fill('Título RSA principal');
     await page.getByLabel('Formato').selectOption('google_rsa_headline');
@@ -237,6 +237,30 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await page.screenshot({ path: join(shots, '11-automacoes.png'), fullPage: true });
     await page.getByRole('button', { name: 'Liberar automações' }).click();
     await expect(page.getByText(/Botão de emergência ativo/)).toBeHidden();
+
+    // Cérebro criativo: padrões, vencedores e "Multiplicar" levando à Fábrica
+    await page.getByRole('link', { name: 'Cérebro criativo' }).click();
+    await expect(page.getByRole('heading', { name: 'O que prende a atenção e converte' })).toBeVisible();
+    await expect(page.getByText(/Anúncios com pergunta têm CTR/).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Anúncios vencedores' })).toBeVisible();
+    await page.screenshot({ path: join(shots, '11a-cerebro.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Multiplicar' }).first().click();
+    await expect(page.getByText(/Multiplicando o vencedor/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Fabricar lote' })).toBeEnabled();
+    await page.screenshot({ path: join(shots, '11c-fabrica.png'), fullPage: true });
+
+    // Piloto automático: analisar, aplicar (simulado na demo) e histórico
+    await page.getByRole('link', { name: 'Piloto automático' }).click();
+    await page.getByRole('button', { name: 'Analisar agora' }).click();
+    await expect(page.getByText(/Análise concluída: \d+ ação/)).toBeVisible();
+    await expect(page.getByText('Negativar "café de graça"')).toBeVisible();
+    await page.screenshot({ path: join(shots, '11b-piloto.png'), fullPage: true });
+    await page.getByLabel('Selecionar: Negativar "café de graça"').check();
+    await page.getByRole('button', { name: /Aplicar 1 selecionada/ }).click();
+    await page.getByRole('button', { name: 'Aplicar nas plataformas' }).click();
+    await expect(page.getByText('1 ação(ões) aplicada(s).')).toBeVisible();
+    await page.getByRole('tab', { name: 'Histórico' }).click();
+    await expect(page.getByText(/Simulado \(demonstração\)/)).toBeVisible();
 
     // Relatórios: gerar, visualizar e exportar PDF/CSV de verdade
     await page.getByRole('link', { name: 'Relatórios' }).click();

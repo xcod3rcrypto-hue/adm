@@ -5,6 +5,7 @@ import type { AppContext } from '../context';
 import { requireOrg } from '../util';
 import { recordAudit } from './audit';
 import { assetFilePath, getAsset, storeAssetBuffer } from './assets';
+import { learningsFor } from './brain';
 import { getBrief } from './briefs';
 import { getProject } from './projects';
 import { deleteSecret, getSecret, hasSecret, putSecret, scopes } from './secrets';
@@ -65,7 +66,7 @@ export async function generateCreativeImages(ctx: AppContext, organizationId: st
     return { mimeType: a.mimeType, data: new Uint8Array(readFileSync(assetFilePath(ctx, organizationId, id).path)) };
   });
   const p = provider(ctx);
-  const prompt = buildImagePrompt({ description: req.description, aspectRatio: req.aspectRatio, brief: brief?.data ?? null, withText: req.withText, hasReference: references.length > 0 });
+  const prompt = buildImagePrompt({ description: req.description, aspectRatio: req.aspectRatio, brief: brief?.data ?? null, withText: req.withText, hasReference: references.length > 0, learnings: learningsFor(ctx, organizationId, project?.id ?? null) });
 
   const jobId = ctx.newId();
   ctx.db.run("INSERT INTO ai_jobs (id, organization_id, project_id, kind, provider, model, status, created_at) VALUES (?, ?, ?, 'image.generate', 'gemini', ?, 'running', ?)", [

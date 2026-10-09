@@ -9,7 +9,9 @@ import {
   type DateRange,
   type FetchLike,
   type RemoteAccount,
+  type RemoteAdPerformance,
   type RemoteCampaign,
+  type RemoteSearchTerm,
   type RemoteInsightRow,
   type RetryOptions,
 } from '@advertex/advertising-core';
@@ -51,6 +53,9 @@ const assertNumericCampaign = (id: string) => {
   if (!/^\d{1,20}$/.test(id)) throw new Error('ID de campanha Google Ads inválido.');
 };
 
+const assertRange = (range: DateRange) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(range.from) || !/^\d{4}-\d{2}-\d{2}$/.test(range.to)) throw new Error('Período inválido.');
+};
 const assertCustomerId = (id: string) => {
   if (!/^\d{10}$/.test(id)) throw new Error('ID de cliente Google Ads inválido (10 dígitos).');
 };
@@ -193,7 +198,7 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
   }
 
   async fetchInsights(customerId: string, range: DateRange, currency = 'USD'): Promise<RemoteInsightRow[]> {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(range.from) || !/^\d{4}-\d{2}-\d{2}$/.test(range.to)) throw new Error('Período inválido.');
+    assertRange(range);
     const rows = await this.search<{
       campaign: { id: string };
       segments: { date: string };
@@ -385,18 +390,125 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     return out.length;
   }
 
-  async addNegativeKeywords(customerId: string, campaignRemoteId: string, texts: string[]): Promise<number> {
+  async addNegativeKeywords(customerId: string, campaignRemoteId: string, texts: string[], matchType: 'PHRASE' | 'EXACT' = 'PHRASE'): Promise<number> {
     assertNumericCampaign(campaignRemoteId);
     if (texts.length === 0) return 0;
     const out = await withStep('ao adicionar palavras negativas', () =>
       this.mutate(
         customerId,
         'campaignCriteria',
-        texts.map((t) => ({ create: { campaign: `customers/${customerId}/campaigns/${campaignRemoteId}`, negative: true, keyword: { text: t, matchType: 'PHRASE' } } })),
+        texts.map((t) => ({ create: { campaign: `customers/${customerId}/campaigns/${campaignRemoteId}`, negative: true, keyword: { text: t, matchType } } })),
       ),
     );
     return out.length;
   }
+
+
+  /** Desempenho por anúncio no período (métricas agregadas, sem segmentar por dia). */
+  async fetchAdPerformance(customerId: string, range: DateRange, currency = 'USD'): Promise<RemoteAdPerformance[]> {
+    assertRange(range);
+    const rows = await this.search<{
+      campaign: { id: string };
+      adGroup: { id: string };
+      adGroupAd: {
+        status?: string;
+        ad: {
+          id: string;
+          name?: string;
+          finalUrls?: string[];
+          responsiveSearchAd?: { headlines?: Array<{ text?: string }>; descriptions?: Array<{ text?: string }> };
+          expandedTextAd?: { headlinePart1?: string; headlinePart2?: string; description?: string };
+          responsiveDisplayAd?: { headlines?: Array<{ text?: string }>; longHeadline?: { text?: string }; descriptions?: Array<{ text?: string }> };
+        };
+      };
+      metrics: { costMicros?: string; impressions?: string; clicks?: string; conversions?: number; conversionsValue?: number };
+    }>(
+      customerId,
+      'SELECT campaign.id, ad_group.id, ad_group_ad.status, ad_group_ad.ad.id, ad_group_ad.ad.name, ad_group_ad.ad.final_urls, ' +
+        'ad_group_ad.ad.responsive_search_ad.headlines, ad_group_ad.ad.responsive_search_ad.descriptions, ' +
+        'ad_group_ad.ad.expanded_text_ad.headline_part1, ad_group_ad.ad.expanded_text_ad.headline_part2, ad_group_ad.ad.expanded_text_ad.description, ' +
+        'ad_group_ad.ad.responsive_display_ad.headlines, ad_group_ad.ad.responsive_display_ad.long_headline, ad_group_ad.ad.responsive_display_ad.descriptions, ' +
+        'metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.conversions, metrics.conversions_value ' +
+        `FROM ad_group_ad WHERE segments.date BETWEEN '${range.from}' AND '${range.to}' AND ad_group_ad.status != 'REMOVED' AND metrics.impressions > 0`,
+    );
+    const texts = (list?: Array<{ text?: string }>) => (list ?? []).map((x) => x.text ?? '').filter(Boolean);
+    return rows.map((r) => {
+      const ad = r.adGroupAd.ad;
+      const rsa = ad.responsiveSearchAd;
+      const eta = ad.expandedTextAd;
+      const rda = ad.responsiveDisplayAd;
+      const headlines = rsa ? texts(rsa.headlines) : eta ? [eta.headlinePart1 ?? '', eta.headlinePart2 ?? ''].filter(Boolean) : rda ? [rda.longHeadline?.text ?? '', ...texts(rda.headlines)].filter(Boolean) : [];
+      const descriptions = rsa ? texts(rsa.descriptions) : eta ? [eta.description ?? ''].filter(Boolean) : rda ? texts(rda.descriptions) : [];
+      return {
+        remoteAdId: ad.id,
+        adName: ad.name || headlines[0] || `Anúncio ${ad.id}`,
+        remoteCampaignId: r.campaign.id,
+        remoteAdGroupId: r.adGroup.id,
+        status: r.adGroupAd.status ?? '',
+        headline: headlines.slice(0, 3).join(' | '),
+        body: descriptions.slice(0, 2).join(' '),
+        cta: '',
+        imageUrl: null,
+        currency,
+        spend: Number(r.metrics.costMicros ?? 0) / 1_000_000,
+        impressions: Number(r.metrics.impressions ?? 0),
+        reach: null,
+        clicks: Number(r.metrics.clicks ?? 0),
+        conversions: Number(r.metrics.conversions ?? 0),
+        revenue: r.metrics.conversionsValue === undefined ? null : Number(r.metrics.conversionsValue),
+      };
+    });
+  }
+
+  /** Termos de busca reais que acionaram os anúncios (relatório de termos de pesquisa). */
+  async fetchSearchTerms(customerId: string, range: DateRange): Promise<RemoteSearchTerm[]> {
+    assertRange(range);
+    const rows = await this.search<{
+      searchTermView: { searchTerm?: string; status?: string };
+      campaign: { id: string };
+      adGroup: { id: string };
+      metrics: { costMicros?: string; impressions?: string; clicks?: string; conversions?: number; conversionsValue?: number };
+    }>(
+      customerId,
+      'SELECT search_term_view.search_term, search_term_view.status, campaign.id, ad_group.id, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.conversions, metrics.conversions_value ' +
+        `FROM search_term_view WHERE segments.date BETWEEN '${range.from}' AND '${range.to}' AND metrics.impressions > 0`,
+    );
+    return rows
+      .filter((r) => r.searchTermView.searchTerm)
+      .map((r) => ({
+        term: r.searchTermView.searchTerm!,
+        status: r.searchTermView.status ?? 'NONE',
+        remoteCampaignId: r.campaign.id,
+        remoteAdGroupId: r.adGroup.id,
+        spend: Number(r.metrics.costMicros ?? 0) / 1_000_000,
+        impressions: Number(r.metrics.impressions ?? 0),
+        clicks: Number(r.metrics.clicks ?? 0),
+        conversions: Number(r.metrics.conversions ?? 0),
+        revenue: r.metrics.conversionsValue === undefined ? null : Number(r.metrics.conversionsValue),
+      }));
+  }
+
+  /** Pausa um anúncio (ad_group_ad). Repetir é seguro: o estado final é o mesmo. */
+  async pauseAd(customerId: string, adGroupRemoteId: string, adRemoteId: string): Promise<void> {
+    assertNumericCampaign(adGroupRemoteId);
+    assertNumericCampaign(adRemoteId);
+    await withStep('ao pausar o anúncio', () =>
+      this.mutate(customerId, 'adGroupAds', [
+        { update: { resourceName: `customers/${customerId}/adGroupAds/${adGroupRemoteId}~${adRemoteId}`, status: 'PAUSED' }, updateMask: 'status' },
+      ]),
+    );
+  }
+
+  /** Quantidade de cada termo já negativado na campanha (verificação antes de repetir). */
+  async listNegativeKeywords(customerId: string, campaignRemoteId: string): Promise<string[]> {
+    assertNumericCampaign(campaignRemoteId);
+    const rows = await this.search<{ campaignCriterion: { keyword?: { text?: string } } }>(
+      customerId,
+      `SELECT campaign_criterion.keyword.text FROM campaign_criterion WHERE campaign.id = ${campaignRemoteId} AND campaign_criterion.negative = TRUE AND campaign_criterion.type = 'KEYWORD'`,
+    );
+    return rows.map((r) => r.campaignCriterion.keyword?.text ?? '').filter(Boolean);
+  }
+
 
   /** Quantidade de anúncios ativos/pausados no grupo (verificação antes de repetir a criação). */
   async countAds(customerId: string, adGroupRemoteId: string): Promise<{ count: number; firstId: string | null }> {

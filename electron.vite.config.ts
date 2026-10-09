@@ -27,7 +27,8 @@ function csp(): Plugin {
     "default-src 'self'",
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: advertex-asset:",
+    // Miniaturas dos anúncios da Meta (Cérebro criativo) vêm do CDN da Meta.
+    "img-src 'self' data: blob: advertex-asset: https://*.fbcdn.net",
     "media-src 'self' advertex-asset:",
     "font-src 'self' data:",
     "connect-src 'self'",

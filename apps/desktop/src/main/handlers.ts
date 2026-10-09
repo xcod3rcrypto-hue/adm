@@ -220,6 +220,21 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'integration.google.syncInsights': ({ organizationId, accountId, from, to }, ctx) => core.syncInsights(ctx, organizationId, 'google', accountId, { from, to }),
     'integration.disconnect': ({ organizationId, platform }, ctx) => core.disconnect(ctx, organizationId, platform),
 
+    'brain.report': ({ organizationId, platform, projectId }, ctx) => core.getBrainReport(ctx, organizationId, { platform, projectId }),
+    'brain.sync': ({ organizationId, platform, request }, ctx) => core.syncAdPerformance(ctx, organizationId, platform, request),
+    'brain.tag': ({ organizationId }, ctx) => core.tagCreativesWithAi(ctx, organizationId),
+    'brain.playbook': ({ organizationId }, ctx) => core.generatePlaybook(ctx, organizationId),
+    'brain.setUseLearnings': ({ organizationId, enabled }, ctx) => core.setUseLearnings(ctx, organizationId, enabled),
+    'brain.ads': ({ organizationId, platform }, ctx) => core.listAdPerformance(ctx, organizationId, { platform }),
+
+    'autopilot.overview': ({ organizationId }, ctx) => core.getAutopilotOverview(ctx, organizationId),
+    'autopilot.saveSettings': ({ organizationId, settings }, ctx) => core.saveAutopilotSettings(ctx, organizationId, settings),
+    'autopilot.run': ({ organizationId, sync }, ctx) => core.runAutopilot(ctx, organizationId, { sync }),
+    'autopilot.apply': ({ organizationId, ids }, ctx) => core.applyAutopilotActions(ctx, organizationId, ids),
+    'autopilot.dismiss': ({ organizationId, id }, ctx) => core.dismissAutopilotAction(ctx, organizationId, id),
+
+    'factory.run': ({ organizationId, request }, ctx) => core.runCreativeFactory(ctx, organizationId, request),
+
     'intelligence.get': ({ organizationId }, ctx) => core.getIntelligence(ctx, organizationId),
     'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),
     'recommendation.setStatus': ({ organizationId, id, status }, ctx) => core.setRecommendationStatus(ctx, organizationId, id, status),

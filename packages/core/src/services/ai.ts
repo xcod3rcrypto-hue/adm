@@ -3,6 +3,7 @@ import { ANTHROPIC_DEFAULT_MODEL, VariationsOutput, InsightsOutput, buildInsight
 import { validateText } from '@advertex/advertising-core';
 import type { AppContext } from '../context';
 import { recordAudit } from './audit';
+import { learningsFor } from './brain';
 import { getBrief, saveBriefInsights } from './briefs';
 import { getProject } from './projects';
 import { deleteSecret, getSecret, hasSecret, putSecret, scopes } from './secrets';
@@ -98,6 +99,7 @@ export async function generateVariations(ctx: AppContext, organizationId: string
     audience: req.audience,
     count: req.count,
     instructions: req.instructions,
+    learnings: learningsFor(ctx, organizationId, project.id),
   });
   const { jobId, data, model } = await runAiJob(ctx, { organizationId, projectId: project.id, kind: `studio.${req.kind}` }, p, () =>
     p.generateStructured({ ...prompt, schema: VariationsOutput, maxTokens: 16_000, effort: 'medium' }),

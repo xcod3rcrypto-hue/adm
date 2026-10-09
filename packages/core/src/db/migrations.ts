@@ -526,8 +526,100 @@ const m003 = `
 ALTER TABLE advertising_accounts ADD COLUMN login_customer_id TEXT;
 `;
 
+/** Cérebro criativo, piloto automático e termos de busca. */
+const m004 = `
+CREATE TABLE ad_performance (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  platform TEXT NOT NULL CHECK (platform IN ('meta', 'google')),
+  advertising_account_id TEXT REFERENCES advertising_accounts(id) ON DELETE SET NULL,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  remote_ad_id TEXT NOT NULL,
+  remote_campaign_id TEXT,
+  remote_ad_group_id TEXT,
+  ad_name TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT '',
+  headline TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL DEFAULT '',
+  cta TEXT NOT NULL DEFAULT '',
+  image_url TEXT,
+  content_hash TEXT NOT NULL,
+  period_from TEXT NOT NULL,
+  period_to TEXT NOT NULL,
+  currency TEXT NOT NULL,
+  spend REAL NOT NULL DEFAULT 0 CHECK (spend >= 0),
+  impressions INTEGER NOT NULL DEFAULT 0 CHECK (impressions >= 0),
+  reach INTEGER,
+  clicks INTEGER NOT NULL DEFAULT 0 CHECK (clicks >= 0),
+  conversions REAL NOT NULL DEFAULT 0 CHECK (conversions >= 0),
+  revenue REAL,
+  source TEXT NOT NULL CHECK (source IN ('demo', 'meta', 'google')),
+  fetched_at TEXT NOT NULL,
+  UNIQUE (organization_id, platform, remote_ad_id)
+);
+CREATE INDEX idx_ad_performance_org ON ad_performance(organization_id, platform);
+
+CREATE TABLE creative_features (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  content_hash TEXT NOT NULL,
+  features TEXT NOT NULL DEFAULT '{}',
+  model TEXT,
+  created_at TEXT NOT NULL,
+  UNIQUE (organization_id, content_hash)
+);
+
+CREATE TABLE search_terms (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  advertising_account_id TEXT REFERENCES advertising_accounts(id) ON DELETE CASCADE,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  remote_campaign_id TEXT NOT NULL,
+  remote_ad_group_id TEXT NOT NULL,
+  term TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'NONE',
+  period_from TEXT NOT NULL,
+  period_to TEXT NOT NULL,
+  currency TEXT NOT NULL,
+  spend REAL NOT NULL DEFAULT 0,
+  impressions INTEGER NOT NULL DEFAULT 0,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  conversions REAL NOT NULL DEFAULT 0,
+  revenue REAL,
+  fetched_at TEXT NOT NULL,
+  UNIQUE (organization_id, remote_ad_group_id, term)
+);
+CREATE INDEX idx_search_terms_org ON search_terms(organization_id);
+
+CREATE TABLE autopilot_actions (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  platform TEXT NOT NULL CHECK (platform IN ('meta', 'google')),
+  advertising_account_id TEXT REFERENCES advertising_accounts(id) ON DELETE SET NULL,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('add_negative', 'add_keyword', 'pause_ad', 'increase_budget', 'decrease_budget')),
+  title TEXT NOT NULL,
+  rationale TEXT NOT NULL,
+  evidence TEXT NOT NULL DEFAULT '[]',
+  impact TEXT NOT NULL DEFAULT '',
+  confidence REAL NOT NULL DEFAULT 0,
+  target TEXT NOT NULL DEFAULT '{}',
+  monthly_savings REAL NOT NULL DEFAULT 0,
+  dedupe_key TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('proposed', 'applied', 'failed', 'dismissed')),
+  auto INTEGER NOT NULL DEFAULT 0,
+  error TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  applied_at TEXT
+);
+CREATE INDEX idx_autopilot_org ON autopilot_actions(organization_id, status);
+CREATE INDEX idx_autopilot_dedupe ON autopilot_actions(organization_id, dedupe_key);
+`;
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, name: 'initial_schema', sql: m001 },
   { version: 2, name: 'intelligence_automation_publishing', sql: m002 },
   { version: 3, name: 'account_login_customer', sql: m003 },
+  { version: 4, name: 'creative_brain_autopilot', sql: m004 },
 ];

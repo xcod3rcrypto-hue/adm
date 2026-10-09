@@ -27,6 +27,39 @@ export interface RemoteInsightRow extends MetricRow {
   campaignRemoteId: string;
 }
 
+/** Desempenho agregado de um anúncio no período, com o texto do criativo. */
+export interface RemoteAdPerformance {
+  remoteAdId: string;
+  adName: string;
+  remoteCampaignId: string | null;
+  remoteAdGroupId: string | null;
+  status: string;
+  headline: string;
+  body: string;
+  cta: string;
+  imageUrl: string | null;
+  currency: string;
+  spend: number;
+  impressions: number;
+  reach: number | null;
+  clicks: number;
+  conversions: number;
+  revenue: number | null;
+}
+
+/** Termo de busca real (Google Ads, search_term_view) agregado no período. */
+export interface RemoteSearchTerm {
+  term: string;
+  status: string;
+  remoteCampaignId: string;
+  remoteAdGroupId: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  revenue: number | null;
+}
+
 export interface DateRange {
   from: string;
   to: string;

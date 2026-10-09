@@ -18,6 +18,7 @@ import { aiProvider, runAiJob } from './ai';
 import { recordAudit } from './audit';
 import { getBrief } from './briefs';
 import { getCampaign } from './campaigns';
+import { learningsFor } from './brain';
 import { googleAdsClient } from './integrations';
 import { getProject } from './projects';
 import { runPlatformOperation } from './publishing';
@@ -372,6 +373,7 @@ export async function generateSearchAdFromPage(
     projectName: project?.name ?? null,
     seeds: seeds.slice(0, 20),
     unreadable: !!fetchError,
+    learnings: learningsFor(ctx, organizationId, c.projectId),
   });
   const { data, model } = await runAiJob(ctx, { organizationId, projectId: c.projectId, kind: 'search.adFromPage' }, p, () =>
     p.generateStructured({ ...prompt, schema: SearchAdFromPageOutput, maxTokens: 12_000, effort: 'medium' }),

@@ -27,3 +27,6 @@ export * from './services/calendar';
 export * from './services/competitors';
 export * from './services/searchAds';
 export * from './services/images';
+export * from './services/brain';
+export * from './services/autopilot';
+export * from './services/factory';

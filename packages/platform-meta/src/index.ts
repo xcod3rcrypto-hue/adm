@@ -9,6 +9,7 @@ import {
   type DateRange,
   type FetchLike,
   type RemoteAccount,
+  type RemoteAdPerformance,
   type RemoteCampaign,
   type RemoteInsightRow,
   type RetryOptions,
@@ -255,6 +256,108 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     if (!hash) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o hash da imagem enviada.', false);
     return { remoteId: hash };
   }
+
+  /** Desempenho por anúncio no período + texto do criativo (título, texto, CTA, imagem). */
+  async fetchAdPerformance(accountRemoteId: string, range: DateRange): Promise<RemoteAdPerformance[]> {
+    assertNumericId(accountRemoteId);
+    const rows = await this.getAll<{
+      ad_id: string;
+      ad_name?: string;
+      campaign_id?: string;
+      adset_id?: string;
+      account_currency?: string;
+      spend?: string;
+      impressions?: string;
+      reach?: string;
+      clicks?: string;
+      actions?: Array<{ action_type: string; value: string }>;
+      action_values?: Array<{ action_type: string; value: string }>;
+    }>(
+      this.url(`act_${accountRemoteId}/insights`, {
+        level: 'ad',
+        fields: 'ad_id,ad_name,campaign_id,adset_id,account_currency,spend,impressions,reach,clicks,actions,action_values',
+        time_range: JSON.stringify({ since: range.from, until: range.to }),
+        limit: '500',
+      }),
+    );
+    const content = new Map<string, { status: string; headline: string; body: string; cta: string; imageUrl: string | null }>();
+    const ids = rows.map((r) => r.ad_id).filter((id) => /^\d{1,30}$/.test(id));
+    // Texto do criativo: consulta de vários IDs de uma vez (até 50 por chamada). Melhor esforço —
+    // sem o texto, o desempenho ainda é importado.
+    for (let i = 0; i < ids.length; i += 50) {
+      const chunk = ids.slice(i, i + 50);
+      try {
+        const ads = await this.get<Record<string, MetaAd>>(
+          this.url('', {
+            ids: chunk.join(','),
+            fields: 'id,effective_status,creative{title,body,call_to_action_type,image_url,thumbnail_url,object_story_spec,asset_feed_spec}',
+          }),
+        );
+        for (const ad of Object.values(ads)) if (ad && typeof ad === 'object' && ad.id) content.set(ad.id, adContent(ad));
+      } catch {
+        // segue sem o texto deste lote
+      }
+    }
+    return rows.map((r) => {
+      const c = content.get(r.ad_id);
+      return {
+        remoteAdId: r.ad_id,
+        adName: r.ad_name ?? `Anúncio ${r.ad_id}`,
+        remoteCampaignId: r.campaign_id ?? null,
+        remoteAdGroupId: r.adset_id ?? null,
+        status: c?.status ?? '',
+        headline: c?.headline ?? '',
+        body: c?.body ?? '',
+        cta: c?.cta ?? '',
+        imageUrl: c?.imageUrl ?? null,
+        currency: r.account_currency ?? 'USD',
+        spend: num(r.spend),
+        impressions: num(r.impressions),
+        reach: r.reach === undefined ? null : num(r.reach),
+        clicks: num(r.clicks),
+        conversions: sumActions(r.actions, META_CONVERSION_ACTIONS) ?? 0,
+        revenue: sumActions(r.action_values, META_REVENUE_ACTIONS),
+      };
+    });
+  }
+
+  /** Pausa um anúncio. Repetir é seguro: o estado final é o mesmo. */
+  async pauseAd(adRemoteId: string): Promise<void> {
+    assertNumericId(adRemoteId);
+    await this.post(adRemoteId, { status: 'PAUSED' });
+  }
+}
+
+interface MetaAd {
+  id: string;
+  effective_status?: string;
+  creative?: {
+    title?: string;
+    body?: string;
+    call_to_action_type?: string;
+    image_url?: string;
+    thumbnail_url?: string;
+    object_story_spec?: {
+      link_data?: { name?: string; message?: string; picture?: string; call_to_action?: { type?: string }; child_attachments?: Array<{ name?: string; picture?: string }> };
+      video_data?: { title?: string; message?: string; image_url?: string; call_to_action?: { type?: string } };
+    };
+    asset_feed_spec?: { titles?: Array<{ text?: string }>; bodies?: Array<{ text?: string }>; call_to_action_types?: string[] };
+  };
+}
+
+/** Extrai título, texto, CTA e imagem dos vários formatos de criativo da Meta. */
+export function adContent(ad: MetaAd): { status: string; headline: string; body: string; cta: string; imageUrl: string | null } {
+  const c = ad.creative ?? {};
+  const link = c.object_story_spec?.link_data;
+  const video = c.object_story_spec?.video_data;
+  const feed = c.asset_feed_spec;
+  return {
+    status: ad.effective_status ?? '',
+    headline: c.title || link?.name || video?.title || feed?.titles?.[0]?.text || link?.child_attachments?.[0]?.name || '',
+    body: c.body || link?.message || video?.message || feed?.bodies?.[0]?.text || '',
+    cta: c.call_to_action_type || link?.call_to_action?.type || video?.call_to_action?.type || feed?.call_to_action_types?.[0] || '',
+    imageUrl: c.image_url || c.thumbnail_url || link?.picture || video?.image_url || link?.child_attachments?.[0]?.picture || null,
+  };
 }
 
 function num(v: string | undefined): number {

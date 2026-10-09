@@ -21,7 +21,10 @@ export interface GoogleAdapterOptions {
   developerToken: string;
   /** Retorna um access token válido (renovando quando necessário). */
   getAccessToken: () => Promise<string>;
+  /** login-customer-id padrão (MCC configurada manualmente). */
   loginCustomerId?: string;
+  /** login-customer-id específico por conta (descoberto ao listar contas). */
+  loginCustomerIdFor?: (customerId: string) => string | null | undefined;
   apiVersion?: string;
   fetchImpl?: FetchLike;
   retry?: RetryOptions;
@@ -66,23 +69,25 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     this.retry = opts.retry ?? defaultRetry;
   }
 
-  private async headers(): Promise<Record<string, string>> {
+  private async headers(customerId?: string, loginOverride?: string): Promise<Record<string, string>> {
     const h: Record<string, string> = {
       Authorization: `Bearer ${await this.opts.getAccessToken()}`,
       'developer-token': this.opts.developerToken,
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };
-    if (this.opts.loginCustomerId) h['login-customer-id'] = this.opts.loginCustomerId;
+    const login = loginOverride ?? (customerId ? this.opts.loginCustomerIdFor?.(customerId) : undefined) ?? this.opts.loginCustomerId;
+    if (login) h['login-customer-id'] = login;
     return h;
   }
 
   /** `write`: mutações não são repetidas automaticamente (resultado incerto exige verificação). */
-  private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown, write = false): Promise<T> {
+  private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown, write = false, loginOverride?: string): Promise<T> {
+    const customerId = /^customers\/(\d{10})\//.exec(path)?.[1];
     const res = await fetchWithRetry(
       this.fetchImpl,
       `https://${HOST}/${this.version}/${path}`,
-      { method, headers: await this.headers(), body: body === undefined ? undefined : JSON.stringify(body) },
+      { method, headers: await this.headers(customerId, loginOverride), body: body === undefined ? undefined : JSON.stringify(body) },
       write ? { ...this.retry, retries: 0 } : this.retry,
       this.breaker,
     );
@@ -92,16 +97,19 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
   }
 
   /** Executa uma consulta GAQL paginada via googleAds:search. */
-  async search<T>(customerId: string, query: string): Promise<T[]> {
+  async search<T>(customerId: string, query: string, loginOverride?: string): Promise<T[]> {
     assertCustomerId(customerId);
     const out: T[] = [];
     let pageToken: string | undefined;
     let pages = 0;
     do {
-      const page: { results?: T[]; nextPageToken?: string } = await this.request('POST', `customers/${customerId}/googleAds:search`, {
-        query,
-        ...(pageToken ? { pageToken } : {}),
-      });
+      const page: { results?: T[]; nextPageToken?: string } = await this.request(
+        'POST',
+        `customers/${customerId}/googleAds:search`,
+        { query, ...(pageToken ? { pageToken } : {}) },
+        false,
+        loginOverride,
+      );
       out.push(...(page.results ?? []));
       pageToken = page.nextPageToken;
       pages += 1;
@@ -114,29 +122,54 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     return (r.resourceNames ?? []).map((n) => n.replace(/^customers\//, ''));
   }
 
+  /**
+   * Lista as contas acessíveis diretamente e, para cada conta de administrador
+   * (MCC), as contas de anúncios vinculadas a ela (customer_client). Cada conta
+   * guarda o login-customer-id correto: a própria conta quando o acesso é
+   * direto, ou a MCC quando o acesso é por meio dela.
+   */
   async listAccounts(): Promise<RemoteAccount[]> {
     const ids = await this.listAccessibleCustomerIds();
-    const accounts: RemoteAccount[] = [];
+    const byId = new Map<string, RemoteAccount>();
     for (const id of ids) {
       try {
         const rows = await this.search<{ customer: { id: string; descriptiveName?: string; currencyCode?: string; timeZone?: string; status?: string; manager?: boolean } }>(
           id,
           'SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.status, customer.manager FROM customer LIMIT 1',
+          id,
         );
         const c = rows[0]?.customer;
-        accounts.push({
+        byId.set(id, {
           remoteId: id,
           name: (c?.descriptiveName || `Cliente ${id}`) + (c?.manager ? MANAGER_SUFFIX : ''),
           currency: c?.currencyCode ?? null,
           timezone: c?.timeZone ?? null,
           status: c?.status ?? null,
+          loginCustomerId: id,
         });
+        if (c?.manager) {
+          const children = await this.search<{ customerClient: { id: string; descriptiveName?: string; currencyCode?: string; timeZone?: string; status?: string; manager?: boolean } }>(
+            id,
+            'SELECT customer_client.id, customer_client.descriptive_name, customer_client.currency_code, customer_client.time_zone, customer_client.status, customer_client.manager FROM customer_client WHERE customer_client.level = 1',
+            id,
+          );
+          for (const { customerClient: cc } of children) {
+            if (!cc?.id || byId.has(cc.id)) continue;
+            byId.set(cc.id, {
+              remoteId: cc.id,
+              name: (cc.descriptiveName || `Cliente ${cc.id}`) + (cc.manager ? MANAGER_SUFFIX : ''),
+              currency: cc.currencyCode ?? null,
+              timezone: cc.timeZone ?? null,
+              status: cc.status ?? null,
+              loginCustomerId: id,
+            });
+          }
+        }
       } catch (err) {
-        // Conta acessível mas sem permissão de leitura (ex.: requer login-customer-id).
-        accounts.push({ remoteId: id, name: `Cliente ${id}`, currency: null, timezone: null, status: err instanceof Error ? `ERRO: ${err.message}` : 'ERRO' });
+        if (!byId.has(id)) byId.set(id, { remoteId: id, name: `Cliente ${id}`, currency: null, timezone: null, status: err instanceof Error ? `ERRO: ${err.message}` : 'ERRO', loginCustomerId: null });
       }
     }
-    return accounts;
+    return [...byId.values()];
   }
 
   async listCampaigns(customerId: string): Promise<RemoteCampaign[]> {

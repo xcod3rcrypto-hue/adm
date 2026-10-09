@@ -170,3 +170,36 @@ describe('erros detalhados na criação', () => {
     );
   });
 });
+
+describe('contas sob MCC', () => {
+  it('lista contas vinculadas à MCC com o login-customer-id correto por conta', async () => {
+    const calls: Array<{ url: string; login: string | undefined; query?: string }> = [];
+    const a = new GoogleAdsAdapter({
+      developerToken: 'dev',
+      getAccessToken: async () => 'at',
+      retry: { retries: 0, baseDelayMs: 1, timeoutMs: 5000 },
+      loginCustomerIdFor: (id) => (id === '2222222222' ? '1111111111' : undefined),
+      fetchImpl: async (url, init) => {
+        const login = (init?.headers as Record<string, string>)['login-customer-id'];
+        const query = init?.body ? (JSON.parse(String(init.body)) as { query?: string }).query : undefined;
+        calls.push({ url, login, query });
+        if (url.endsWith('customers:listAccessibleCustomers')) return json({ resourceNames: ['customers/1111111111'] });
+        if (query?.includes('FROM customer_client')) {
+          return json({ results: [{ customerClient: { id: '2222222222', descriptiveName: 'Loja', currencyCode: 'BRL', timeZone: 'America/Sao_Paulo', status: 'ENABLED', manager: false } }] });
+        }
+        if (query?.includes('FROM customer ')) return json({ results: [{ customer: { id: '1111111111', descriptiveName: 'Minha MCC', currencyCode: 'BRL', manager: true } }] });
+        return json({ results: [] });
+      },
+    });
+    const accounts = await a.listAccounts();
+    expect(accounts).toEqual([
+      expect.objectContaining({ remoteId: '1111111111', name: 'Minha MCC (MCC)', loginCustomerId: '1111111111' }),
+      expect.objectContaining({ remoteId: '2222222222', name: 'Loja', currency: 'BRL', loginCustomerId: '1111111111' }),
+    ]);
+    expect(calls.filter((c) => c.query).every((c) => c.login === '1111111111')).toBe(true);
+
+    // Operações na conta filha usam a MCC como login-customer-id.
+    await a.listCampaigns('2222222222');
+    expect(calls.at(-1)).toMatchObject({ url: expect.stringContaining('customers/2222222222/'), login: '1111111111' });
+  });
+});

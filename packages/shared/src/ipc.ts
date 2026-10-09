@@ -155,7 +155,12 @@ export const ipcInputs = {
     clientId: z.string().trim().min(10).max(300).optional(),
     clientSecret: z.string().trim().min(5).max(300).optional(),
     developerToken: z.string().trim().min(5).max(300).optional(),
-    loginCustomerId: z.string().trim().regex(/^(\d{10})?$/, 'Somente 10 dígitos, sem hífens').default(''),
+    loginCustomerId: z
+      .string()
+      .trim()
+      .transform((v) => v.replace(/-/g, ''))
+      .pipe(z.string().regex(/^(\d{10})?$/, 'Informe os 10 dígitos do ID da conta de administrador'))
+      .default(''),
     apiVersion: z.string().regex(/^v\d+$/, 'Formato: v25'),
   }),
   'integration.google.authorize': z.object(org),

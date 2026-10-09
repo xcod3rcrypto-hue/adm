@@ -521,7 +521,13 @@ CREATE TABLE competitor_references (
 CREATE INDEX idx_competitor_refs ON competitor_references(competitor_id, captured_at);
 `;
 
+/** Google Ads: caminho de acesso (login-customer-id) por conta, para contas sob MCC. */
+const m003 = `
+ALTER TABLE advertising_accounts ADD COLUMN login_customer_id TEXT;
+`;
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, name: 'initial_schema', sql: m001 },
   { version: 2, name: 'intelligence_automation_publishing', sql: m002 },
+  { version: 3, name: 'account_login_customer', sql: m003 },
 ];

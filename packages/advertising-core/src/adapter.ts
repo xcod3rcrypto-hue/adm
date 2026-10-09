@@ -8,6 +8,8 @@ export interface RemoteAccount {
   currency: string | null;
   timezone: string | null;
   status: string | null;
+  /** Google Ads: conta usada no cabeçalho login-customer-id para acessar esta conta. */
+  loginCustomerId?: string | null;
 }
 
 export interface RemoteCampaign {

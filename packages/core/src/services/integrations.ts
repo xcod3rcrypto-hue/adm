@@ -215,7 +215,19 @@ function googleAdapter(ctx: AppContext, organizationId: string): { adapter: Goog
   };
   return {
     conn,
-    adapter: new GoogleAdsAdapter({ developerToken, getAccessToken, loginCustomerId: cfg.loginCustomerId, apiVersion: conn.api_version, fetchImpl: ctx.fetch }),
+    adapter: new GoogleAdsAdapter({
+      developerToken,
+      getAccessToken,
+      loginCustomerId: cfg.loginCustomerId,
+      // Caminho de acesso descoberto ao listar contas (acesso direto ou via MCC).
+      loginCustomerIdFor: (customerId) =>
+        ctx.db.get<{ login_customer_id: string | null }>(
+          "SELECT login_customer_id FROM advertising_accounts WHERE organization_id = ? AND platform = 'google' AND remote_id = ?",
+          [organizationId, customerId],
+        )?.login_customer_id,
+      apiVersion: conn.api_version,
+      fetchImpl: ctx.fetch,
+    }),
   };
 }
 
@@ -248,11 +260,12 @@ function upsertAccounts(ctx: AppContext, organizationId: string, platform: Platf
   ctx.db.transaction(() => {
     for (const a of list) {
       ctx.db.run(
-        `INSERT INTO advertising_accounts (id, organization_id, connection_id, platform, remote_id, name, currency, timezone, status, last_synced_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO advertising_accounts (id, organization_id, connection_id, platform, remote_id, name, currency, timezone, status, login_customer_id, last_synced_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(organization_id, platform, remote_id) DO UPDATE SET name = excluded.name, currency = excluded.currency, timezone = excluded.timezone,
-           status = excluded.status, last_synced_at = excluded.last_synced_at, updated_at = excluded.updated_at, connection_id = excluded.connection_id`,
-        [ctx.newId(), organizationId, connId, platform, a.remoteId, a.name, a.currency, a.timezone, a.status, now, now, now],
+           status = excluded.status, login_customer_id = excluded.login_customer_id, last_synced_at = excluded.last_synced_at, updated_at = excluded.updated_at,
+           connection_id = excluded.connection_id`,
+        [ctx.newId(), organizationId, connId, platform, a.remoteId, a.name, a.currency, a.timezone, a.status, a.loginCustomerId ?? null, now, now, now],
       );
     }
   });

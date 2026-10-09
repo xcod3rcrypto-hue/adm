@@ -26,6 +26,7 @@ const NAV = [
 
 export function Layout({ children }: { children: ReactNode }) {
   const { org, orgs, switchTo } = useOrg();
+  const info = useQuery({ queryKey: ['app-info'], queryFn: () => api('app.getInfo'), staleTime: Infinity });
   const unread = useQuery({
     queryKey: ['notifications-unread', org?.id],
     queryFn: () => api('notification.unread', { organizationId: org!.id }),
@@ -102,7 +103,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </nav>
 
         <p className="flex items-center gap-1.5 px-5 py-4 text-[11px] text-subtle">
-          <HardDrive className="size-3" aria-hidden /> Dados salvos neste computador
+          <HardDrive className="size-3" aria-hidden /> Dados salvos neste computador{info.data && ` · v${info.data.version}`}
         </p>
       </aside>
 

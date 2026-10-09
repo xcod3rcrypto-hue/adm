@@ -3,24 +3,42 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { Megaphone, Pencil, Plus, Trash2 } from 'lucide-react';
-import { CampaignInput, formatCurrency, formatDateTime, type Campaign, type Platform } from '@advertex/shared';
+import { CheckCircle2, History, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
+import { CampaignInput, formatCurrency, formatDateTime, type Campaign, type Platform, type PlatformOperation } from '@advertex/shared';
 import { OBJECTIVES, objectiveLabel } from '@advertex/advertising-core';
 import { api } from '../lib/api';
-import { useOrgId } from '../lib/org';
+import { useOrg, useOrgId } from '../lib/org';
 import { CAMPAIGN_STATUS_LABEL, PLATFORM_LABEL, SYNC_LABEL } from '../lib/labels';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Input, LoadingState, Modal, Notice, PageHeader, Select, Tabs, Textarea, useToast } from '../components/ui';
 
 export function CampaignsPage() {
   const organizationId = useOrgId();
+  const { org } = useOrg();
   const qc = useQueryClient();
   const toast = useToast();
   const [platform, setPlatform] = useState<Platform | 'all'>('all');
   const [editing, setEditing] = useState<Campaign | 'new' | null>(null);
   const [deleting, setDeleting] = useState<Campaign | null>(null);
+  const [publishing, setPublishing] = useState<Campaign | null>(null);
+  const [statusChange, setStatusChange] = useState<{ campaign: Campaign; to: 'active' | 'paused' } | null>(null);
+  const [budgetOf, setBudgetOf] = useState<Campaign | null>(null);
+  const [historyOf, setHistoryOf] = useState<Campaign | null>(null);
   const campaigns = useQuery({
     queryKey: ['campaigns', organizationId, platform],
     queryFn: () => api('campaign.list', { organizationId, platform: platform === 'all' ? null : platform }),
+  });
+  const status = useMutation({
+    mutationFn: ({ campaign, to }: { campaign: Campaign; to: 'active' | 'paused' }) => api('campaign.setRemoteStatus', { organizationId, id: campaign.id, status: to, confirm: true }),
+    onSuccess: async (c) => {
+      setStatusChange(null);
+      toast.success(c.status === 'active' ? 'Campanha ativada na plataforma.' : 'Campanha pausada na plataforma.');
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+    onError: async (e) => {
+      setStatusChange(null);
+      toast.error(e);
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    },
   });
   const del = useMutation({
     mutationFn: (id: string) => api('campaign.delete', { organizationId, id }),
@@ -55,9 +73,9 @@ export function CampaignsPage() {
         }
       />
       <div className="mb-5">
-        <Notice tone="info" title="Publicação nas plataformas: Fase 5">
-          Nesta versão, rascunhos ficam somente neste computador (nada é enviado às plataformas) e campanhas importadas são somente leitura. A publicação com validação, confirmação, limites de orçamento e auditoria
-          está planejada para a Fase 5 (ver docs/ROADMAP.md).
+        <Notice tone="info" title="Publicação controlada">
+          Rascunhos ficam neste computador até você publicá-los. Ao publicar, o app valida conta, moeda e limites, pede confirmação e cria a campanha <strong>pausada</strong> pela API
+          oficial. Nada é marcado como publicado sem a confirmação da plataforma, e toda operação fica no histórico e na auditoria.
         </Notice>
       </div>
 
@@ -91,7 +109,7 @@ export function CampaignsPage() {
             </thead>
             <tbody>
               {campaigns.data.map((c) => {
-                const local = c.syncState === 'local_only' && !c.remoteId;
+                const local = !c.remoteId && (c.syncState === 'local_only' || c.syncState === 'error');
                 return (
                   <tr key={c.id} className="border-t border-border align-top">
                     <td className="px-4 py-3">
@@ -115,14 +133,31 @@ export function CampaignsPage() {
                       {c.lastError && <p className="mt-1 text-danger">{c.lastError}</p>}
                     </td>
                     <td className="px-4 py-3">
-                      {local ? (
-                        <div className="flex justify-end gap-1">
-                          <Button size="sm" variant="ghost" aria-label={`Editar ${c.name}`} icon={<Pencil className="size-3.5" />} onClick={() => setEditing(c)} />
-                          <Button size="sm" variant="ghost" aria-label={`Excluir ${c.name}`} icon={<Trash2 className="size-3.5" />} onClick={() => setDeleting(c)} />
-                        </div>
-                      ) : (
-                        <span className="block text-right text-xs text-subtle">somente leitura</span>
-                      )}
+                      <div className="flex justify-end gap-1">
+                        {!c.remoteId && !org?.isDemo && (
+                          <Button size="sm" variant="secondary" icon={<Send className="size-3.5" />} onClick={() => setPublishing(c)}>
+                            {c.syncState === 'pending' ? 'Verificar e publicar' : 'Publicar'}
+                          </Button>
+                        )}
+                        {c.remoteId && c.status === 'active' && (
+                          <Button size="sm" variant="ghost" aria-label={`Pausar ${c.name}`} icon={<Pause className="size-3.5" />} onClick={() => setStatusChange({ campaign: c, to: 'paused' })} />
+                        )}
+                        {c.remoteId && c.status === 'paused' && (
+                          <Button size="sm" variant="ghost" aria-label={`Ativar ${c.name}`} icon={<Play className="size-3.5" />} onClick={() => setStatusChange({ campaign: c, to: 'active' })} />
+                        )}
+                        {c.remoteId && (
+                          <Button size="sm" variant="ghost" aria-label={`Orçamento de ${c.name}`} icon={<Wallet className="size-3.5" />} onClick={() => setBudgetOf(c)} />
+                        )}
+                        {!org?.isDemo && (
+                          <Button size="sm" variant="ghost" aria-label={`Histórico de ${c.name}`} icon={<History className="size-3.5" />} onClick={() => setHistoryOf(c)} />
+                        )}
+                        {local && (
+                          <>
+                            <Button size="sm" variant="ghost" aria-label={`Editar ${c.name}`} icon={<Pencil className="size-3.5" />} onClick={() => setEditing(c)} />
+                            <Button size="sm" variant="ghost" aria-label={`Excluir ${c.name}`} icon={<Trash2 className="size-3.5" />} onClick={() => setDeleting(c)} />
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -133,6 +168,23 @@ export function CampaignsPage() {
       )}
 
       {editing && <CampaignFormModal campaign={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />}
+      {publishing && <PublishModal campaign={publishing} onClose={() => setPublishing(null)} />}
+      {budgetOf && <BudgetModal campaign={budgetOf} onClose={() => setBudgetOf(null)} />}
+      {historyOf && <HistoryModal campaign={historyOf} onClose={() => setHistoryOf(null)} />}
+      <ConfirmDialog
+        open={!!statusChange}
+        danger={statusChange?.to === 'active'}
+        title={statusChange?.to === 'active' ? 'Ativar campanha na plataforma?' : 'Pausar campanha na plataforma?'}
+        confirmLabel={statusChange?.to === 'active' ? 'Ativar agora' : 'Pausar agora'}
+        message={
+          statusChange?.to === 'active'
+            ? `"${statusChange.campaign.name}" passará a veicular e gastar orçamento (${formatCurrency(statusChange.campaign.dailyBudget, statusChange.campaign.currency)}/dia). Confirme que conjuntos/grupos e anúncios estão revisados na plataforma.`
+            : `"${statusChange?.campaign.name}" deixará de veicular até ser reativada.`
+        }
+        loading={status.isPending}
+        onConfirm={() => statusChange && status.mutate(statusChange)}
+        onClose={() => setStatusChange(null)}
+      />
       <ConfirmDialog
         open={!!deleting}
         danger
@@ -260,6 +312,173 @@ function CampaignFormModal({ campaign, onClose }: { campaign: Campaign | null; o
           <Textarea id="cp-notes" {...form.register('notes')} />
         </Field>
       </form>
+    </Modal>
+  );
+}
+
+function PublishModal({ campaign, onClose }: { campaign: Campaign; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const integrations = useQuery({ queryKey: ['integrations', organizationId], queryFn: () => api('integration.list', { organizationId }) });
+  const accounts = integrations.data?.find((i) => i.platform === campaign.platform)?.accounts ?? [];
+  const [accountId, setAccountId] = useState<string>(campaign.advertisingAccountId ?? '');
+  const [confirmed, setConfirmed] = useState(false);
+  const check = useQuery({
+    queryKey: ['preflight', campaign.id, accountId],
+    queryFn: () => api('campaign.preflight', { organizationId, id: campaign.id, accountId: accountId || null }),
+  });
+  const publish = useMutation({
+    mutationFn: () => api('campaign.publish', { organizationId, id: campaign.id, accountId, confirm: true }),
+    onSuccess: async (c) => {
+      toast.success(`Campanha criada (pausada) na plataforma — ID ${c.remoteId}.`);
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+      onClose();
+    },
+    onError: async (e) => {
+      toast.error(e);
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+  });
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title={`Publicar "${campaign.name}"`}
+      description={`Criação pela API oficial do ${PLATFORM_LABEL[campaign.platform]}. A campanha é criada PAUSADA.`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button icon={<Send className="size-4" />} loading={publish.isPending} disabled={!check.data?.ok || !confirmed || !accountId} onClick={() => publish.mutate()}>
+            Publicar pausada
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <Field label="Conta de anúncios" htmlFor="pub-account" hint={accounts.length === 0 ? 'Nenhuma conta sincronizada. Conecte e sincronize em Integrações.' : undefined}>
+          <Select id="pub-account" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+            <option value="">Selecione…</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name} ({a.remoteId}){a.currency ? ` · ${a.currency}` : ''}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        {check.isLoading && <LoadingState rows={2} />}
+        {check.error && <ErrorState error={check.error} />}
+        {check.data && (
+          <ul className="flex flex-col gap-2" aria-label="Verificações antes de publicar">
+            {check.data.items.map((i) => (
+              <li key={i.label} className="flex items-start gap-2 text-sm">
+                {i.ok ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-label="ok" /> : <XCircle className="mt-0.5 size-4 shrink-0 text-danger" aria-label="pendente" />}
+                <span>
+                  <span className="font-medium">{i.label}:</span> <span className="text-muted">{i.detail}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <label className="flex items-start gap-2 rounded-lg border border-border bg-surface-2 p-3 text-sm">
+          <input type="checkbox" className="mt-0.5" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
+          <span>Confirmo a criação desta campanha na conta selecionada. Entendo que conjuntos/grupos de anúncios e anúncios devem ser configurados e revisados antes de ativar.</span>
+        </label>
+      </div>
+    </Modal>
+  );
+}
+
+function BudgetModal({ campaign, onClose }: { campaign: Campaign; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const limits = useQuery({ queryKey: ['publishing-limits', organizationId], queryFn: () => api('publishing.getLimits', { organizationId }) });
+  const [amount, setAmount] = useState(campaign.dailyBudget ? String(campaign.dailyBudget) : '');
+  const value = Number(amount);
+  const save = useMutation({
+    mutationFn: () => api('campaign.updateRemoteBudget', { organizationId, id: campaign.id, amount: value, confirm: true }),
+    onSuccess: async () => {
+      toast.success('Orçamento atualizado na plataforma.');
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+      onClose();
+    },
+    onError: (e) => toast.error(e),
+  });
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Alterar orçamento diário"
+      description={`Aplicado diretamente em ${PLATFORM_LABEL[campaign.platform]}. Atual: ${formatCurrency(campaign.dailyBudget, campaign.currency)}.`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button loading={save.isPending} disabled={!(value > 0)} onClick={() => save.mutate()}>
+            Aplicar novo orçamento
+          </Button>
+        </>
+      }
+    >
+      <Field
+        label={`Novo orçamento diário (${campaign.currency})`}
+        htmlFor="rb-amount"
+        hint={
+          limits.data
+            ? `Limites da organização: máximo ${limits.data.maxDailyBudget === null ? 'sem limite' : formatCurrency(limits.data.maxDailyBudget, campaign.currency)} por campanha; aumento de até ${limits.data.maxBudgetIncreasePercent ?? '∞'}% por alteração.`
+            : undefined
+        }
+      >
+        <Input id="rb-amount" type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      </Field>
+    </Modal>
+  );
+}
+
+const OP_LABEL: Record<string, string> = {
+  createCampaign: 'Criar campanha',
+  pauseCampaign: 'Pausar',
+  resumeCampaign: 'Ativar',
+  updateBudget: 'Alterar orçamento',
+  uploadImage: 'Enviar imagem',
+};
+
+const OP_STATUS: Record<PlatformOperation['status'], { label: string; tone: 'success' | 'danger' | 'warning' | 'neutral' }> = {
+  succeeded: { label: 'Confirmada', tone: 'success' },
+  failed: { label: 'Recusada', tone: 'danger' },
+  unknown: { label: 'Resultado incerto', tone: 'warning' },
+  pending: { label: 'Em andamento', tone: 'neutral' },
+};
+
+function HistoryModal({ campaign, onClose }: { campaign: Campaign; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const ops = useQuery({ queryKey: ['operations', campaign.id], queryFn: () => api('campaign.operations', { organizationId, id: campaign.id }) });
+  return (
+    <Modal open onClose={onClose} size="lg" title="Histórico de operações" description={`Escritas enviadas à plataforma para "${campaign.name}".`}>
+      {ops.isLoading && <LoadingState rows={2} />}
+      {ops.error && <ErrorState error={ops.error} />}
+      {ops.data?.length === 0 && <p className="text-sm text-muted">Nenhuma operação enviada à plataforma.</p>}
+      <ul className="flex flex-col gap-2">
+        {ops.data?.map((o) => (
+          <li key={o.id} className="rounded-lg border border-border bg-surface-2 p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-medium">{OP_LABEL[o.operation] ?? o.operation}</span>
+              <Badge tone={OP_STATUS[o.status].tone}>{OP_STATUS[o.status].label}</Badge>
+            </div>
+            <p className="mt-1 text-xs text-subtle">
+              {formatDateTime(o.createdAt)}
+              {o.remoteId && <> · ID remoto {o.remoteId}</>}
+            </p>
+            {o.error && <p className="mt-1 text-xs text-danger selectable">{o.error}</p>}
+          </li>
+        ))}
+      </ul>
     </Modal>
   );
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Download, FileText, GitCompare, ImagePlus, Images, Pencil, Plus, Send, Tag, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle2, Download, UploadCloud, FileText, GitCompare, ImagePlus, Images, Pencil, Plus, Send, Tag, Trash2, XCircle } from 'lucide-react';
 import { CreativeKind, FunnelStage, formatBytes, formatDateTime, type Asset, type Creative, type CreativeStatus } from '@advertex/shared';
 import { validateText } from '@advertex/advertising-core';
 import { api } from '../lib/api';
@@ -398,6 +398,7 @@ function AssetsTab() {
   const [tagging, setTagging] = useState<Asset | null>(null);
   const [tagInput, setTagInput] = useState('');
   const [deleting, setDeleting] = useState<Asset | null>(null);
+  const [uploading, setUploading] = useState<Asset | null>(null);
   const assets = useQuery({ queryKey: ['assets', organizationId, search], queryFn: () => api('asset.list', { organizationId, projectId: null, search }) });
 
   const importMut = useMutation({
@@ -479,6 +480,9 @@ function AssetsTab() {
                   }}
                 />
                 <Button size="sm" variant="ghost" aria-label="Exportar" icon={<Download className="size-3.5" />} onClick={() => exportMut.mutate(a.id)} />
+                {a.mimeType.startsWith('image/') && (
+                  <Button size="sm" variant="ghost" aria-label="Enviar para conta de anúncios" icon={<UploadCloud className="size-3.5" />} onClick={() => setUploading(a)} />
+                )}
                 <Button size="sm" variant="ghost" aria-label="Excluir" icon={<Trash2 className="size-3.5" />} onClick={() => setDeleting(a)} />
               </div>
             </div>
@@ -512,6 +516,7 @@ function AssetsTab() {
           </Field>
         </Modal>
       )}
+      {uploading && <UploadToPlatformModal asset={uploading} onClose={() => setUploading(null)} />}
       <ConfirmDialog
         open={!!deleting}
         danger
@@ -523,5 +528,50 @@ function AssetsTab() {
         onClose={() => setDeleting(null)}
       />
     </>
+  );
+}
+
+function UploadToPlatformModal({ asset, onClose }: { asset: Asset; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const toast = useToast();
+  const integrations = useQuery({ queryKey: ['integrations', organizationId], queryFn: () => api('integration.list', { organizationId }) });
+  const accounts = (integrations.data ?? []).flatMap((i) => i.accounts);
+  const [accountId, setAccountId] = useState('');
+  const upload = useMutation({
+    mutationFn: () => api('asset.uploadToPlatform', { organizationId, id: asset.id, accountId }),
+    onSuccess: (r) => {
+      toast.success(`Imagem enviada. Identificador na plataforma: ${r.remoteId}`);
+      onClose();
+    },
+    onError: (e) => toast.error(e),
+  });
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Enviar imagem para a conta de anúncios"
+      description={`"${asset.fileName}" ficará disponível na biblioteca de mídia da conta escolhida.`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button icon={<UploadCloud className="size-4" />} loading={upload.isPending} disabled={!accountId} onClick={() => upload.mutate()}>
+            Enviar
+          </Button>
+        </>
+      }
+    >
+      <Field label="Conta de anúncios" htmlFor="up-account" hint={accounts.length === 0 ? 'Nenhuma conta sincronizada. Conecte e sincronize em Integrações.' : 'Enviar a mesma imagem de novo para a mesma conta não cria duplicata.'}>
+        <Select id="up-account" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
+          <option value="">Selecione…</option>
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {PLATFORM_LABEL[a.platform]} · {a.name} ({a.remoteId})
+            </option>
+          ))}
+        </Select>
+      </Field>
+    </Modal>
   );
 }

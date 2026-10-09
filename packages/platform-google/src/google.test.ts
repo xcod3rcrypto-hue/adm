@@ -76,3 +76,130 @@ describe('GoogleAdsAdapter', () => {
     await expect(a.fetchInsights('1234567890', { from: "2026-01-01' OR 1=1 --", to: '2026-01-02' })).rejects.toThrow(/Período/);
   });
 });
+
+describe('GoogleAdsAdapter — escritas', () => {
+  const make = (fetchImpl: (url: string, init?: RequestInit) => Promise<Response>) =>
+    new GoogleAdsAdapter({ developerToken: 'dev', getAccessToken: async () => 'at', fetchImpl, retry: { retries: 3, baseDelayMs: 1, timeoutMs: 5000 } });
+
+  it('cria orçamento e campanha de Pesquisa pausada', async () => {
+    const calls: Array<{ url: string; body: { operations: Array<Record<string, Record<string, unknown>>> } }> = [];
+    const a = make(async (url, init) => {
+      calls.push({ url, body: JSON.parse(String(init?.body)) });
+      if (url.endsWith('campaignBudgets:mutate')) return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/77' }] });
+      return json({ results: [{ resourceName: 'customers/1234567890/campaigns/555' }] });
+    });
+    const r = await a.createCampaign('1234567890', { name: 'Pesquisa', objective: 'SEARCH', dailyBudget: 25, currency: 'BRL' });
+    expect(r.remoteId).toBe('555');
+    expect(calls[0]!.body.operations[0]!.create!.amountMicros).toBe('25000000');
+    const camp = calls[1]!.body.operations[0]!.create!;
+    expect(camp.status).toBe('PAUSED');
+    expect(camp.campaignBudget).toBe('customers/1234567890/campaignBudgets/77');
+  });
+
+  it('remove o orçamento órfão se a campanha falhar e não repete a mutação', async () => {
+    const urls: string[] = [];
+    const a = make(async (url, init) => {
+      urls.push(`${url} ${String(init?.body).includes('remove') ? 'remove' : ''}`);
+      if (url.endsWith('campaignBudgets:mutate')) return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/77' }] });
+      return json({ error: { code: 500, message: 'interno' } }, 500);
+    });
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'SEARCH', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow();
+    expect(urls.filter((u) => u.includes('campaigns:mutate'))).toHaveLength(1);
+    expect(urls.at(-1)).toMatch(/campaignBudgets:mutate remove/);
+  });
+
+  it('recusa tipos de campanha não suportados na criação', async () => {
+    const a = make(async () => json({}));
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'PERFORMANCE_MAX', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow(/apenas campanhas de Pesquisa/);
+  });
+
+  it('altera status com updateMask e escapa nomes em GAQL', async () => {
+    const bodies: string[] = [];
+    const a = make(async (_url, init) => {
+      bodies.push(String(init?.body));
+      return json({ results: [] });
+    });
+    await a.setCampaignStatus('1234567890', '555', 'active');
+    expect(JSON.parse(bodies[0]!).operations[0]).toEqual({ update: { resourceName: 'customers/1234567890/campaigns/555', status: 'ENABLED' }, updateMask: 'status' });
+    await a.findCampaignByName('1234567890', "D'Ávila");
+    expect(JSON.parse(bodies[1]!).query).toContain("campaign.name = 'D\\'Ávila'");
+  });
+
+  it('atualiza orçamento buscando o recurso da campanha', async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const a = make(async (url, init) => {
+      bodies.push(JSON.parse(String(init?.body)));
+      if (url.endsWith('googleAds:search')) return json({ results: [{ campaign: { campaignBudget: 'customers/1234567890/campaignBudgets/9' } }] });
+      return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/9' }] });
+    });
+    await a.updateDailyBudget('1234567890', '555', 42);
+    expect(bodies[1]).toEqual({ operations: [{ update: { resourceName: 'customers/1234567890/campaignBudgets/9', amountMicros: '42000000' }, updateMask: 'amount_micros' }] });
+  });
+});
+
+describe('toGoogleError — mensagens orientadas', () => {
+  it('explica conta MCC e projeto restrito a contas de teste', async () => {
+    const { toGoogleError } = await import('./adapter');
+    const mcc = toGoogleError(400, { error: { code: 400, message: 'x', details: [{ errors: [{ errorCode: { contextError: 'OPERATION_NOT_PERMITTED_FOR_CONTEXT' }, message: 'The operation is not allowed for the given context.' }] }] } });
+    expect(mcc.message).toMatch(/administrador \(MCC\)/);
+    const test = toGoogleError(403, { error: { code: 403, message: 'The Google Cloud project is only approved for use with test accounts. To access non-test accounts, apply for Explorer, Basic or Standard access.' } });
+    expect(test.message).toMatch(/só tem acesso a contas de teste/);
+  });
+});
+
+describe('erros detalhados na criação', () => {
+  it('informa etapa, código, campo e request-id', async () => {
+    const a = new GoogleAdsAdapter({
+      developerToken: 'dev',
+      getAccessToken: async () => 'at',
+      retry: { retries: 0, baseDelayMs: 1, timeoutMs: 5000 },
+      fetchImpl: async (url) =>
+        url.endsWith('campaignBudgets:mutate')
+          ? json({
+              error: {
+                code: 400,
+                message: 'Request contains an invalid argument.',
+                status: 'INVALID_ARGUMENT',
+                details: [{ requestId: 'abc123', errors: [{ errorCode: { fieldError: 'REQUIRED' }, message: 'The required field was not present.', location: { fieldPathElements: [{ fieldName: 'operations' }, { fieldName: 'create' }, { fieldName: 'amount_micros' }] } }] }],
+              },
+            }, 400)
+          : json({}),
+    });
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'SEARCH', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow(
+      /Google Ads recusou ao criar o orçamento: The required field was not present\. \(código REQUIRED · campo operations\.create\.amount_micros · request-id abc123\)/,
+    );
+  });
+});
+
+describe('contas sob MCC', () => {
+  it('lista contas vinculadas à MCC com o login-customer-id correto por conta', async () => {
+    const calls: Array<{ url: string; login: string | undefined; query?: string }> = [];
+    const a = new GoogleAdsAdapter({
+      developerToken: 'dev',
+      getAccessToken: async () => 'at',
+      retry: { retries: 0, baseDelayMs: 1, timeoutMs: 5000 },
+      loginCustomerIdFor: (id) => (id === '2222222222' ? '1111111111' : undefined),
+      fetchImpl: async (url, init) => {
+        const login = (init?.headers as Record<string, string>)['login-customer-id'];
+        const query = init?.body ? (JSON.parse(String(init.body)) as { query?: string }).query : undefined;
+        calls.push({ url, login, query });
+        if (url.endsWith('customers:listAccessibleCustomers')) return json({ resourceNames: ['customers/1111111111'] });
+        if (query?.includes('FROM customer_client')) {
+          return json({ results: [{ customerClient: { id: '2222222222', descriptiveName: 'Loja', currencyCode: 'BRL', timeZone: 'America/Sao_Paulo', status: 'ENABLED', manager: false } }] });
+        }
+        if (query?.includes('FROM customer ')) return json({ results: [{ customer: { id: '1111111111', descriptiveName: 'Minha MCC', currencyCode: 'BRL', manager: true } }] });
+        return json({ results: [] });
+      },
+    });
+    const accounts = await a.listAccounts();
+    expect(accounts).toEqual([
+      expect.objectContaining({ remoteId: '1111111111', name: 'Minha MCC (MCC)', loginCustomerId: '1111111111' }),
+      expect.objectContaining({ remoteId: '2222222222', name: 'Loja', currency: 'BRL', loginCustomerId: '1111111111' }),
+    ]);
+    expect(calls.filter((c) => c.query).every((c) => c.login === '1111111111')).toBe(true);
+
+    // Operações na conta filha usam a MCC como login-customer-id.
+    await a.listCampaigns('2222222222');
+    expect(calls.at(-1)).toMatchObject({ url: expect.stringContaining('customers/2222222222/'), login: '1111111111' });
+  });
+});

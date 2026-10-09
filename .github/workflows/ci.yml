@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, tipos, testes e E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: E2E (Electron + Playwright)
+        run: xvfb-run -a npm run test:e2e
+      - name: Capturas de tela do E2E
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screens
+          path: test-results/
+          if-no-files-found: ignore
+
+  windows-installer:
+    name: Instalador Windows (build + verificação de instalação)
+    needs: checks
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Gerar instalador EXE
+        run: npm run dist:win
+      - name: Instalar, verificar atalhos, abrir pelo atalho e desinstalar
+        shell: pwsh
+        run: ./infra/scripts/verify-install.ps1 -Uninstall
+      - name: Publicar instalador como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: ADVERTEX-AI-Studio-Setup
+          path: release/*.exe
+          if-no-files-found: error
+
+  release:
+    name: Publicar atualização (GitHub Release)
+    needs: [checks, windows-installer]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Definir versão da release (0.2.<número da execução>)
+        shell: bash
+        run: npm version "0.2.${{ github.run_number }}" --no-git-tag-version --allow-same-version
+      - run: npm run build
+      - name: Gerar instalador e publicar na Release (usada pela atualização automática)
+        run: npx electron-builder --win --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

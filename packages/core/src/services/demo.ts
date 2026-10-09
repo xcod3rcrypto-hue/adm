@@ -90,11 +90,12 @@ export function enableDemo(ctx: AppContext, today: Date = new Date()): Organizat
     });
 
     const campaigns = [
-      { platform: 'meta', name: 'Demo · Prospecção · Cafés especiais', objective: 'OUTCOME_SALES', budget: 180, project: 0, base: 1.0 },
-      { platform: 'meta', name: 'Demo · Remarketing · Carrinho', objective: 'OUTCOME_SALES', budget: 90, project: 0, base: 0.6 },
-      { platform: 'meta', name: 'Demo · Leads · Cafeterias', objective: 'OUTCOME_LEADS', budget: 70, project: 1, base: 0.5 },
-      { platform: 'google', name: 'Demo · Pesquisa · Marca', objective: 'SEARCH', budget: 60, project: 0, base: 0.4 },
-      { platform: 'google', name: 'Demo · Performance Max', objective: 'PERFORMANCE_MAX', budget: 150, project: 0, base: 0.9 },
+      { platform: 'meta', name: 'Demo · Prospecção · Cafés especiais', objective: 'OUTCOME_SALES', budget: 180, project: 0, base: 1.0, pattern: null },
+      // Padrões fictícios para demonstrar a Inteligência: queda de CTR (fadiga) e conversões zeradas (rastreamento).
+      { platform: 'meta', name: 'Demo · Remarketing · Carrinho', objective: 'OUTCOME_SALES', budget: 90, project: 0, base: 0.6, pattern: 'fatigue' },
+      { platform: 'meta', name: 'Demo · Leads · Cafeterias', objective: 'OUTCOME_LEADS', budget: 70, project: 1, base: 0.5, pattern: 'tracking' },
+      { platform: 'google', name: 'Demo · Pesquisa · Marca', objective: 'SEARCH', budget: 60, project: 0, base: 0.4, pattern: null },
+      { platform: 'google', name: 'Demo · Performance Max', objective: 'PERFORMANCE_MAX', budget: 150, project: 0, base: 0.9, pattern: null },
     ] as const;
 
     for (const c of campaigns) {
@@ -111,10 +112,11 @@ export function enableDemo(ctx: AppContext, today: Date = new Date()): Organizat
         const spend = Math.round(c.budget * season * (0.75 + rand() * 0.4) * 100) / 100;
         const cpm = c.platform === 'meta' ? 18 + rand() * 10 : 30 + rand() * 25;
         const impressions = Math.round((spend / cpm) * 1000);
-        const ctr = c.platform === 'meta' ? 0.009 + rand() * 0.008 : 0.03 + rand() * 0.04;
+        const fatigue = c.pattern === 'fatigue' && d < 14 ? 0.55 : 1;
+        const ctr = (c.platform === 'meta' ? 0.009 + rand() * 0.008 : 0.03 + rand() * 0.04) * fatigue;
         const clicks = Math.round(impressions * ctr);
         const cvr = 0.015 + rand() * 0.025 * c.base;
-        const conversions = Math.round(clicks * cvr);
+        const conversions = c.pattern === 'tracking' && d <= 2 ? 0 : Math.round(clicks * cvr);
         const revenue = c.objective === 'OUTCOME_LEADS' ? null : Math.round(conversions * (85 + rand() * 60) * 100) / 100;
         ctx.db.run(
           `INSERT INTO metric_snapshots (id, organization_id, campaign_id, platform, date, currency, spend, impressions, reach, clicks, conversions, revenue, source, definition, fetched_at)

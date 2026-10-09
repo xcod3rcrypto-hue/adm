@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
+import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, Gauge, RefreshCw, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
 import { formatDateTime } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
@@ -13,6 +13,8 @@ export function SettingsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <OrganizationCard />
         <AiCard />
+        <UpdatesCard />
+        <LimitsCard />
         <DemoCard />
         <DiagnosticsCard />
       </div>
@@ -54,7 +56,7 @@ function OrganizationCard() {
           Salvar
         </Button>
       </form>
-      <p className="px-5 pb-5 text-xs text-subtle">Usuários, papéis e permissões multiusuário chegam com o backend hospedado (ver docs/ROADMAP.md). Nesta versão, há um único usuário local proprietário.</p>
+      <p className="px-5 pb-5 text-xs text-subtle">Usuários, papéis e permissões multiusuário dependem de um backend hospedado (ver docs/ROADMAP.md). Nesta versão, há um único usuário local proprietário.</p>
     </Card>
   );
 }
@@ -144,6 +146,108 @@ function AiCard() {
             )}
           </div>
           {testResult && <Notice tone="success">{testResult}</Notice>}
+        </form>
+      )}
+    </Card>
+  );
+}
+
+function UpdatesCard() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const state = useQuery({ queryKey: ['update'], queryFn: () => api('app.updateStatus') });
+  const check = useMutation({
+    mutationFn: () => api('app.checkUpdates'),
+    onSuccess: (s) => {
+      qc.setQueryData(['update'], s);
+      if (s.status === 'up-to-date') toast.success('Você já está na versão mais recente.');
+      else if (s.status === 'available') toast.info(`Versão ${s.availableVersion} disponível: use o aviso no topo para atualizar.`);
+      else if (s.error) toast.info(s.error);
+    },
+    onError: (e) => toast.error(e),
+  });
+  const s = state.data;
+  return (
+    <Card>
+      <CardHeader
+        title={<span className="flex items-center gap-2"><RefreshCw className="size-4" /> Atualizações</span>}
+        description="O app verifica novas versões ao abrir e a cada 4 horas. Você escolhe quando atualizar; seus dados são mantidos."
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3 p-5 text-sm">
+        <div>
+          <p>
+            Versão instalada: <b>{s?.currentVersion ?? '—'}</b>
+          </p>
+          <p className="text-xs text-subtle">
+            {s?.status === 'disabled'
+              ? 'Atualização automática disponível apenas no app instalado.'
+              : s?.status === 'up-to-date'
+                ? `Atualizado · verificado em ${formatDateTime(s.checkedAt)}`
+                : s?.status === 'available' || s?.status === 'downloading' || s?.status === 'downloaded'
+                  ? `Nova versão ${s.availableVersion} disponível.`
+                  : (s?.error ?? 'Ainda não verificado.')}
+          </p>
+        </div>
+        <Button variant="secondary" icon={<RefreshCw className="size-4" />} loading={check.isPending || s?.status === 'checking'} disabled={s?.status === 'disabled'} onClick={() => check.mutate()}>
+          Verificar agora
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function LimitsCard() {
+  const organizationId = useOrgId();
+  const { org } = useOrg();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const limits = useQuery({ queryKey: ['publishing-limits', organizationId], queryFn: () => api('publishing.getLimits', { organizationId }) });
+  const [maxBudget, setMaxBudget] = useState('');
+  const [maxIncrease, setMaxIncrease] = useState('');
+  useEffect(() => {
+    if (!limits.data) return;
+    setMaxBudget(limits.data.maxDailyBudget === null ? '' : String(limits.data.maxDailyBudget));
+    setMaxIncrease(limits.data.maxBudgetIncreasePercent === null ? '' : String(limits.data.maxBudgetIncreasePercent));
+  }, [limits.data]);
+  const save = useMutation({
+    mutationFn: () =>
+      api('publishing.saveLimits', {
+        organizationId,
+        limits: { maxDailyBudget: maxBudget === '' ? null : Number(maxBudget), maxBudgetIncreasePercent: maxIncrease === '' ? null : Number(maxIncrease) },
+      }),
+    onSuccess: async () => {
+      toast.success('Limites de publicação salvos.');
+      await qc.invalidateQueries({ queryKey: ['publishing-limits', organizationId] });
+    },
+    onError: (e) => toast.error(e),
+  });
+  return (
+    <Card>
+      <CardHeader
+        title={<span className="flex items-center gap-2"><Gauge className="size-4" /> Limites de publicação</span>}
+        description="Valem para ações manuais e automações: nenhuma alteração de orçamento ultrapassa estes limites."
+      />
+      {limits.isLoading && <div className="p-5"><LoadingState rows={1} /></div>}
+      {limits.error && <div className="p-5"><ErrorState error={limits.error} /></div>}
+      {limits.data && (
+        <form
+          className="grid gap-3 p-5 sm:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save.mutate();
+          }}
+        >
+          <Field label="Orçamento diário máximo por campanha" htmlFor="lim-budget" hint="Na moeda da campanha. Vazio = sem limite.">
+            <Input id="lim-budget" type="number" min="0" step="0.01" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} disabled={org?.isDemo} />
+          </Field>
+          <Field label="Aumento máximo por alteração (%)" htmlFor="lim-increase" hint="Vazio = sem limite. Padrão: 50%.">
+            <Input id="lim-increase" type="number" min="1" step="1" value={maxIncrease} onChange={(e) => setMaxIncrease(e.target.value)} disabled={org?.isDemo} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Button type="submit" variant="secondary" loading={save.isPending} disabled={org?.isDemo}>
+              Salvar limites
+            </Button>
+          </div>
         </form>
       )}
     </Card>

@@ -138,13 +138,13 @@ describe('campanhas (rascunhos locais)', () => {
     expect(listCampaigns(ctx, org.id)).toHaveLength(0);
   });
 
-  it('campanhas importadas são somente leitura', () => {
+  it('campanhas que existem na plataforma não são editadas localmente', () => {
     const org = createOrganization(ctx, { name: 'Org' });
     ctx.db.run(
       "INSERT INTO campaigns (id, organization_id, platform, remote_id, name, objective, status, currency, sync_state, created_at, updated_at) VALUES ('00000000-0000-4000-8000-0000000000aa', ?, 'meta', '123', 'Remota', 'OUTCOME_SALES', 'active', 'BRL', 'synced', 'n', 'n')",
       [org.id],
     );
-    expect(() => deleteCampaignDraft(ctx, org.id, '00000000-0000-4000-8000-0000000000aa')).toThrow(/somente leitura/);
+    expect(() => deleteCampaignDraft(ctx, org.id, '00000000-0000-4000-8000-0000000000aa')).toThrow(/já existem na plataforma/);
   });
 });
 

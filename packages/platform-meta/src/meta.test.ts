@@ -44,3 +44,43 @@ describe('MetaAdsAdapter', () => {
     expect(minorToMajor(undefined, 'BRL')).toBeNull();
   });
 });
+
+describe('MetaAdsAdapter — escritas', () => {
+  it('cria campanha pausada, em centavos, sem retentativa automática', async () => {
+    const fetchImpl = vi.fn(async () => json({ id: '120000000001' }));
+    const a = new MetaAdsAdapter({ accessToken: 'tok', fetchImpl, retry: { retries: 3, baseDelayMs: 1, timeoutMs: 5000 } });
+    const r = await a.createCampaign('123', { name: 'Vendas', objective: 'OUTCOME_SALES', dailyBudget: 50.5, currency: 'BRL' });
+    expect(r.remoteId).toBe('120000000001');
+    const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('https://graph.facebook.com/v26.0/act_123/campaigns');
+    expect(init.method).toBe('POST');
+    const body = new URLSearchParams(String(init.body));
+    expect(body.get('status')).toBe('PAUSED');
+    expect(body.get('daily_budget')).toBe('5050');
+    expect(body.get('access_token')).toBeNull();
+  });
+
+  it('não repete escrita em erro 500 (evita duplicidade)', async () => {
+    const fetchImpl = vi.fn(async () => json({ error: { message: 'boom', code: 2 } }, 500));
+    const a = new MetaAdsAdapter({ accessToken: 'tok', fetchImpl, retry: { retries: 3, baseDelayMs: 1, timeoutMs: 5000 } });
+    await expect(a.setCampaignStatus('1', '999', 'paused')).rejects.toBeInstanceOf(PlatformApiError);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('localiza campanha por nome exato para verificar operações incertas', async () => {
+    const a = new MetaAdsAdapter({ accessToken: 'tok', retry: noRetry, fetchImpl: async () => json({ data: [{ id: '1', name: 'Vendas 2' }, { id: '2', name: 'Vendas' }] }) });
+    expect(await a.findCampaignByName('5', 'Vendas')).toBe('2');
+    expect(await a.findCampaignByName('5', 'Outra')).toBeNull();
+  });
+
+  it('rejeita objetivo fora do padrão OUTCOME_* e IDs inválidos', async () => {
+    const a = new MetaAdsAdapter({ accessToken: 'tok', retry: noRetry, fetchImpl: async () => json({}) });
+    await expect(a.createCampaign('1', { name: 'X', objective: 'SEARCH', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow(/OUTCOME/);
+    await expect(a.updateDailyBudget('1', '../me', 10, 'BRL')).rejects.toThrow(/inválido/);
+  });
+
+  it('envia imagem e retorna o hash', async () => {
+    const a = new MetaAdsAdapter({ accessToken: 'tok', retry: noRetry, fetchImpl: async () => json({ images: { 'a.png': { hash: 'abc123' } } }) });
+    expect(await a.uploadImage('1', 'a.png', new Uint8Array([1, 2, 3]))).toEqual({ remoteId: 'abc123' });
+  });
+});

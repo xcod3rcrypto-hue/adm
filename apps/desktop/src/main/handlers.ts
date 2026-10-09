@@ -1,8 +1,9 @@
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, writeFileSync } from 'node:fs';
 import { BrowserWindow, app, dialog, shell } from 'electron';
 import { AppError } from '@advertex/shared';
 import * as core from '@advertex/core';
 import type { HandlerMap } from './ipc';
+import type { Updater } from './updater';
 
 export interface AppPaths {
   userData: string;
@@ -33,7 +34,7 @@ export function isAllowedExternal(url: string): boolean {
   }
 }
 
-export function createHandlers(paths: AppPaths): HandlerMap {
+export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
   return {
     'app.getInfo': () => ({
       name: app.getName(),
@@ -53,6 +54,11 @@ export function createHandlers(paths: AppPaths): HandlerMap {
       if (!isAllowedExternal(url)) throw new AppError('FORBIDDEN', 'Link externo não permitido.');
       await shell.openExternal(url);
     },
+
+    'app.updateStatus': () => updater.getState(),
+    'app.checkUpdates': () => updater.check(),
+    'app.downloadUpdate': () => updater.download(),
+    'app.installUpdate': () => updater.install(),
 
     'onboarding.getState': ({ organizationId }, ctx) => core.onboardingState(ctx, organizationId),
 
@@ -158,6 +164,15 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'campaign.update': ({ organizationId, id, data }, ctx) => core.updateCampaignDraft(ctx, organizationId, id, data),
     'campaign.delete': ({ organizationId, id }, ctx) => core.deleteCampaignDraft(ctx, organizationId, id),
 
+    'campaign.preflight': ({ organizationId, id, accountId }, ctx) => core.preflightPublish(ctx, organizationId, id, accountId),
+    'campaign.publish': ({ organizationId, id, accountId }, ctx) => core.publishCampaign(ctx, organizationId, id, accountId),
+    'campaign.setRemoteStatus': ({ organizationId, id, status }, ctx) => core.setCampaignRemoteStatus(ctx, organizationId, id, status),
+    'campaign.updateRemoteBudget': ({ organizationId, id, amount }, ctx) => core.updateCampaignRemoteBudget(ctx, organizationId, id, amount),
+    'campaign.operations': ({ organizationId, id }, ctx) => core.listPlatformOperations(ctx, organizationId, id),
+    'publishing.getLimits': ({ organizationId }, ctx) => core.getPublishingLimits(ctx, organizationId),
+    'publishing.saveLimits': ({ organizationId, limits }, ctx) => core.savePublishingLimits(ctx, organizationId, limits),
+    'asset.uploadToPlatform': ({ organizationId, id, accountId }, ctx) => core.uploadAssetToPlatform(ctx, organizationId, id, accountId),
+
     'dashboard.summary': ({ organizationId, from, to, platform }, ctx) => core.dashboardSummary(ctx, organizationId, from, to, platform),
 
     'integration.list': ({ organizationId }, ctx) => core.listIntegrations(ctx, organizationId),
@@ -173,6 +188,101 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'integration.google.syncInsights': ({ organizationId, accountId, from, to }, ctx) => core.syncInsights(ctx, organizationId, 'google', accountId, { from, to }),
     'integration.disconnect': ({ organizationId, platform }, ctx) => core.disconnect(ctx, organizationId, platform),
 
+    'intelligence.get': ({ organizationId }, ctx) => core.getIntelligence(ctx, organizationId),
+    'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),
+    'recommendation.setStatus': ({ organizationId, id, status }, ctx) => core.setRecommendationStatus(ctx, organizationId, id, status),
+
+    'experiment.list': ({ organizationId }, ctx) => core.listExperiments(ctx, organizationId),
+    'experiment.create': ({ organizationId, data }, ctx) => core.createExperiment(ctx, organizationId, data),
+    'experiment.update': ({ organizationId, id, data }, ctx) => core.updateExperiment(ctx, organizationId, id, data),
+    'experiment.importMetrics': ({ organizationId, id }, ctx) => core.importExperimentMetrics(ctx, organizationId, id),
+    'experiment.evaluate': ({ organizationId, id }, ctx) => core.evaluateExperimentById(ctx, organizationId, id),
+    'experiment.conclude': ({ organizationId, id, conclusion }, ctx) => core.concludeExperiment(ctx, organizationId, id, conclusion),
+    'experiment.setStatus': ({ organizationId, id, status }, ctx) => core.setExperimentStatus(ctx, organizationId, id, status),
+    'experiment.delete': ({ organizationId, id }, ctx) => core.deleteExperiment(ctx, organizationId, id),
+
+    'automation.overview': ({ organizationId }, ctx) => core.getAutomationOverview(ctx, organizationId),
+    'automation.create': ({ organizationId, data }, ctx) => core.createRule(ctx, organizationId, data),
+    'automation.update': ({ organizationId, id, data }, ctx) => core.updateRule(ctx, organizationId, id, data),
+    'automation.delete': ({ organizationId, id }, ctx) => core.deleteRule(ctx, organizationId, id),
+    'automation.setEnabled': ({ organizationId, id, enabled }, ctx) => core.setRuleEnabled(ctx, organizationId, id, enabled),
+    'automation.simulate': ({ organizationId, data }, ctx) => core.simulateRule(ctx, organizationId, data),
+    'automation.runNow': ({ organizationId, id }, ctx) => core.runRule(ctx, organizationId, id),
+    'automation.decide': ({ organizationId, executionId, decision }, ctx) => core.decideApproval(ctx, organizationId, executionId, decision),
+    'automation.killSwitch': ({ organizationId, active }, ctx) => core.setKillSwitch(ctx, organizationId, active),
+    'notification.list': ({ organizationId }, ctx) => core.listNotifications(ctx, organizationId),
+    'notification.unread': ({ organizationId }, ctx) => core.unreadNotifications(ctx, organizationId),
+    'notification.markRead': ({ organizationId, ids }, ctx) => core.markNotificationsRead(ctx, organizationId, ids),
+
+    'report.list': ({ organizationId }, ctx) => core.listReports(ctx, organizationId),
+    'report.create': ({ organizationId, data }, ctx) => core.createReport(ctx, organizationId, data),
+    'report.get': ({ organizationId, id }, ctx) => core.getReport(ctx, organizationId, id),
+    'report.delete': ({ organizationId, id }, ctx) => core.deleteReport(ctx, organizationId, id),
+    'report.export': async ({ organizationId, id, format }, ctx, event) => {
+      const report = core.getReport(ctx, organizationId, id);
+      const win = BrowserWindow.fromWebContents(event.sender);
+      const base = `${report.title.replace(/[\\/:*?"<>|]+/g, '-').slice(0, 80)} (${report.periodFrom} a ${report.periodTo})`;
+      const opts: Electron.SaveDialogOptions = {
+        title: format === 'pdf' ? 'Exportar relatório em PDF' : 'Exportar relatório em CSV',
+        defaultPath: `${base}.${format}`,
+        filters: [format === 'pdf' ? { name: 'PDF', extensions: ['pdf'] } : { name: 'CSV (Excel)', extensions: ['csv'] }],
+      };
+      const res = win ? await dialog.showSaveDialog(win, opts) : await dialog.showSaveDialog(opts);
+      if (res.canceled || !res.filePath) return { savedTo: null };
+      if (format === 'csv') writeFileSync(res.filePath, core.reportToCsv(report), 'utf8');
+      else writeFileSync(res.filePath, await renderPdf(core.reportToHtml(report)));
+      core.recordReportExport(ctx, organizationId, id, format);
+      return { savedTo: res.filePath };
+    },
+
+    'calendar.list': ({ organizationId, from, to }, ctx) => core.listCalendar(ctx, organizationId, from, to),
+    'calendar.create': ({ organizationId, data }, ctx) => ({ id: core.createCalendarEvent(ctx, organizationId, data) }),
+    'calendar.update': ({ organizationId, id, data }, ctx) => core.updateCalendarEvent(ctx, organizationId, id, data),
+    'calendar.delete': ({ organizationId, id }, ctx) => core.deleteCalendarEvent(ctx, organizationId, id),
+
+    'competitor.list': ({ organizationId }, ctx) => core.listCompetitors(ctx, organizationId),
+    'competitor.create': ({ organizationId, data }, ctx) => core.createCompetitor(ctx, organizationId, data),
+    'competitor.update': ({ organizationId, id, data }, ctx) => core.updateCompetitor(ctx, organizationId, id, data),
+    'competitor.delete': ({ organizationId, id }, ctx) => core.deleteCompetitor(ctx, organizationId, id),
+    'competitor.capture': async ({ organizationId, competitorId, url }, ctx) => {
+      core.getOrganization(ctx, organizationId);
+      let page;
+      try {
+        page = await core.fetchPublicPage(url);
+      } catch (err) {
+        throw new AppError('EXTERNAL_API', err instanceof Error ? err.message : 'Falha ao capturar a página.', { cause: err });
+      }
+      return core.addCompetitorReference(ctx, organizationId, competitorId, page);
+    },
+    'competitor.classify': ({ organizationId, id, data }, ctx) => core.classifyReference(ctx, organizationId, id, data),
+    'competitor.classifyAi': ({ organizationId, id }, ctx) => core.classifyReferenceWithAi(ctx, organizationId, id),
+    'competitor.deleteReference': ({ organizationId, id }, ctx) => core.deleteReference(ctx, organizationId, id),
+    'competitor.analyze': ({ organizationId, projectId }, ctx) => core.analyzeCompetition(ctx, organizationId, projectId),
+    'competitor.latestAnalysis': ({ organizationId, projectId }, ctx) => core.getLatestCompetitiveAnalysis(ctx, organizationId, projectId),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
+}
+
+/**
+ * Renderiza HTML autocontido em PDF A4 numa janela oculta, sem JavaScript e
+ * em sandbox (o HTML não referencia recursos externos; a CSP do documento
+ * também bloqueia qualquer carregamento).
+ */
+async function renderPdf(html: string): Promise<Buffer> {
+  const win = new BrowserWindow({ show: false, webPreferences: { javascript: false, sandbox: true, contextIsolation: true, nodeIntegration: false } });
+  try {
+    await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+    return await win.webContents.printToPDF({
+      pageSize: 'A4',
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate: '<span></span>',
+      footerTemplate:
+        '<div style="width:100%;font-size:8px;color:#5b6275;padding:0 14mm;display:flex;justify-content:space-between"><span>ADVERTEX AI Studio</span><span>Página <span class="pageNumber"></span> de <span class="totalPages"></span></span></div>',
+      margins: { top: 0.6, bottom: 0.7, left: 0.55, right: 0.55 },
+    });
+  } finally {
+    win.destroy();
+  }
 }

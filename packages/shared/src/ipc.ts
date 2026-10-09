@@ -23,6 +23,31 @@ import {
   type CreativeVersion,
   type DashboardSummary,
   type IntegrationView,
+  type IntelligenceReport,
+  type Experiment,
+  type PlatformOperation,
+  type AppNotification,
+  type UpdateState,
+  type Report,
+  type CalendarItem,
+  type Competitor,
+  type CompetitorReference,
+  type CompetitiveAnalysis,
+  CompetitorInput,
+  ReferenceClassification,
+  CalendarEventInput,
+  type ReportSummary,
+  ReportInput,
+  type AutomationExecution,
+  type AutomationOverview,
+  type AutomationRule,
+  type AutomationSimulation,
+  AutomationRuleInput,
+  type PublishCheck,
+  PublishingLimits,
+  ExperimentInput,
+  type Recommendation,
+  RecommendationStatus,
   type OnboardingState,
   type Organization,
   type PageAnalysis,
@@ -43,6 +68,10 @@ export const ipcInputs = {
   'app.getInfo': none,
   'app.openPath': z.object({ target: z.enum(['logs', 'data']) }),
   'app.openExternal': z.object({ url: z.url({ protocol: /^https$/ }) }),
+  'app.updateStatus': none,
+  'app.checkUpdates': none,
+  'app.downloadUpdate': none,
+  'app.installUpdate': none,
 
   'onboarding.getState': z.object({ organizationId: Id.nullable() }),
 
@@ -105,6 +134,15 @@ export const ipcInputs = {
   'campaign.update': z.object({ ...org, id: Id, data: CampaignInput }),
   'campaign.delete': z.object({ ...org, id: Id }),
 
+  'campaign.preflight': z.object({ ...org, id: Id, accountId: Id.nullable().default(null) }),
+  'campaign.publish': z.object({ ...org, id: Id, accountId: Id, confirm: z.literal(true) }),
+  'campaign.setRemoteStatus': z.object({ ...org, id: Id, status: z.enum(['active', 'paused']), confirm: z.literal(true) }),
+  'campaign.updateRemoteBudget': z.object({ ...org, id: Id, amount: z.number().positive().max(10_000_000), confirm: z.literal(true) }),
+  'campaign.operations': z.object({ ...org, id: Id.nullable().default(null) }),
+  'publishing.getLimits': z.object(org),
+  'publishing.saveLimits': z.object({ ...org, limits: PublishingLimits }),
+  'asset.uploadToPlatform': z.object({ ...org, id: Id, accountId: Id }),
+
   'dashboard.summary': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
 
   'integration.list': z.object(org),
@@ -122,7 +160,12 @@ export const ipcInputs = {
     clientId: z.string().trim().min(10).max(300).optional(),
     clientSecret: z.string().trim().min(5).max(300).optional(),
     developerToken: z.string().trim().min(5).max(300).optional(),
-    loginCustomerId: z.string().trim().regex(/^(\d{10})?$/, 'Somente 10 dígitos, sem hífens').default(''),
+    loginCustomerId: z
+      .string()
+      .trim()
+      .transform((v) => v.replace(/-/g, ''))
+      .pipe(z.string().regex(/^(\d{10})?$/, 'Informe os 10 dígitos do ID da conta de administrador'))
+      .default(''),
     apiVersion: z.string().regex(/^v\d+$/, 'Formato: v25'),
   }),
   'integration.google.authorize': z.object(org),
@@ -130,6 +173,54 @@ export const ipcInputs = {
   'integration.google.syncCampaigns': z.object({ ...org, accountId: Id }),
   'integration.google.syncInsights': z.object({ ...org, accountId: Id, from: isoDate, to: isoDate }),
   'integration.disconnect': z.object({ ...org, platform: Platform }),
+
+  'intelligence.get': z.object(org),
+  'intelligence.run': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
+  'recommendation.setStatus': z.object({ ...org, id: Id, status: RecommendationStatus }),
+
+  'experiment.list': z.object(org),
+  'experiment.create': z.object({ ...org, data: ExperimentInput }),
+  'experiment.update': z.object({ ...org, id: Id, data: ExperimentInput }),
+  'experiment.importMetrics': z.object({ ...org, id: Id }),
+  'experiment.evaluate': z.object({ ...org, id: Id }),
+  'experiment.conclude': z.object({ ...org, id: Id, conclusion: z.string().trim().max(4000).default('') }),
+  'experiment.setStatus': z.object({ ...org, id: Id, status: z.enum(['planned', 'running', 'cancelled']) }),
+  'experiment.delete': z.object({ ...org, id: Id }),
+
+  'automation.overview': z.object(org),
+  'automation.create': z.object({ ...org, data: AutomationRuleInput }),
+  'automation.update': z.object({ ...org, id: Id, data: AutomationRuleInput }),
+  'automation.delete': z.object({ ...org, id: Id }),
+  'automation.setEnabled': z.object({ ...org, id: Id, enabled: z.boolean() }),
+  'automation.simulate': z.object({ ...org, data: AutomationRuleInput }),
+  'automation.runNow': z.object({ ...org, id: Id }),
+  'automation.decide': z.object({ ...org, executionId: Id, decision: z.enum(['approve', 'reject']) }),
+  'automation.killSwitch': z.object({ ...org, active: z.boolean() }),
+  'notification.list': z.object(org),
+  'notification.unread': z.object(org),
+  'notification.markRead': z.object({ ...org, ids: z.array(Id).max(500).nullable().default(null) }),
+
+  'report.list': z.object(org),
+  'report.create': z.object({ ...org, data: ReportInput }),
+  'report.get': z.object({ ...org, id: Id }),
+  'report.delete': z.object({ ...org, id: Id }),
+  'report.export': z.object({ ...org, id: Id, format: z.enum(['csv', 'pdf']) }),
+
+  'calendar.list': z.object({ ...org, from: isoDate, to: isoDate }),
+  'calendar.create': z.object({ ...org, data: CalendarEventInput }),
+  'calendar.update': z.object({ ...org, id: Id, data: CalendarEventInput }),
+  'calendar.delete': z.object({ ...org, id: Id }),
+
+  'competitor.list': z.object(org),
+  'competitor.create': z.object({ ...org, data: CompetitorInput }),
+  'competitor.update': z.object({ ...org, id: Id, data: CompetitorInput }),
+  'competitor.delete': z.object({ ...org, id: Id }),
+  'competitor.capture': z.object({ ...org, competitorId: Id, url: z.url({ protocol: /^https?$/ }) }),
+  'competitor.classify': z.object({ ...org, id: Id, data: ReferenceClassification }),
+  'competitor.classifyAi': z.object({ ...org, id: Id }),
+  'competitor.deleteReference': z.object({ ...org, id: Id }),
+  'competitor.analyze': z.object({ ...org, projectId: Id.nullable().default(null) }),
+  'competitor.latestAnalysis': z.object({ ...org, projectId: Id.nullable().default(null) }),
 
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
@@ -148,6 +239,10 @@ export interface ChannelOutputs {
   'app.getInfo': AppInfo;
   'app.openPath': void;
   'app.openExternal': void;
+  'app.updateStatus': UpdateState;
+  'app.checkUpdates': UpdateState;
+  'app.downloadUpdate': UpdateState;
+  'app.installUpdate': void;
   'onboarding.getState': OnboardingState;
   'org.list': Organization[];
   'org.create': Organization;
@@ -189,6 +284,14 @@ export interface ChannelOutputs {
   'campaign.create': Campaign;
   'campaign.update': Campaign;
   'campaign.delete': void;
+  'campaign.preflight': PublishCheck;
+  'campaign.publish': Campaign;
+  'campaign.setRemoteStatus': Campaign;
+  'campaign.updateRemoteBudget': Campaign;
+  'campaign.operations': PlatformOperation[];
+  'publishing.getLimits': PublishingLimits;
+  'publishing.saveLimits': PublishingLimits;
+  'asset.uploadToPlatform': { remoteId: string };
   'dashboard.summary': DashboardSummary;
   'integration.list': IntegrationView[];
   'integration.meta.save': IntegrationView;
@@ -202,6 +305,48 @@ export interface ChannelOutputs {
   'integration.google.syncCampaigns': SyncResult;
   'integration.google.syncInsights': SyncResult;
   'integration.disconnect': IntegrationView;
+  'intelligence.get': IntelligenceReport;
+  'intelligence.run': IntelligenceReport;
+  'recommendation.setStatus': Recommendation;
+  'experiment.list': Experiment[];
+  'experiment.create': Experiment;
+  'experiment.update': Experiment;
+  'experiment.importMetrics': Experiment;
+  'experiment.evaluate': Experiment;
+  'experiment.conclude': Experiment;
+  'experiment.setStatus': Experiment;
+  'experiment.delete': void;
+  'automation.overview': AutomationOverview;
+  'automation.create': AutomationRule;
+  'automation.update': AutomationRule;
+  'automation.delete': void;
+  'automation.setEnabled': AutomationRule;
+  'automation.simulate': AutomationSimulation;
+  'automation.runNow': { matched: number; created: number; skipped: number; message: string };
+  'automation.decide': AutomationExecution;
+  'automation.killSwitch': AutomationOverview;
+  'notification.list': AppNotification[];
+  'notification.unread': number;
+  'notification.markRead': number;
+  'report.list': ReportSummary[];
+  'report.create': Report;
+  'report.get': Report;
+  'report.delete': void;
+  'report.export': { savedTo: string | null };
+  'calendar.list': CalendarItem[];
+  'calendar.create': { id: string };
+  'calendar.update': void;
+  'calendar.delete': void;
+  'competitor.list': Competitor[];
+  'competitor.create': Competitor;
+  'competitor.update': Competitor;
+  'competitor.delete': void;
+  'competitor.capture': CompetitorReference;
+  'competitor.classify': CompetitorReference;
+  'competitor.classifyAi': CompetitorReference;
+  'competitor.deleteReference': void;
+  'competitor.analyze': CompetitiveAnalysis;
+  'competitor.latestAnalysis': CompetitiveAnalysis | null;
   'audit.list': AuditEntry[];
 }
 

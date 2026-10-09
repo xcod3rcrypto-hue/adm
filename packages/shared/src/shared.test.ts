@@ -11,7 +11,12 @@ describe('contrato IPC', () => {
   it('rejeita payloads inválidos', () => {
     expect(() => ipcInputs['project.get'].parse({ organizationId: 'x', id: 'y' })).toThrow();
     expect(() => ipcInputs['app.openExternal'].parse({ url: 'http://example.com' })).toThrow();
-    expect(() => ipcInputs['integration.google.save'].parse({ organizationId: crypto.randomUUID(), loginCustomerId: '123-456-7890', apiVersion: 'v25' })).toThrow();
+    expect(() => ipcInputs['integration.google.save'].parse({ organizationId: crypto.randomUUID(), loginCustomerId: '123-456-789', apiVersion: 'v25' })).toThrow();
+  });
+
+  it('normaliza o ID da MCC digitado com hífens', () => {
+    const r = ipcInputs['integration.google.save'].parse({ organizationId: crypto.randomUUID(), loginCustomerId: '395-390-9901', apiVersion: 'v25' });
+    expect(r.loginCustomerId).toBe('3953909901');
   });
 });
 

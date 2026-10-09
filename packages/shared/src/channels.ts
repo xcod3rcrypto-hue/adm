@@ -6,7 +6,7 @@
 export const IPC_CHANNEL = 'advertex:invoke';
 
 export const CHANNEL_NAMES = [
-  'app.getInfo', 'app.openPath', 'app.openExternal',
+  'app.getInfo', 'app.openPath', 'app.openExternal', 'app.updateStatus', 'app.checkUpdates', 'app.downloadUpdate', 'app.installUpdate',
   'onboarding.getState',
   'org.list', 'org.create', 'org.rename', 'org.getActive', 'org.setActive',
   'demo.enable', 'demo.disable',
@@ -18,10 +18,19 @@ export const CHANNEL_NAMES = [
   'creative.list', 'creative.create', 'creative.update', 'creative.setStatus', 'creative.versions', 'creative.delete',
   'asset.import', 'asset.list', 'asset.updateTags', 'asset.delete', 'asset.export',
   'campaign.list', 'campaign.create', 'campaign.update', 'campaign.delete',
+  'campaign.preflight', 'campaign.publish', 'campaign.setRemoteStatus', 'campaign.updateRemoteBudget', 'campaign.operations',
+  'publishing.getLimits', 'publishing.saveLimits', 'asset.uploadToPlatform',
   'dashboard.summary',
   'integration.list',
   'integration.meta.save', 'integration.meta.test', 'integration.meta.syncAccounts', 'integration.meta.syncCampaigns', 'integration.meta.syncInsights',
   'integration.google.save', 'integration.google.authorize', 'integration.google.syncAccounts', 'integration.google.syncCampaigns', 'integration.google.syncInsights',
   'integration.disconnect',
+  'intelligence.get', 'intelligence.run', 'recommendation.setStatus',
+  'experiment.list', 'experiment.create', 'experiment.update', 'experiment.importMetrics', 'experiment.evaluate', 'experiment.conclude', 'experiment.setStatus', 'experiment.delete',
+  'automation.overview', 'automation.create', 'automation.update', 'automation.delete', 'automation.setEnabled', 'automation.simulate', 'automation.runNow', 'automation.decide', 'automation.killSwitch',
+  'notification.list', 'notification.unread', 'notification.markRead',
+  'report.list', 'report.create', 'report.get', 'report.delete', 'report.export',
+  'calendar.list', 'calendar.create', 'calendar.update', 'calendar.delete',
+  'competitor.list', 'competitor.create', 'competitor.update', 'competitor.delete', 'competitor.capture', 'competitor.classify', 'competitor.classifyAi', 'competitor.deleteReference', 'competitor.analyze', 'competitor.latestAnalysis',
   'audit.list',
 ] as const;

@@ -125,8 +125,8 @@ function MetaCard({ view, disabled }: { view: IntegrationView; disabled: boolean
           <ul className="ml-5 list-disc space-y-1.5">
             <li>Um aplicativo no Meta for Developers com o produto Marketing API.</li>
             <li>
-              Token de acesso de <b className="text-fg">usuário do sistema</b> (Business Manager) ou de usuário com a permissão <code className="text-fg">ads_read</code> (leitura). Publicação futura exigirá{' '}
-              <code className="text-fg">ads_management</code> e revisão do app pela Meta.
+              Token de acesso de <b className="text-fg">usuário do sistema</b> (Business Manager) ou de usuário com a permissão <code className="text-fg">ads_read</code> (leitura). Para publicar, pausar/ativar e alterar orçamentos pelo app, o token precisa de{' '}
+              <code className="text-fg">ads_management</code> (e, fora do modo de desenvolvimento, revisão do app pela Meta).
             </li>
             <li>Tokens de usuário comuns expiram; prefira token de usuário do sistema para uso contínuo.</li>
           </ul>

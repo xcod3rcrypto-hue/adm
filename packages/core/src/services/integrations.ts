@@ -1,7 +1,7 @@
 import { AppError, type AdvertisingAccount, type IntegrationView, type Platform, type SyncResult } from '@advertex/shared';
-import type { DateRange, RemoteAccount, RemoteCampaign, RemoteInsightRow } from '@advertex/advertising-core';
+import type { AdPlatformWriter, DateRange, RemoteAccount, RemoteCampaign, RemoteInsightRow } from '@advertex/advertising-core';
 import { MetaAdsAdapter, META_DEFAULT_API_VERSION, META_CONVERSION_ACTIONS } from '@advertex/platform-meta';
-import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, refreshAccessToken, revokeToken, runLoopbackAuthorization } from '@advertex/platform-google';
+import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, isManagerAccountName, refreshAccessToken, revokeToken, runLoopbackAuthorization } from '@advertex/platform-google';
 import type { AppContext } from '../context';
 import { parseJson, requireOrg } from '../util';
 import { recordAudit } from './audit';
@@ -96,7 +96,7 @@ export function listIntegrations(ctx: AppContext, organizationId: string): Integ
   return [view(ctx, organizationId, 'meta'), view(ctx, organizationId, 'google')];
 }
 
-function assertNotDemo(ctx: AppContext, organizationId: string): void {
+export function assertNotDemo(ctx: AppContext, organizationId: string): void {
   if (requireOrg(ctx, organizationId).is_demo) {
     throw new AppError('FORBIDDEN', 'A organização de demonstração não pode ser conectada a contas reais. Crie ou selecione uma organização real.');
   }
@@ -215,7 +215,19 @@ function googleAdapter(ctx: AppContext, organizationId: string): { adapter: Goog
   };
   return {
     conn,
-    adapter: new GoogleAdsAdapter({ developerToken, getAccessToken, loginCustomerId: cfg.loginCustomerId, apiVersion: conn.api_version, fetchImpl: ctx.fetch }),
+    adapter: new GoogleAdsAdapter({
+      developerToken,
+      getAccessToken,
+      loginCustomerId: cfg.loginCustomerId,
+      // Caminho de acesso descoberto ao listar contas (acesso direto ou via MCC).
+      loginCustomerIdFor: (customerId) =>
+        ctx.db.get<{ login_customer_id: string | null }>(
+          "SELECT login_customer_id FROM advertising_accounts WHERE organization_id = ? AND platform = 'google' AND remote_id = ?",
+          [organizationId, customerId],
+        )?.login_customer_id,
+      apiVersion: conn.api_version,
+      fetchImpl: ctx.fetch,
+    }),
   };
 }
 
@@ -227,6 +239,12 @@ type Reader = { platform: 'meta'; adapter: MetaAdsAdapter; conn: ConnRow } | { p
 
 function readerFor(ctx: AppContext, organizationId: string, platform: Platform): Reader {
   return platform === 'meta' ? { platform, ...metaAdapter(ctx, organizationId) } : { platform, ...googleAdapter(ctx, organizationId) };
+}
+
+/** Cliente de escrita da plataforma (mesmos adaptadores, credenciais da organização). */
+export function platformWriter(ctx: AppContext, organizationId: string, platform: Platform): AdPlatformWriter {
+  assertNotDemo(ctx, organizationId);
+  return readerFor(ctx, organizationId, platform).adapter;
 }
 
 function listRemoteCampaigns(r: Reader, remoteId: string, currency: string | null): Promise<RemoteCampaign[]> {
@@ -242,11 +260,12 @@ function upsertAccounts(ctx: AppContext, organizationId: string, platform: Platf
   ctx.db.transaction(() => {
     for (const a of list) {
       ctx.db.run(
-        `INSERT INTO advertising_accounts (id, organization_id, connection_id, platform, remote_id, name, currency, timezone, status, last_synced_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO advertising_accounts (id, organization_id, connection_id, platform, remote_id, name, currency, timezone, status, login_customer_id, last_synced_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(organization_id, platform, remote_id) DO UPDATE SET name = excluded.name, currency = excluded.currency, timezone = excluded.timezone,
-           status = excluded.status, last_synced_at = excluded.last_synced_at, updated_at = excluded.updated_at, connection_id = excluded.connection_id`,
-        [ctx.newId(), organizationId, connId, platform, a.remoteId, a.name, a.currency, a.timezone, a.status, now, now, now],
+           status = excluded.status, login_customer_id = excluded.login_customer_id, last_synced_at = excluded.last_synced_at, updated_at = excluded.updated_at,
+           connection_id = excluded.connection_id`,
+        [ctx.newId(), organizationId, connId, platform, a.remoteId, a.name, a.currency, a.timezone, a.status, a.loginCustomerId ?? null, now, now, now],
       );
     }
   });
@@ -316,7 +335,13 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
     recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, outcome: 'failure', details: { error: errMsg(err) } });
     throw err;
   }
-  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).` };
+  const hint =
+    imported + updated === 0 && platform === 'google'
+      ? isManagerAccountName(ctx.db.get<{ name: string }>('SELECT name FROM advertising_accounts WHERE id = ?', [account.id])?.name ?? '')
+        ? ' Esta é uma conta de administrador (MCC): as campanhas ficam nas contas de anúncios vinculadas a ela.'
+        : ' A conta não tem campanhas (exceto removidas).'
+      : '';
+  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).${hint}` };
 }
 
 const DEFINITIONS: Record<Platform, string> = {

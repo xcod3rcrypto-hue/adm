@@ -87,6 +87,57 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('cell', { name: /^Leads — Verão Sem projeto/ })).toBeVisible();
     await page.screenshot({ path: join(shots, '05-campanhas.png') });
 
+    // Publicação: sem conta conectada, o checklist bloqueia e explica (nada é simulado)
+    await page.getByRole('button', { name: 'Publicar' }).click();
+    const checks = page.getByRole('list', { name: 'Verificações antes de publicar' });
+    await expect(checks.getByText('Selecione uma conta sincronizada da plataforma.')).toBeVisible();
+    await expect(checks.getByText(/criada PAUSADA/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Publicar pausada' })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '05a-publicar.png') });
+    await page.getByRole('dialog').getByRole('button', { name: 'Cancelar' }).click();
+
+    // Experimento A/B com teste estatístico
+    await page.getByRole('link', { name: 'Experimentos' }).click();
+    await page.getByRole('button', { name: 'Novo experimento' }).first().click();
+    await page.getByLabel('Hipótese').fill('Se destacarmos o frete grátis no título, o CTR aumenta');
+    await page.getByLabel('Variável testada').fill('Título');
+    await page.locator('#v-0-imp').fill('10000');
+    await page.locator('#v-0-clk').fill('200');
+    await page.locator('#v-1-imp').fill('10000');
+    await page.locator('#v-1-clk').fill('300');
+    await page.getByRole('button', { name: 'Salvar experimento' }).click();
+    await expect(page.getByText('Experimento salvo.')).toBeVisible();
+    await page.getByRole('button', { name: 'Calcular resultado' }).click();
+    await expect(page.getByText('Resultado significativo')).toBeVisible();
+    await page.getByRole('button', { name: 'Encerrar', exact: true }).click();
+    await page.getByLabel('Aprendizado e próximos passos').fill('Frete grátis no título aumenta o CTR em 50%.');
+    await page.getByRole('button', { name: 'Encerrar e registrar' }).click();
+    await expect(page.getByText('Experimento concluído com vencedor.')).toBeVisible();
+    await expect(page.getByText('Aprendizado registrado')).toBeVisible();
+    await page.screenshot({ path: join(shots, '05b-experimentos.png'), fullPage: true });
+
+    // Calendário: evento com responsável
+    await page.getByRole('link', { name: 'Calendário' }).click();
+    await page.getByRole('button', { name: 'Novo evento' }).click();
+    await page.getByLabel('Título').fill('Revisar criativos do verão');
+    await page.getByLabel('Responsável').fill('Marina');
+    await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+    await expect(page.getByText('Evento salvo.')).toBeVisible();
+    await expect(page.getByRole('listitem').filter({ hasText: 'Revisar criativos do verão' })).toContainText('Marina');
+    await page.screenshot({ path: join(shots, '05c-calendario.png') });
+
+    // Concorrentes: cadastro e bloqueio de endereços internos (SSRF)
+    await page.getByRole('link', { name: 'Concorrentes' }).click();
+    await page.getByRole('button', { name: 'Novo concorrente' }).first().click();
+    await page.getByLabel('Nome').fill('Estúdio Rival');
+    await page.getByRole('dialog').getByRole('button', { name: 'Salvar' }).click();
+    await expect(page.getByText('Concorrente salvo.')).toBeVisible();
+    await page.getByLabel('URL pública para capturar').fill('http://127.0.0.1/admin');
+    await page.getByRole('button', { name: 'Capturar página' }).click();
+    await expect(page.getByText('Endereços IP privados ou reservados não são permitidos.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Analisar com IA' })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '05d-concorrentes.png') });
+
     // Integrações: sem credenciais não há conexão simulada
     await page.getByRole('link', { name: 'Integrações' }).click();
     await expect(page.getByText('Não configurado').first()).toBeVisible();
@@ -99,6 +150,7 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Sem chave')).toBeVisible();
     await expect(page.getByText('(desenvolvimento)').or(page.getByText('(instalado)'))).toBeVisible();
     await expect(page.getByText('project.create')).toBeVisible();
+    await expect(page.getByText('Atualização automática disponível apenas no app instalado.')).toBeVisible();
     await page.screenshot({ path: join(shots, '07-configuracoes.png'), fullPage: true });
 
     await app.close();
@@ -113,6 +165,62 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Demonstração (fictício)')).toBeVisible();
     await expect(page.getByRole('region', { name: 'Métricas em BRL' }).getByText('Investimento', { exact: true })).toBeVisible();
     await page.screenshot({ path: join(shots, '08-demo-dashboard.png'), fullPage: true });
+
+    // Inteligência: análise sobre dados demo, identificada como fictícia
+    await page.getByRole('link', { name: 'Inteligência' }).click();
+    await expect(page.getByText('Nenhuma análise executada')).toBeVisible();
+    await page.getByRole('button', { name: 'Executar análise' }).first().click();
+    await expect(page.getByRole('heading', { name: /^Diagnósticos \(\d+\)$/ })).toBeVisible();
+    await expect(page.getByText('Dados de demonstração')).toBeVisible();
+    await expect(page.getByText('Limitações da análise')).toBeVisible();
+    await page.screenshot({ path: join(shots, '09-inteligencia.png'), fullPage: true });
+
+    // Automações: simular, executar (demo apenas simula) e botão de emergência
+    await page.getByRole('link', { name: 'Automações' }).click();
+    await page.getByRole('button', { name: 'Nova regra' }).first().click();
+    await page.getByLabel('Nome').fill('Pausar sem conversões');
+    await page.getByLabel('Valor da condição 1').fill('100');
+    await page.getByLabel('Janela de avaliação (dias)').fill('3');
+    await page.getByRole('button', { name: 'Simular' }).click();
+    await expect(page.getByText(/Simulação: 1 de 5 campanha\(s\)/)).toBeVisible();
+    await expect(page.getByText('Demo · Leads · Cafeterias').last()).toBeVisible();
+    await page.screenshot({ path: join(shots, '10-automacao-simulacao.png') });
+    await page.getByRole('button', { name: 'Salvar regra' }).click();
+    await expect(page.getByText('Regra salva.')).toBeVisible();
+    await page.getByRole('button', { name: 'Executar agora' }).click();
+    await expect(page.getByText(/1 campanha\(s\) atenderam/)).toBeVisible();
+    await page.getByRole('tab', { name: /Execuções/ }).click();
+    await expect(page.getByRole('cell', { name: 'Simulada', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Botão de emergência' }).click();
+    await page.getByRole('button', { name: 'Parar todas as automações' }).click();
+    await expect(page.getByText(/Botão de emergência ativo/)).toBeVisible();
+    await page.screenshot({ path: join(shots, '11-automacoes.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Liberar automações' }).click();
+    await expect(page.getByText(/Botão de emergência ativo/)).toBeHidden();
+
+    // Relatórios: gerar, visualizar e exportar PDF/CSV de verdade
+    await page.getByRole('link', { name: 'Relatórios' }).click();
+    await page.getByRole('button', { name: 'Novo relatório' }).first().click();
+    await page.getByLabel('Título').fill('Relatório mensal demo');
+    await page.getByRole('button', { name: 'Gerar relatório' }).click();
+    await expect(page.getByText('Relatório gerado.')).toBeVisible();
+    await expect(page.getByRole('dialog').getByText('Relatório de demonstração', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Resumo executivo' })).toBeVisible();
+    await page.screenshot({ path: join(shots, '12-relatorio.png') });
+    await page.getByRole('button', { name: 'Fechar' }).click();
+    const pdfPath = join(userData, 'relatorio.pdf');
+    const csvPath = join(userData, 'relatorio.csv');
+    for (const [format, target] of [['PDF', pdfPath], ['CSV', csvPath]] as const) {
+      await app.evaluate(({ dialog }, file) => {
+        dialog.showSaveDialog = (async () => ({ canceled: false, filePath: file })) as typeof dialog.showSaveDialog;
+      }, target);
+      await page.getByRole('button', { name: format, exact: true }).click();
+      await expect(page.getByText(`Relatório salvo em ${target}`)).toBeVisible();
+    }
+    expect(readFileSync(pdfPath).subarray(0, 5).toString()).toBe('%PDF-');
+    const csv = readFileSync(csvPath, 'utf8');
+    expect(csv).toContain('Campanha;Plataforma;Moeda;Investimento');
+    expect(csv).toContain('DADOS FICTÍCIOS');
 
     // Voltar para a organização real: nenhum dado demo aparece
     await page.getByLabel('Organização').selectOption({ label: 'Agência Horizonte' });

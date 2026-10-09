@@ -1,0 +1,48 @@
+# Empacotamento Windows do ADVERTEX AI Studio.
+# Referência: https://www.electron.build/configuration
+appId: com.advertex.aistudio
+productName: ADVERTEX AI Studio
+copyright: Copyright © 2026 ADVERTEX
+artifactName: ADVERTEX-AI-Studio-Setup-${version}.${ext}
+
+directories:
+  buildResources: build
+  output: release
+
+# Somente o código compilado (out/) e as dependências de produção entram no
+# pacote. Código-fonte, testes, documentação e configurações ficam de fora.
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+
+asar: true
+# O .wasm do sql.js é lido via fs a partir do app.asar (suportado pelo Electron).
+compression: normal
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  executableName: ADVERTEX AI Studio
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  # Instalador assistido: o usuário vê o progresso e pode escolher a pasta.
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: ADVERTEX AI Studio
+  menuCategory: false
+  runAfterFinish: true
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  uninstallDisplayName: ADVERTEX AI Studio
+  # Os dados do usuário (%APPDATA%\ADVERTEX AI Studio) são preservados ao
+  # desinstalar, para não perder projetos e histórico em reinstalações.
+  deleteAppDataOnUninstall: false

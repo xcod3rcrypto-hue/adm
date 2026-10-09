@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, tipos, testes e E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: E2E (Electron + Playwright)
+        run: xvfb-run -a npm run test:e2e
+      - name: Capturas de tela do E2E
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screens
+          path: test-results/
+          if-no-files-found: ignore
+
+  windows-installer:
+    name: Instalador Windows (build + verificação de instalação)
+    needs: checks
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Gerar instalador EXE
+        run: npm run dist:win
+      - name: Instalar, verificar atalhos, abrir pelo atalho e desinstalar
+        shell: pwsh
+        run: ./infra/scripts/verify-install.ps1 -Uninstall
+      - name: Publicar instalador como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: ADVERTEX-AI-Studio-Setup
+          path: release/*.exe
+          if-no-files-found: error

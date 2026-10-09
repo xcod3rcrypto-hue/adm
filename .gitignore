@@ -54,7 +54,9 @@ pnpm-debug.log*
 .cache/
 .parcel-cache/
 dist/
-build/
+release/
+test-results/
+playwright-report/
 out/
 coverage/
 

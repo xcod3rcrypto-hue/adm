@@ -60,7 +60,16 @@ export class GeminiImageProvider {
       if (res.status === 400 && /API key/i.test(msg)) throw new AiProviderError('auth', 'Chave da API do Gemini inválida. Confira em Configurações → Geração de imagens.');
       if (res.status === 401 || res.status === 403) throw new AiProviderError('auth', `Chave do Gemini sem permissão para este modelo (${msg}).`);
       if (res.status === 404) throw new AiProviderError('bad_request', `Modelo "${this.model}" não encontrado na sua conta do Gemini. Escolha outro modelo em Configurações.`);
-      if (res.status === 429) throw new AiProviderError('rate_limit', 'Cota da API do Gemini esgotada ou limite de requisições atingido. Tente mais tarde ou verifique o faturamento no Google AI Studio.');
+      if (res.status === 429) {
+        // "limit: 0" / free_tier: o projeto da chave não tem cota para este modelo (sem faturamento ativo).
+        if (/limit:\s*0\b|free_tier/i.test(msg)) {
+          throw new AiProviderError(
+            'rate_limit',
+            `O modelo "${this.model}" não tem cota gratuita na sua chave. Ative o faturamento no projeto da chave em aistudio.google.com (Get API key → Configurar faturamento) e tente de novo; o custo é cobrado por imagem pelo Google. Detalhe: ${msg.slice(0, 200)}`,
+          );
+        }
+        throw new AiProviderError('rate_limit', `Limite de requisições do Gemini atingido. Aguarde 1 minuto e tente de novo, ou gere menos variações por vez. Detalhe: ${msg.slice(0, 200)}`);
+      }
       throw new AiProviderError(res.status >= 500 ? 'unavailable' : 'bad_request', `Gemini: ${msg}`);
     }
     return body;

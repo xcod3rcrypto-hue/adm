@@ -29,6 +29,11 @@ import {
   type AppNotification,
   type Report,
   type CalendarItem,
+  type Competitor,
+  type CompetitorReference,
+  type CompetitiveAnalysis,
+  CompetitorInput,
+  ReferenceClassification,
   CalendarEventInput,
   type ReportSummary,
   ReportInput,
@@ -196,6 +201,17 @@ export const ipcInputs = {
   'calendar.update': z.object({ ...org, id: Id, data: CalendarEventInput }),
   'calendar.delete': z.object({ ...org, id: Id }),
 
+  'competitor.list': z.object(org),
+  'competitor.create': z.object({ ...org, data: CompetitorInput }),
+  'competitor.update': z.object({ ...org, id: Id, data: CompetitorInput }),
+  'competitor.delete': z.object({ ...org, id: Id }),
+  'competitor.capture': z.object({ ...org, competitorId: Id, url: z.url({ protocol: /^https?$/ }) }),
+  'competitor.classify': z.object({ ...org, id: Id, data: ReferenceClassification }),
+  'competitor.classifyAi': z.object({ ...org, id: Id }),
+  'competitor.deleteReference': z.object({ ...org, id: Id }),
+  'competitor.analyze': z.object({ ...org, projectId: Id.nullable().default(null) }),
+  'competitor.latestAnalysis': z.object({ ...org, projectId: Id.nullable().default(null) }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -307,6 +323,16 @@ export interface ChannelOutputs {
   'calendar.create': { id: string };
   'calendar.update': void;
   'calendar.delete': void;
+  'competitor.list': Competitor[];
+  'competitor.create': Competitor;
+  'competitor.update': Competitor;
+  'competitor.delete': void;
+  'competitor.capture': CompetitorReference;
+  'competitor.classify': CompetitorReference;
+  'competitor.classifyAi': CompetitorReference;
+  'competitor.deleteReference': void;
+  'competitor.analyze': CompetitiveAnalysis;
+  'competitor.latestAnalysis': CompetitiveAnalysis | null;
   'audit.list': AuditEntry[];
 }
 

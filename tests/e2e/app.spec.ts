@@ -126,6 +126,18 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('listitem').filter({ hasText: 'Revisar criativos do verão' })).toContainText('Marina');
     await page.screenshot({ path: join(shots, '05c-calendario.png') });
 
+    // Concorrentes: cadastro e bloqueio de endereços internos (SSRF)
+    await page.getByRole('link', { name: 'Concorrentes' }).click();
+    await page.getByRole('button', { name: 'Novo concorrente' }).first().click();
+    await page.getByLabel('Nome').fill('Estúdio Rival');
+    await page.getByRole('dialog').getByRole('button', { name: 'Salvar' }).click();
+    await expect(page.getByText('Concorrente salvo.')).toBeVisible();
+    await page.getByLabel('URL pública para capturar').fill('http://127.0.0.1/admin');
+    await page.getByRole('button', { name: 'Capturar página' }).click();
+    await expect(page.getByText('Endereços IP privados ou reservados não são permitidos.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Analisar com IA' })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '05d-concorrentes.png') });
+
     // Integrações: sem credenciais não há conexão simulada
     await page.getByRole('link', { name: 'Integrações' }).click();
     await expect(page.getByText('Não configurado').first()).toBeVisible();

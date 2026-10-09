@@ -35,7 +35,7 @@ export function clearAiKey(ctx: AppContext): AiConfigView {
   return getAiConfig(ctx);
 }
 
-function provider(ctx: AppContext): TextProvider {
+export function aiProvider(ctx: AppContext): TextProvider {
   const s = getSetting<AiSettings>(ctx, 'ai.config', DEFAULTS);
   const apiKey = getSecret(ctx, scopes.aiKey(s.provider));
   if (!apiKey) {
@@ -45,7 +45,7 @@ function provider(ctx: AppContext): TextProvider {
 }
 
 export async function testAi(ctx: AppContext): Promise<{ model: string; reply: string }> {
-  const p = provider(ctx);
+  const p = aiProvider(ctx);
   try {
     const r = await p.ping();
     recordAudit(ctx, { organizationId: null, action: 'ai.test', entityType: 'settings', details: { model: r.model } });
@@ -56,9 +56,10 @@ export async function testAi(ctx: AppContext): Promise<{ model: string; reply: s
   }
 }
 
-async function runJob<T>(
+/** Executa uma geração registrando o job (modelo, tokens, status) em ai_jobs. */
+export async function runAiJob<T>(
   ctx: AppContext,
-  meta: { organizationId: string; projectId: string; kind: string },
+  meta: { organizationId: string; projectId: string | null; kind: string },
   p: TextProvider,
   fn: () => Promise<{ data: T; model: string; usage: { inputTokens: number; outputTokens: number } }>,
 ): Promise<{ jobId: string; data: T; model: string }> {
@@ -88,7 +89,7 @@ export async function generateVariations(ctx: AppContext, organizationId: string
   const project = getProject(ctx, organizationId, req.projectId);
   const brief = getBrief(ctx, organizationId, req.projectId);
   if (!brief) throw new AppError('NOT_CONFIGURED', 'Preencha e salve o briefing do projeto antes de gerar criativos.');
-  const p = provider(ctx);
+  const p = aiProvider(ctx);
   const prompt = buildVariationsPrompt({
     brief: brief.data,
     projectName: project.name,
@@ -98,7 +99,7 @@ export async function generateVariations(ctx: AppContext, organizationId: string
     count: req.count,
     instructions: req.instructions,
   });
-  const { jobId, data, model } = await runJob(ctx, { organizationId, projectId: project.id, kind: `studio.${req.kind}` }, p, () =>
+  const { jobId, data, model } = await runAiJob(ctx, { organizationId, projectId: project.id, kind: `studio.${req.kind}` }, p, () =>
     p.generateStructured({ ...prompt, schema: VariationsOutput, maxTokens: 16_000, effort: 'medium' }),
   );
   recordAudit(ctx, { organizationId, action: 'ai.generate', entityType: 'ai_job', entityId: jobId, details: { kind: req.kind, count: data.variations.length, model } });
@@ -116,9 +117,9 @@ export async function generateBriefInsights(ctx: AppContext, organizationId: str
   const project = getProject(ctx, organizationId, projectId);
   const brief = getBrief(ctx, organizationId, projectId);
   if (!brief) throw new AppError('NOT_CONFIGURED', 'Salve o briefing antes de gerar a análise estratégica.');
-  const p = provider(ctx);
+  const p = aiProvider(ctx);
   const prompt = buildInsightsPrompt(brief.data, project.name, pageExcerpt);
-  const { jobId, data, model } = await runJob(ctx, { organizationId, projectId, kind: 'brief.insights' }, p, () =>
+  const { jobId, data, model } = await runAiJob(ctx, { organizationId, projectId, kind: 'brief.insights' }, p, () =>
     p.generateStructured({ ...prompt, schema: InsightsOutput, maxTokens: 16_000, effort: 'medium' }),
   );
   recordAudit(ctx, { organizationId, action: 'ai.brief.insights', entityType: 'ai_job', entityId: jobId, details: { model } });

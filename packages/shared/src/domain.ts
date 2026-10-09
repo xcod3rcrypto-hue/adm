@@ -811,3 +811,56 @@ export interface CalendarItem {
   campaignId: string | null;
   campaignName: string | null;
 }
+
+// ---------------------------------------------------------------------------
+// Inteligência competitiva
+// ---------------------------------------------------------------------------
+
+export const CompetitorInput = z.object({
+  name: text(120).min(2, 'Informe o nome do concorrente'),
+  websiteUrl: z.union([z.literal(''), z.url({ protocol: /^https?$/, error: 'Use uma URL http(s) válida' }).max(2048)]).default(''),
+  notes: text(2000).default(''),
+  projectId: Id.nullable().default(null),
+});
+export type CompetitorInput = z.input<typeof CompetitorInput>;
+
+export const ReferenceClassification = z.object({
+  promise: text(300).default(''),
+  concept: text(300).default(''),
+  audience: text(300).default(''),
+  format: text(300).default(''),
+  positioning: text(300).default(''),
+});
+export type ReferenceClassification = z.infer<typeof ReferenceClassification>;
+
+export interface CompetitorReference extends ReferenceClassification {
+  id: string;
+  sourceUrl: string;
+  capturedAt: string;
+  title: string;
+  excerpt: string;
+}
+
+export interface Competitor {
+  id: string;
+  name: string;
+  websiteUrl: string;
+  notes: string;
+  projectId: string | null;
+  projectName: string | null;
+  references: CompetitorReference[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompetitiveAnalysis {
+  id: string;
+  projectId: string | null;
+  generatedAt: string;
+  model: string;
+  referenceCount: number;
+  patterns: string[];
+  opportunities: string[];
+  differentiationIdeas: string[];
+  caveats: string[];
+}

@@ -91,3 +91,65 @@ export function buildVariationsPrompt(p: {
       'Para cada uma, explique em uma frase a lógica estratégica (campo rationale).',
   };
 }
+
+// ---------------------------------------------------------------------------
+// Inteligência competitiva (somente conteúdo público capturado)
+// ---------------------------------------------------------------------------
+
+const COMPETITIVE_SYSTEM =
+  BASE_SYSTEM +
+  ' Você analisa SOMENTE o conteúdo público fornecido entre as tags <referencia>. ' +
+  'Nunca afirme conhecer campanhas privadas, orçamentos, resultados ou segmentações de concorrentes. ' +
+  'Quando algo não estiver no material, diga que não é possível concluir.';
+
+export const ReferenceClassificationOutput = z.object({
+  promise: z.string(),
+  concept: z.string(),
+  audience: z.string(),
+  format: z.string(),
+  positioning: z.string(),
+});
+export type ReferenceClassificationOutput = z.infer<typeof ReferenceClassificationOutput>;
+
+export function buildClassificationPrompt(ref: { competitor: string; url: string; capturedAt: string; title: string; excerpt: string }): { system: string; prompt: string } {
+  return {
+    system: COMPETITIVE_SYSTEM,
+    prompt:
+      `<referencia concorrente="${ref.competitor.replace(/"/g, "'")}" url="${ref.url}" capturada_em="${ref.capturedAt}">\n${ref.title}\n${ref.excerpt.slice(0, 6000)}\n</referencia>\n\n` +
+      'Classifique esta referência em frases curtas (até 20 palavras cada): promessa principal; conceito criativo; público aparente; ' +
+      'formato/estrutura da comunicação; posicionamento (preço, qualidade, conveniência, status etc.). Se não houver evidência, responda "não identificado".',
+  };
+}
+
+export const CompetitiveAnalysisOutput = z.object({
+  patterns: z.array(z.string()),
+  opportunities: z.array(z.string()),
+  differentiationIdeas: z.array(z.string()),
+  caveats: z.array(z.string()),
+});
+export type CompetitiveAnalysisOutput = z.infer<typeof CompetitiveAnalysisOutput>;
+
+export function buildCompetitiveAnalysisPrompt(p: {
+  brief: BriefData | null;
+  projectName: string | null;
+  references: Array<{ competitor: string; url: string; capturedAt: string; title: string; promise: string; concept: string; audience: string; format: string; positioning: string; excerpt: string }>;
+}): { system: string; prompt: string } {
+  const refs = p.references
+    .map(
+      (r) =>
+        `<referencia concorrente="${r.competitor.replace(/"/g, "'")}" url="${r.url}" capturada_em="${r.capturedAt}">\n` +
+        `Título: ${r.title}\nPromessa: ${r.promise}\nConceito: ${r.concept}\nPúblico: ${r.audience}\nFormato: ${r.format}\nPosicionamento: ${r.positioning}\nTrecho: ${r.excerpt.slice(0, 1200)}\n</referencia>`,
+    )
+    .join('\n');
+  return {
+    system: COMPETITIVE_SYSTEM,
+    prompt:
+      (p.brief && p.projectName ? `${briefToContext(p.brief, p.projectName)}\n\n` : '') +
+      `${refs}\n\n` +
+      'Com base apenas nas referências públicas acima' +
+      (p.brief ? ' e no briefing do nosso negócio' : '') +
+      ': liste os padrões recorrentes entre concorrentes (promessas, conceitos, formatos, posicionamentos); ' +
+      'oportunidades de diferenciação pouco exploradas; ideias concretas de mensagens diferenciadas para testar; ' +
+      'e ressalvas sobre os limites desta análise (amostra, data de captura, ausência de dados de desempenho).',
+  };
+}

@@ -24,3 +24,4 @@ export * from './services/publishing';
 export * from './services/automations';
 export * from './services/reports';
 export * from './services/calendar';
+export * from './services/competitors';

@@ -18,6 +18,7 @@ import { ExperimentsPage } from './pages/Experiments';
 import { AutomationsPage } from './pages/Automations';
 import { ReportsPage } from './pages/Reports';
 import { CalendarPage } from './pages/Calendar';
+import { CompetitorsPage } from './pages/Competitors';
 
 export function App() {
   const { org, isLoading, error } = useOrg();
@@ -54,6 +55,7 @@ export function App() {
         <Route path="/automacoes" element={<AutomationsPage />} />
         <Route path="/relatorios" element={<ReportsPage />} />
         <Route path="/calendario" element={<CalendarPage />} />
+        <Route path="/concorrentes" element={<CompetitorsPage />} />
         <Route path="/integracoes" element={<IntegrationsPage />} />
         <Route path="/configuracoes" element={<SettingsPage />} />
         <Route path="/boas-vindas" element={<OnboardingPage embedded />} />

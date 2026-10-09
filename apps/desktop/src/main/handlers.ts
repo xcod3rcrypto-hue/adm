@@ -234,6 +234,26 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'calendar.update': ({ organizationId, id, data }, ctx) => core.updateCalendarEvent(ctx, organizationId, id, data),
     'calendar.delete': ({ organizationId, id }, ctx) => core.deleteCalendarEvent(ctx, organizationId, id),
 
+    'competitor.list': ({ organizationId }, ctx) => core.listCompetitors(ctx, organizationId),
+    'competitor.create': ({ organizationId, data }, ctx) => core.createCompetitor(ctx, organizationId, data),
+    'competitor.update': ({ organizationId, id, data }, ctx) => core.updateCompetitor(ctx, organizationId, id, data),
+    'competitor.delete': ({ organizationId, id }, ctx) => core.deleteCompetitor(ctx, organizationId, id),
+    'competitor.capture': async ({ organizationId, competitorId, url }, ctx) => {
+      core.getOrganization(ctx, organizationId);
+      let page;
+      try {
+        page = await core.fetchPublicPage(url);
+      } catch (err) {
+        throw new AppError('EXTERNAL_API', err instanceof Error ? err.message : 'Falha ao capturar a página.', { cause: err });
+      }
+      return core.addCompetitorReference(ctx, organizationId, competitorId, page);
+    },
+    'competitor.classify': ({ organizationId, id, data }, ctx) => core.classifyReference(ctx, organizationId, id, data),
+    'competitor.classifyAi': ({ organizationId, id }, ctx) => core.classifyReferenceWithAi(ctx, organizationId, id),
+    'competitor.deleteReference': ({ organizationId, id }, ctx) => core.deleteReference(ctx, organizationId, id),
+    'competitor.analyze': ({ organizationId, projectId }, ctx) => core.analyzeCompetition(ctx, organizationId, projectId),
+    'competitor.latestAnalysis': ({ organizationId, projectId }, ctx) => core.getLatestCompetitiveAnalysis(ctx, organizationId, projectId),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
 }

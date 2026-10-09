@@ -31,5 +31,6 @@ export const CHANNEL_NAMES = [
   'notification.list', 'notification.unread', 'notification.markRead',
   'report.list', 'report.create', 'report.get', 'report.delete', 'report.export',
   'calendar.list', 'calendar.create', 'calendar.update', 'calendar.delete',
+  'competitor.list', 'competitor.create', 'competitor.update', 'competitor.delete', 'competitor.capture', 'competitor.classify', 'competitor.classifyAi', 'competitor.deleteReference', 'competitor.analyze', 'competitor.latestAnalysis',
   'audit.list',
 ] as const;

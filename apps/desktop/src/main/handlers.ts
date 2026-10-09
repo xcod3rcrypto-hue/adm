@@ -235,6 +235,13 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
 
     'factory.run': ({ organizationId, request }, ctx) => core.runCreativeFactory(ctx, organizationId, request),
 
+    'meta.adSets': ({ organizationId, campaignId }, ctx) => core.listMetaAdSets(ctx, organizationId, campaignId),
+    'meta.saveAdSet': ({ organizationId, campaignId, id, data }, ctx) => core.saveMetaAdSet(ctx, organizationId, campaignId, id, data),
+    'meta.deleteAdSet': ({ organizationId, id }, ctx) => core.deleteMetaAdSet(ctx, organizationId, id),
+    'meta.pushAdSet': ({ organizationId, id }, ctx) => core.pushMetaAdSet(ctx, organizationId, id),
+    'meta.assetsOptions': ({ organizationId, campaignId }, ctx) => core.metaAssetsOptions(ctx, organizationId, campaignId),
+    'meta.adSetFromCreatives': ({ organizationId, campaignId, creativeIds }, ctx) => core.createMetaAdSetFromCreatives(ctx, organizationId, campaignId, creativeIds),
+
     'intelligence.get': ({ organizationId }, ctx) => core.getIntelligence(ctx, organizationId),
     'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),
     'recommendation.setStatus': ({ organizationId, id, status }, ctx) => core.setRecommendationStatus(ctx, organizationId, id, status),

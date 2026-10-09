@@ -135,6 +135,17 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('dialog').getByText('Rascunho local', { exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
 
+    // Meta: conjunto de anúncios (rascunho) mostra o que falta antes do envio
+    await page.getByRole('button', { name: 'Conjuntos e anúncios' }).click();
+    await page.getByRole('button', { name: 'Novo conjunto de anúncios' }).click();
+    await expect(page.getByLabel('Otimizar para')).toBeVisible();
+    await page.getByLabel('Link de destino').fill('https://exemplo.com.br/verao');
+    await page.screenshot({ path: join(shots, '05f-meta-conjunto.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Salvar rascunho local' }).click();
+    await expect(page.getByText(/Rascunho salvo\. Falta: Página do Facebook/)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(/Falta: Página do Facebook; Ao menos um anúncio/)).toBeVisible();
+    await page.keyboard.press('Escape');
+
     // Experimento A/B com teste estatístico
     await page.getByRole('link', { name: 'Experimentos' }).click();
     await page.getByRole('button', { name: 'Novo experimento' }).first().click();

@@ -30,3 +30,4 @@ export * from './services/images';
 export * from './services/brain';
 export * from './services/autopilot';
 export * from './services/factory';
+export * from './services/metaAds';

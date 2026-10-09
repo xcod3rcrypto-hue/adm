@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Beaker, Factory, Trophy, X } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Beaker, Factory, Send, Trophy, X } from 'lucide-react';
 import { FunnelStage, formatPercent, type FactoryRequest } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrgId } from '../lib/org';
@@ -229,8 +229,48 @@ export function FactoryPage() {
             })}
           </div>
           <p className="text-xs text-subtle">Tudo foi salvo em Criativos (rascunho, tag #fabrica) para revisar, aprovar e publicar.</p>
+          <PublishToMeta creativeIds={run.data.creatives.map((c) => c.id)} />
         </div>
       )}
     </>
+  );
+}
+
+/** Monta um conjunto de anúncios da Meta (rascunho) com os criativos do lote. */
+function PublishToMeta({ creativeIds }: { creativeIds: string[] }) {
+  const organizationId = useOrgId();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const campaigns = useQuery({ queryKey: ['campaigns', organizationId, 'meta'], queryFn: () => api('campaign.list', { organizationId, platform: 'meta' }) });
+  const usable = (campaigns.data ?? []).filter((c) => c.objective !== 'OUTCOME_APP_PROMOTION');
+  const [campaignId, setCampaignId] = useState('');
+  const create = useMutation({
+    mutationFn: () => api('meta.adSetFromCreatives', { organizationId, campaignId: campaignId || usable[0]!.id, creativeIds }),
+    onSuccess: (set) => {
+      toast.success(set.missing.length ? `Conjunto criado. Falta: ${set.missing.join('; ')}.` : 'Conjunto criado e pronto para enviar à Meta.');
+      navigate(`/campanhas?meta=${set.campaignId}&conjunto=${set.id}`);
+    },
+    onError: (e) => toast.error(e),
+  });
+  return (
+    <Card>
+      <CardHeader title="Publicar na Meta" description="Cria um conjunto de anúncios (rascunho) com estes criativos e as imagens geradas; você revisa público e link e envia — tudo pausado." />
+      <div className="flex flex-wrap items-end gap-3 p-5">
+        <Field label="Campanha da Meta" htmlFor="fx-meta-campaign" className="min-w-72">
+          <Select id="fx-meta-campaign" value={campaignId || usable[0]?.id || ''} onChange={(e) => setCampaignId(e.target.value)} disabled={usable.length === 0}>
+            {usable.length === 0 && <option value="">Crie uma campanha da Meta em Campanhas</option>}
+            {usable.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                {c.remoteId ? '' : ' (rascunho local)'}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Button icon={<Send className="size-4" />} loading={create.isPending} disabled={usable.length === 0} onClick={() => create.mutate()}>
+          Montar conjunto de anúncios
+        </Button>
+      </div>
+    </Card>
   );
 }

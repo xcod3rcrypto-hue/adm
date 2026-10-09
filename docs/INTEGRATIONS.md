@@ -85,6 +85,16 @@ Em **Configurações → Geração de imagens (Gemini)** cole a chave do Google 
 - As imagens geradas vão para a biblioteca com a tag `#ia-gemini` e podem ser vinculadas a criativos ou enviadas às contas de anúncios.
 - O Nano Banana Pro exige faturamento ativo no projeto do Google; o custo é cobrado pelo Google.
 
+## Meta: conjuntos de anúncios e anúncios
+
+Em **Campanhas → Conjuntos e anúncios** (campanhas da Meta), ou pelo botão **Publicar na Meta** da Fábrica de criativos:
+
+- **Conjunto** (`POST act_{id}/adsets`): otimização compatível com o objetivo (conversões com pixel e evento, visualizações da página, cliques, alcance…), países, idade, gênero, Público Advantage+ (`targeting_automation.advantage_audience`), posicionamentos automáticos, `destination_type=WEBSITE` quando aplicável e orçamento próprio só se a campanha não tiver orçamento (CBO).
+- **Anúncio**: imagem enviada para `adimages` (hash), criativo (`adcreatives` com `object_story_spec.link_data`: texto, título, descrição, botão e link; Página do Facebook e, opcionalmente, conta do Instagram) e anúncio (`ads`).
+- Tudo é criado **PAUSADO**. O envio é feito em etapas idempotentes (conjunto → imagem → criativo → anúncio, chaves `metaAdSet:`, `metaCreative:`, `metaAd:`); se algo falhar, "Continuar envio" retoma de onde parou e, em resultado incerto, procura o item pelo nome antes de recriar.
+- Páginas (`promote_pages`), contas do Instagram (`instagram_accounts`) e pixels (`adspixels`) são listados da conta; sem permissão, dá para informar o ID manualmente.
+- Depois do envio, público, otimização e link ficam fixos no app (altere na Meta ou crie outro conjunto); anúncios novos podem ser acrescentados.
+
 ## Cérebro criativo, Piloto automático e Fábrica
 
 **Leituras novas (somente leitura):**

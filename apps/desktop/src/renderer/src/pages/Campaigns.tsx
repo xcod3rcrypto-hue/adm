@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { CheckCircle2, History, Layers, ListTree, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
+import { CheckCircle2, History, Layers, RefreshCw, ListTree, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
 import { CampaignInput, formatCurrency, formatDateTime, type Campaign, type Platform, type PlatformOperation } from '@advertex/shared';
 import { OBJECTIVES, objectiveLabel } from '@advertex/advertising-core';
 import { api } from '../lib/api';
@@ -22,6 +22,7 @@ export function CampaignsPage() {
   const [platform, setPlatform] = useState<Platform | 'all'>('all');
   const [editing, setEditing] = useState<Campaign | 'new' | null>(null);
   const [deleting, setDeleting] = useState<Campaign | null>(null);
+  const [removing, setRemoving] = useState<Campaign | null>(null);
   const [publishing, setPublishing] = useState<Campaign | null>(null);
   const [statusChange, setStatusChange] = useState<{ campaign: Campaign; to: 'active' | 'paused' } | null>(null);
   const [budgetOf, setBudgetOf] = useState<Campaign | null>(null);
@@ -29,10 +30,34 @@ export function CampaignsPage() {
   const [structureOf, setStructureOf] = useState<Campaign | null>(null);
   const [metaOf, setMetaOf] = useState<{ campaign: Campaign; openId: string | null } | null>(null);
   const [params, setParams] = useSearchParams();
+  const [showRemoved, setShowRemoved] = useState(false);
   const campaigns = useQuery({
     queryKey: ['campaigns', organizationId, platform],
     queryFn: () => api('campaign.list', { organizationId, platform: platform === 'all' ? null : platform }),
   });
+  // Ao vivo: sincroniza as campanhas das contas ao abrir a tela, a cada 2 minutos e ao voltar para a janela.
+  const live = useMutation({
+    mutationFn: () => api('campaign.syncAll', { organizationId }),
+    onSuccess: async (r) => {
+      r.errors.slice(0, 1).forEach((e) => toast.error(e));
+      await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+  });
+  const liveMutate = live.mutate;
+  useEffect(() => {
+    if (org?.isDemo) return;
+    liveMutate();
+    const t = setInterval(() => liveMutate(), 2 * 60_000);
+    const onFocus = () => liveMutate();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [organizationId, org?.isDemo, liveMutate]);
+  const removedCount = (campaigns.data ?? []).filter((c) => c.status === 'removed').length;
+  const visible = (campaigns.data ?? []).filter((c) => showRemoved || c.status !== 'removed');
+
   // Vindo da Fábrica: abre direto o conjunto criado (?meta=<campanha>&conjunto=<id>).
   useEffect(() => {
     const id = params.get('meta');
@@ -81,6 +106,11 @@ export function CampaignsPage() {
                 { value: 'google', label: 'Google Ads' },
               ]}
             />
+            {!org?.isDemo && (
+              <Button variant="outline" icon={<RefreshCw className={`size-4 ${live.isPending ? 'animate-spin' : ''}`} />} onClick={() => live.mutate()} disabled={live.isPending}>
+                {live.isPending ? 'Atualizando…' : live.data ? `Atualizado às ${new Date(live.data.syncedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Atualizar agora'}
+              </Button>
+            )}
             <Button icon={<Plus className="size-4" />} onClick={() => setEditing('new')}>
               Novo rascunho
             </Button>
@@ -108,6 +138,12 @@ export function CampaignsPage() {
           }
         />
       )}
+      {removedCount > 0 && (
+        <label className="mb-3 flex items-center gap-2 text-sm text-muted">
+          <input type="checkbox" checked={showRemoved} onChange={(e) => setShowRemoved(e.target.checked)} />
+          Mostrar campanhas excluídas na plataforma ({removedCount})
+        </label>
+      )}
       {campaigns.data && campaigns.data.length > 0 && (
         <Card className="overflow-hidden">
           <table className="w-full text-sm">
@@ -123,7 +159,7 @@ export function CampaignsPage() {
               </tr>
             </thead>
             <tbody>
-              {campaigns.data.map((c) => {
+              {visible.map((c) => {
                 const local = !c.remoteId && (c.syncState === 'local_only' || c.syncState === 'error');
                 return (
                   <tr key={c.id} className="border-t border-border align-top">
@@ -154,7 +190,7 @@ export function CampaignsPage() {
                             {c.syncState === 'pending' ? 'Verificar e publicar' : 'Publicar'}
                           </Button>
                         )}
-                        {c.platform === 'meta' && c.objective !== 'OUTCOME_APP_PROMOTION' && !org?.isDemo && (
+                        {c.platform === 'meta' && c.objective !== 'OUTCOME_APP_PROMOTION' && c.status !== 'removed' && !org?.isDemo && (
                           <Button size="sm" variant="secondary" icon={<Layers className="size-3.5" />} onClick={() => setMetaOf({ campaign: c, openId: null })}>
                             Conjuntos e anúncios
                           </Button>
@@ -170,7 +206,7 @@ export function CampaignsPage() {
                         {c.remoteId && c.status === 'paused' && (
                           <Button size="sm" variant="ghost" aria-label={`Ativar ${c.name}`} icon={<Play className="size-3.5" />} onClick={() => setStatusChange({ campaign: c, to: 'active' })} />
                         )}
-                        {c.remoteId && (
+                        {c.remoteId && c.status !== 'removed' && (
                           <Button size="sm" variant="ghost" aria-label={`Orçamento de ${c.name}`} icon={<Wallet className="size-3.5" />} onClick={() => setBudgetOf(c)} />
                         )}
                         {!org?.isDemo && (
@@ -181,6 +217,9 @@ export function CampaignsPage() {
                             <Button size="sm" variant="ghost" aria-label={`Editar ${c.name}`} icon={<Pencil className="size-3.5" />} onClick={() => setEditing(c)} />
                             <Button size="sm" variant="ghost" aria-label={`Excluir ${c.name}`} icon={<Trash2 className="size-3.5" />} onClick={() => setDeleting(c)} />
                           </>
+                        )}
+                        {!local && (
+                          <Button size="sm" variant="ghost" aria-label={`Excluir ${c.name}`} icon={<Trash2 className="size-3.5" />} onClick={() => setRemoving(c)} />
                         )}
                       </div>
                     </td>
@@ -197,6 +236,7 @@ export function CampaignsPage() {
       {budgetOf && <BudgetModal campaign={budgetOf} onClose={() => setBudgetOf(null)} />}
       {historyOf && <HistoryModal campaign={historyOf} onClose={() => setHistoryOf(null)} />}
       {structureOf && <SearchStructureModal campaign={structureOf} onClose={() => setStructureOf(null)} />}
+      {removing && <DeleteCampaignModal campaign={removing} onClose={() => setRemoving(null)} />}
       {metaOf && <MetaAdSetsModal campaign={metaOf.campaign} openId={metaOf.openId} onClose={() => setMetaOf(null)} />}
       <ConfirmDialog
         open={!!statusChange}
@@ -223,6 +263,83 @@ export function CampaignsPage() {
         onClose={() => setDeleting(null)}
       />
     </>
+  );
+}
+
+/** Excluir campanha publicada: na plataforma (irreversível) ou só do app. */
+function DeleteCampaignModal({ campaign, onClose }: { campaign: Campaign; onClose: () => void }) {
+  const organizationId = useOrgId();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const canRemote = !!campaign.remoteId && campaign.status !== 'removed';
+  const [mode, setMode] = useState<'remote' | 'local'>(canRemote ? 'remote' : 'local');
+  const [confirmName, setConfirmName] = useState('');
+  const platform = PLATFORM_LABEL[campaign.platform];
+  const done = async (msg: string) => {
+    toast.success(msg);
+    await qc.invalidateQueries({ queryKey: ['campaigns'] });
+    onClose();
+  };
+  const remote = useMutation({
+    mutationFn: () => api('campaign.deleteRemote', { organizationId, id: campaign.id, confirmName }),
+    onSuccess: () => done(`Campanha excluída no ${platform}. O histórico continua no app.`),
+    onError: (e) => toast.error(e),
+  });
+  const local = useMutation({
+    mutationFn: () => api('campaign.removeLocal', { organizationId, id: campaign.id }),
+    onSuccess: () => done('Campanha removida do app.'),
+    onError: (e) => toast.error(e),
+  });
+  const busy = remote.isPending || local.isPending;
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={`Excluir "${campaign.name}"`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            loading={busy}
+            disabled={mode === 'remote' && confirmName.trim() !== campaign.name.trim()}
+            onClick={() => (mode === 'remote' ? remote.mutate() : local.mutate())}
+          >
+            {mode === 'remote' ? `Excluir no ${platform}` : 'Remover do app'}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3 text-sm">
+        {canRemote && (
+          <label className="flex items-start gap-2 rounded-lg border border-border p-3">
+            <input type="radio" name="del-mode" className="mt-1" checked={mode === 'remote'} onChange={() => setMode('remote')} />
+            <span>
+              <strong>Excluir também no {platform}</strong>
+              <span className="block text-xs text-muted">
+                A campanha, os conjuntos/grupos e os anúncios dela são excluídos na plataforma e param de veicular. <b>Não dá para desfazer.</b> O histórico de métricas continua aqui, marcado como excluída.
+              </span>
+            </span>
+          </label>
+        )}
+        <label className="flex items-start gap-2 rounded-lg border border-border p-3">
+          <input type="radio" name="del-mode" className="mt-1" checked={mode === 'local'} onChange={() => setMode('local')} />
+          <span>
+            <strong>Remover só do app</strong>
+            <span className="block text-xs text-muted">
+              Nada muda no {platform}{campaign.remoteId && campaign.status !== 'removed' ? ' (a campanha continua veiculando lá)' : ''}. Some daqui com as métricas e conjuntos locais, e a sincronização não a traz de volta.
+            </span>
+          </span>
+        </label>
+        {mode === 'remote' && (
+          <Field label={`Para confirmar, digite o nome da campanha: ${campaign.name}`} htmlFor="del-confirm">
+            <Input id="del-confirm" value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="off" />
+          </Field>
+        )}
+      </div>
+    </Modal>
   );
 }
 

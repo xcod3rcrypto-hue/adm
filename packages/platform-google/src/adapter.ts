@@ -293,6 +293,11 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     ]);
   }
 
+  async deleteCampaign(customerId: string, campaignRemoteId: string): Promise<void> {
+    assertNumericCampaign(campaignRemoteId);
+    await withStep('ao excluir a campanha', () => this.mutate(customerId, 'campaigns', [{ remove: `customers/${customerId}/campaigns/${campaignRemoteId}` }]));
+  }
+
   async updateDailyBudget(customerId: string, campaignRemoteId: string, amount: number): Promise<void> {
     assertNumericCampaign(campaignRemoteId);
     if (!Number.isFinite(amount) || amount <= 0) throw new Error('Valor de orçamento inválido.');

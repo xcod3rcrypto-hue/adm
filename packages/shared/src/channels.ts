@@ -27,5 +27,7 @@ export const CHANNEL_NAMES = [
   'integration.disconnect',
   'intelligence.get', 'intelligence.run', 'recommendation.setStatus',
   'experiment.list', 'experiment.create', 'experiment.update', 'experiment.importMetrics', 'experiment.evaluate', 'experiment.conclude', 'experiment.setStatus', 'experiment.delete',
+  'automation.overview', 'automation.create', 'automation.update', 'automation.delete', 'automation.setEnabled', 'automation.simulate', 'automation.runNow', 'automation.decide', 'automation.killSwitch',
+  'notification.list', 'notification.unread', 'notification.markRead',
   'audit.list',
 ] as const;

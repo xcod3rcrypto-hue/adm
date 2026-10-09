@@ -195,6 +195,19 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'experiment.setStatus': ({ organizationId, id, status }, ctx) => core.setExperimentStatus(ctx, organizationId, id, status),
     'experiment.delete': ({ organizationId, id }, ctx) => core.deleteExperiment(ctx, organizationId, id),
 
+    'automation.overview': ({ organizationId }, ctx) => core.getAutomationOverview(ctx, organizationId),
+    'automation.create': ({ organizationId, data }, ctx) => core.createRule(ctx, organizationId, data),
+    'automation.update': ({ organizationId, id, data }, ctx) => core.updateRule(ctx, organizationId, id, data),
+    'automation.delete': ({ organizationId, id }, ctx) => core.deleteRule(ctx, organizationId, id),
+    'automation.setEnabled': ({ organizationId, id, enabled }, ctx) => core.setRuleEnabled(ctx, organizationId, id, enabled),
+    'automation.simulate': ({ organizationId, data }, ctx) => core.simulateRule(ctx, organizationId, data),
+    'automation.runNow': ({ organizationId, id }, ctx) => core.runRule(ctx, organizationId, id),
+    'automation.decide': ({ organizationId, executionId, decision }, ctx) => core.decideApproval(ctx, organizationId, executionId, decision),
+    'automation.killSwitch': ({ organizationId, active }, ctx) => core.setKillSwitch(ctx, organizationId, active),
+    'notification.list': ({ organizationId }, ctx) => core.listNotifications(ctx, organizationId),
+    'notification.unread': ({ organizationId }, ctx) => core.unreadNotifications(ctx, organizationId),
+    'notification.markRead': ({ organizationId, ids }, ctx) => core.markNotificationsRead(ctx, organizationId, ids),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
 }

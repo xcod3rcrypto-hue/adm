@@ -152,6 +152,29 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Limitações da análise')).toBeVisible();
     await page.screenshot({ path: join(shots, '09-inteligencia.png'), fullPage: true });
 
+    // Automações: simular, executar (demo apenas simula) e botão de emergência
+    await page.getByRole('link', { name: 'Automações' }).click();
+    await page.getByRole('button', { name: 'Nova regra' }).first().click();
+    await page.getByLabel('Nome').fill('Pausar sem conversões');
+    await page.getByLabel('Valor da condição 1').fill('100');
+    await page.getByLabel('Janela de avaliação (dias)').fill('3');
+    await page.getByRole('button', { name: 'Simular' }).click();
+    await expect(page.getByText(/Simulação: 1 de 5 campanha\(s\)/)).toBeVisible();
+    await expect(page.getByText('Demo · Leads · Cafeterias').last()).toBeVisible();
+    await page.screenshot({ path: join(shots, '10-automacao-simulacao.png') });
+    await page.getByRole('button', { name: 'Salvar regra' }).click();
+    await expect(page.getByText('Regra salva.')).toBeVisible();
+    await page.getByRole('button', { name: 'Executar agora' }).click();
+    await expect(page.getByText(/1 campanha\(s\) atenderam/)).toBeVisible();
+    await page.getByRole('tab', { name: /Execuções/ }).click();
+    await expect(page.getByRole('cell', { name: 'Simulada', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Botão de emergência' }).click();
+    await page.getByRole('button', { name: 'Parar todas as automações' }).click();
+    await expect(page.getByText(/Botão de emergência ativo/)).toBeVisible();
+    await page.screenshot({ path: join(shots, '11-automacoes.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Liberar automações' }).click();
+    await expect(page.getByText(/Botão de emergência ativo/)).toBeHidden();
+
     // Voltar para a organização real: nenhum dado demo aparece
     await page.getByLabel('Organização').selectOption({ label: 'Agência Horizonte' });
     await expect(page.getByText(/MODO DEMONSTRAÇÃO/)).toBeHidden();

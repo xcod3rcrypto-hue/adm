@@ -26,6 +26,12 @@ import {
   type IntelligenceReport,
   type Experiment,
   type PlatformOperation,
+  type AppNotification,
+  type AutomationExecution,
+  type AutomationOverview,
+  type AutomationRule,
+  type AutomationSimulation,
+  AutomationRuleInput,
   type PublishCheck,
   PublishingLimits,
   ExperimentInput,
@@ -161,6 +167,19 @@ export const ipcInputs = {
   'experiment.setStatus': z.object({ ...org, id: Id, status: z.enum(['planned', 'running', 'cancelled']) }),
   'experiment.delete': z.object({ ...org, id: Id }),
 
+  'automation.overview': z.object(org),
+  'automation.create': z.object({ ...org, data: AutomationRuleInput }),
+  'automation.update': z.object({ ...org, id: Id, data: AutomationRuleInput }),
+  'automation.delete': z.object({ ...org, id: Id }),
+  'automation.setEnabled': z.object({ ...org, id: Id, enabled: z.boolean() }),
+  'automation.simulate': z.object({ ...org, data: AutomationRuleInput }),
+  'automation.runNow': z.object({ ...org, id: Id }),
+  'automation.decide': z.object({ ...org, executionId: Id, decision: z.enum(['approve', 'reject']) }),
+  'automation.killSwitch': z.object({ ...org, active: z.boolean() }),
+  'notification.list': z.object(org),
+  'notification.unread': z.object(org),
+  'notification.markRead': z.object({ ...org, ids: z.array(Id).max(500).nullable().default(null) }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -251,6 +270,18 @@ export interface ChannelOutputs {
   'experiment.conclude': Experiment;
   'experiment.setStatus': Experiment;
   'experiment.delete': void;
+  'automation.overview': AutomationOverview;
+  'automation.create': AutomationRule;
+  'automation.update': AutomationRule;
+  'automation.delete': void;
+  'automation.setEnabled': AutomationRule;
+  'automation.simulate': AutomationSimulation;
+  'automation.runNow': { matched: number; created: number; skipped: number; message: string };
+  'automation.decide': AutomationExecution;
+  'automation.killSwitch': AutomationOverview;
+  'notification.list': AppNotification[];
+  'notification.unread': number;
+  'notification.markRead': number;
   'audit.list': AuditEntry[];
 }
 

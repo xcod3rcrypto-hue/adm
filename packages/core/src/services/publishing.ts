@@ -48,7 +48,7 @@ function getAccount(ctx: AppContext, organizationId: string, accountId: string):
   return a;
 }
 
-function checkBudget(limits: PublishingLimits, amount: number, currency: string, current: number | null): string | null {
+export function checkBudget(limits: PublishingLimits, amount: number, currency: string, current: number | null): string | null {
   if (limits.maxDailyBudget !== null && amount > limits.maxDailyBudget) {
     return `O orçamento de ${formatCurrency(amount, currency)} excede o limite da organização (${formatCurrency(limits.maxDailyBudget, currency)}). Ajuste o limite em Configurações → Limites de publicação.`;
   }

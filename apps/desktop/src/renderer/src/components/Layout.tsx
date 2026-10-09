@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Beaker, Brain, Building2, FlaskConical, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
+import { Beaker, Brain, Workflow, Building2, HardDrive, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useOrg } from '../lib/org';
 import { useToast } from './ui';
@@ -14,12 +16,19 @@ const NAV = [
   { to: '/campanhas', label: 'Campanhas', icon: Megaphone },
   { to: '/inteligencia', label: 'Inteligência', icon: Brain },
   { to: '/experimentos', label: 'Experimentos', icon: Beaker },
+  { to: '/automacoes', label: 'Automações', icon: Workflow },
   { to: '/integracoes', label: 'Integrações', icon: PlugZap },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const { org, orgs, switchTo } = useOrg();
+  const unread = useQuery({
+    queryKey: ['notifications-unread', org?.id],
+    queryFn: () => api('notification.unread', { organizationId: org!.id }),
+    enabled: !!org,
+    refetchInterval: 60_000,
+  });
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -61,7 +70,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </select>
         </div>
 
-        <nav aria-label="Navegação principal" className="flex flex-1 flex-col gap-0.5 px-3">
+        <nav aria-label="Navegação principal" className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3">
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -78,18 +87,20 @@ export function Layout({ children }: { children: ReactNode }) {
                 <>
                   <Icon className={cn('size-4', isActive ? 'text-[#b9a8ff]' : 'text-subtle group-hover:text-muted')} aria-hidden />
                   {label}
+                  {to === '/automacoes' && !!unread.data && (
+                    <span className="ml-auto rounded-full bg-brand px-1.5 text-[10px] font-semibold text-white" aria-label={`${unread.data} alertas não lidos`}>
+                      {unread.data}
+                    </span>
+                  )}
                 </>
               )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="m-3 rounded-xl border border-border bg-surface-2 p-3 text-xs text-muted">
-          <p className="flex items-center gap-1.5 font-medium text-fg">
-            <FlaskConical className="size-3.5 text-accent" /> Fase 1 — Fundação
-          </p>
-          <p className="mt-1 leading-relaxed">Inteligência, experimentos, automações e relatórios chegam nas próximas fases (ver docs/ROADMAP.md).</p>
-        </div>
+        <p className="flex items-center gap-1.5 px-5 py-4 text-[11px] text-subtle">
+          <HardDrive className="size-3" aria-hidden /> Dados salvos neste computador
+        </p>
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">

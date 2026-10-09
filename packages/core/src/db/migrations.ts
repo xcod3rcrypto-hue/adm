@@ -450,6 +450,7 @@ CREATE TABLE experiment_variants (
 );
 CREATE INDEX idx_experiment_variants ON experiment_variants(experiment_id, position);
 
+ALTER TABLE automation_rules ADD COLUMN last_run_at TEXT;
 ALTER TABLE automation_executions ADD COLUMN campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL;
 ALTER TABLE automation_executions ADD COLUMN approval_id TEXT REFERENCES approvals(id) ON DELETE SET NULL;
 CREATE INDEX idx_automation_exec_org ON automation_executions(organization_id, created_at);

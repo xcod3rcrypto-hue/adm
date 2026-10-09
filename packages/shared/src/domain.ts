@@ -588,3 +588,128 @@ export interface PublishCheck {
   ok: boolean;
   items: Array<{ label: string; ok: boolean; detail: string }>;
 }
+
+// ---------------------------------------------------------------------------
+// Automações
+// ---------------------------------------------------------------------------
+
+export const AutomationMode = z.enum(['read_only', 'recommend', 'approve', 'auto_limited']);
+export type AutomationMode = z.infer<typeof AutomationMode>;
+
+export const AutomationMetric = z.enum(['spend', 'conversions', 'clicks', 'impressions', 'ctr', 'cpc', 'cpa', 'roas']);
+export type AutomationMetric = z.infer<typeof AutomationMetric>;
+
+export const AutomationOperator = z.enum(['gt', 'gte', 'lt', 'lte', 'eq']);
+export type AutomationOperator = z.infer<typeof AutomationOperator>;
+
+export const AutomationCondition = z.object({
+  metric: AutomationMetric,
+  operator: AutomationOperator,
+  value: z.number().min(0).max(1e12),
+});
+export type AutomationCondition = z.infer<typeof AutomationCondition>;
+
+export const AutomationAction = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('notify') }),
+  z.object({ type: z.literal('pause_campaign') }),
+  z.object({ type: z.literal('adjust_budget'), changePercent: z.number().min(-90).max(100).refine((v) => v !== 0, 'Informe uma variação diferente de zero') }),
+]);
+export type AutomationAction = z.infer<typeof AutomationAction>;
+
+export const AutomationFrequency = z.enum(['hourly', 'every_6_hours', 'daily']);
+export type AutomationFrequency = z.infer<typeof AutomationFrequency>;
+
+export const AutomationRuleInput = z
+  .object({
+    name: text(120).min(3, 'Nomeie a regra (ao menos 3 caracteres)'),
+    mode: AutomationMode,
+    platform: Platform.nullable().default(null),
+    campaignIds: z.array(Id).max(200).default([]),
+    conditions: z.array(AutomationCondition).min(1, 'Adicione ao menos uma condição').max(5),
+    windowDays: z.number().int().min(1).max(90).default(7),
+    frequency: AutomationFrequency.default('daily'),
+    action: AutomationAction,
+    /** Teto de orçamento diário que a regra pode definir (aumentos). */
+    maxDailyBudget: z.number().positive().max(10_000_000).nullable().default(null),
+    expiresAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().default(null),
+    enabled: z.boolean().default(false),
+  })
+  .refine((r) => r.action.type !== 'adjust_budget' || r.action.changePercent < 0 || r.maxDailyBudget !== null, {
+    message: 'Regras que aumentam orçamento exigem um teto de orçamento diário',
+    path: ['maxDailyBudget'],
+  })
+  .refine((r) => r.mode !== 'read_only' || r.action.type === 'notify', {
+    message: 'No modo somente leitura a ação deve ser apenas alertar',
+    path: ['action'],
+  });
+export type AutomationRuleInput = z.input<typeof AutomationRuleInput>;
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  mode: AutomationMode;
+  platform: Platform | null;
+  campaignIds: string[];
+  conditions: AutomationCondition[];
+  windowDays: number;
+  frequency: AutomationFrequency;
+  action: AutomationAction;
+  maxDailyBudget: number | null;
+  expiresAt: string | null;
+  enabled: boolean;
+  lastRunAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AutomationExecutionStatus = 'simulated' | 'pending_approval' | 'running' | 'succeeded' | 'failed' | 'cancelled';
+
+export interface AutomationExecution {
+  id: string;
+  ruleId: string;
+  ruleName: string;
+  campaignId: string | null;
+  campaignName: string | null;
+  status: AutomationExecutionStatus;
+  simulated: boolean;
+  summary: string;
+  metrics: Record<string, number | null>;
+  result: string | null;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export interface AutomationMatch {
+  campaignId: string;
+  campaignName: string;
+  platform: Platform;
+  currency: string;
+  metrics: Record<AutomationMetric, number | null>;
+  plannedAction: string;
+  blockedReason: string | null;
+}
+
+export interface AutomationSimulation {
+  window: { from: string; to: string };
+  evaluatedCampaigns: number;
+  matches: AutomationMatch[];
+  notes: string[];
+}
+
+export interface AutomationOverview {
+  isDemo: boolean;
+  killSwitch: boolean;
+  rules: AutomationRule[];
+  executions: AutomationExecution[];
+  pendingApprovals: number;
+}
+
+export interface AppNotification {
+  id: string;
+  level: 'info' | 'warning' | 'error';
+  title: string;
+  body: string;
+  readAt: string | null;
+  createdAt: string;
+}

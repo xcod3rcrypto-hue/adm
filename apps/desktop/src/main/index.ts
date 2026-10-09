@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
 import { BrowserWindow, Menu, app, dialog, net, protocol, safeStorage, session, shell, type IpcMainInvokeEvent } from 'electron';
 import { AnthropicProvider } from '@advertex/ai-core';
-import { Database, defaultIds, resolveAssetFile, type AppContext, type SecretCipher } from '@advertex/core';
+import { Database, defaultIds, resolveAssetFile, runDueAutomations, type AppContext, type SecretCipher } from '@advertex/core';
 import { createFileLogger } from './logger';
 import { registerIpc } from './ipc';
 import { createHandlers, isAllowedExternal } from './handlers';
@@ -137,8 +137,28 @@ async function bootstrap(): Promise<void> {
   });
 
   registerIpc(ctx, createHandlers({ userData: paths.userData, logs: paths.logs, database: paths.database }), isTrustedSender);
+  startAutomationScheduler(ctx);
   Menu.setApplicationMenu(null);
   createWindow();
+}
+
+let automationTimer: NodeJS.Timeout | null = null;
+let automationRunning = false;
+
+/** Avalia regras de automação vencidas a cada 5 minutos enquanto o app está aberto. */
+function startAutomationScheduler(ctx: AppContext): void {
+  const tick = () => {
+    if (automationRunning) return;
+    automationRunning = true;
+    runDueAutomations({ ...ctx, correlationId: `scheduler-${Date.now()}` })
+      .then((n) => n > 0 && logger.info('automation.scheduler', { rulesRun: n }))
+      .catch((err: unknown) => logger.error('automation.scheduler.failed', { error: err instanceof Error ? err : String(err) }))
+      .finally(() => {
+        automationRunning = false;
+      });
+  };
+  setTimeout(tick, 30_000);
+  automationTimer = setInterval(tick, 5 * 60_000);
 }
 
 app.on('second-instance', () => {
@@ -153,6 +173,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  if (automationTimer) clearInterval(automationTimer);
   try {
     db?.close();
     logger.info('app.quit');

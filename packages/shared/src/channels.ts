@@ -29,5 +29,6 @@ export const CHANNEL_NAMES = [
   'experiment.list', 'experiment.create', 'experiment.update', 'experiment.importMetrics', 'experiment.evaluate', 'experiment.conclude', 'experiment.setStatus', 'experiment.delete',
   'automation.overview', 'automation.create', 'automation.update', 'automation.delete', 'automation.setEnabled', 'automation.simulate', 'automation.runNow', 'automation.decide', 'automation.killSwitch',
   'notification.list', 'notification.unread', 'notification.markRead',
+  'report.list', 'report.create', 'report.get', 'report.delete', 'report.export',
   'audit.list',
 ] as const;

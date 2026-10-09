@@ -175,6 +175,30 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await page.getByRole('button', { name: 'Liberar automações' }).click();
     await expect(page.getByText(/Botão de emergência ativo/)).toBeHidden();
 
+    // Relatórios: gerar, visualizar e exportar PDF/CSV de verdade
+    await page.getByRole('link', { name: 'Relatórios' }).click();
+    await page.getByRole('button', { name: 'Novo relatório' }).first().click();
+    await page.getByLabel('Título').fill('Relatório mensal demo');
+    await page.getByRole('button', { name: 'Gerar relatório' }).click();
+    await expect(page.getByText('Relatório gerado.')).toBeVisible();
+    await expect(page.getByRole('dialog').getByText('Relatório de demonstração', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Resumo executivo' })).toBeVisible();
+    await page.screenshot({ path: join(shots, '12-relatorio.png') });
+    await page.getByRole('button', { name: 'Fechar' }).click();
+    const pdfPath = join(userData, 'relatorio.pdf');
+    const csvPath = join(userData, 'relatorio.csv');
+    for (const [format, target] of [['PDF', pdfPath], ['CSV', csvPath]] as const) {
+      await app.evaluate(({ dialog }, file) => {
+        dialog.showSaveDialog = (async () => ({ canceled: false, filePath: file })) as typeof dialog.showSaveDialog;
+      }, target);
+      await page.getByRole('button', { name: format, exact: true }).click();
+      await expect(page.getByText(`Relatório salvo em ${target}`)).toBeVisible();
+    }
+    expect(readFileSync(pdfPath).subarray(0, 5).toString()).toBe('%PDF-');
+    const csv = readFileSync(csvPath, 'utf8');
+    expect(csv).toContain('Campanha;Plataforma;Moeda;Investimento');
+    expect(csv).toContain('DADOS FICTÍCIOS');
+
     // Voltar para a organização real: nenhum dado demo aparece
     await page.getByLabel('Organização').selectOption({ label: 'Agência Horizonte' });
     await expect(page.getByText(/MODO DEMONSTRAÇÃO/)).toBeHidden();

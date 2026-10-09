@@ -27,6 +27,9 @@ import {
   type Experiment,
   type PlatformOperation,
   type AppNotification,
+  type Report,
+  type ReportSummary,
+  ReportInput,
   type AutomationExecution,
   type AutomationOverview,
   type AutomationRule,
@@ -180,6 +183,12 @@ export const ipcInputs = {
   'notification.unread': z.object(org),
   'notification.markRead': z.object({ ...org, ids: z.array(Id).max(500).nullable().default(null) }),
 
+  'report.list': z.object(org),
+  'report.create': z.object({ ...org, data: ReportInput }),
+  'report.get': z.object({ ...org, id: Id }),
+  'report.delete': z.object({ ...org, id: Id }),
+  'report.export': z.object({ ...org, id: Id, format: z.enum(['csv', 'pdf']) }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -282,6 +291,11 @@ export interface ChannelOutputs {
   'notification.list': AppNotification[];
   'notification.unread': number;
   'notification.markRead': number;
+  'report.list': ReportSummary[];
+  'report.create': Report;
+  'report.get': Report;
+  'report.delete': void;
+  'report.export': { savedTo: string | null };
   'audit.list': AuditEntry[];
 }
 

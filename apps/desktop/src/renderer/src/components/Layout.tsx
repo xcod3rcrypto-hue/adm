@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { Beaker, Brain, Workflow, Building2, HardDrive, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
+import { Beaker, Brain, FileBarChart, Workflow, Building2, HardDrive, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useOrg } from '../lib/org';
 import { useToast } from './ui';
@@ -17,6 +17,7 @@ const NAV = [
   { to: '/inteligencia', label: 'Inteligência', icon: Brain },
   { to: '/experimentos', label: 'Experimentos', icon: Beaker },
   { to: '/automacoes', label: 'Automações', icon: Workflow },
+  { to: '/relatorios', label: 'Relatórios', icon: FileBarChart },
   { to: '/integracoes', label: 'Integrações', icon: PlugZap },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];

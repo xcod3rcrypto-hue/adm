@@ -713,3 +713,57 @@ export interface AppNotification {
   readAt: string | null;
   createdAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Relatórios
+// ---------------------------------------------------------------------------
+
+export const ReportInput = z
+  .object({
+    title: text(160).min(3, 'Dê um título ao relatório'),
+    projectId: Id.nullable().default(null),
+    platform: Platform.nullable().default(null),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  })
+  .refine((r) => r.to >= r.from, { message: 'A data final deve ser posterior à inicial', path: ['to'] });
+export type ReportInput = z.input<typeof ReportInput>;
+
+export interface ReportCampaignRow {
+  campaignId: string;
+  name: string;
+  platform: Platform;
+  currency: string;
+  totals: MetricTotals;
+  derived: DerivedMetrics;
+}
+
+export interface ReportContent {
+  isDemo: boolean;
+  organizationName: string;
+  projectName: string | null;
+  platform: Platform | null;
+  period: { from: string; to: string };
+  previousPeriod: { from: string; to: string };
+  sources: MetricSource[];
+  executiveSummary: string[];
+  byCurrency: Array<{ currency: string; totals: MetricTotals; derived: DerivedMetrics; previous: { totals: MetricTotals; derived: DerivedMetrics } | null }>;
+  byPlatform: Array<{ platform: Platform; currency: string; totals: MetricTotals; derived: DerivedMetrics }>;
+  campaigns: ReportCampaignRow[];
+  series: Array<{ currency: string; points: DashboardSeriesPoint[] }>;
+  alerts: string[];
+  recommendations: Array<{ title: string; campaignName: string | null; rationale: string; status: RecommendationStatus }>;
+  limitations: string[];
+}
+
+export interface Report {
+  id: string;
+  title: string;
+  projectId: string | null;
+  periodFrom: string;
+  periodTo: string;
+  content: ReportContent;
+  createdAt: string;
+}
+
+export type ReportSummary = Omit<Report, 'content'> & { isDemo: boolean; projectName: string | null; platform: Platform | null };

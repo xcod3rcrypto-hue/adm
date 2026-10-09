@@ -199,7 +199,12 @@ export function buildSearchAdFromPagePrompt(p: {
   brief: BriefData | null;
   projectName: string | null;
   seeds: string[];
+  /** A página não pôde ser lida: gerar a partir do link, briefing e sementes. */
+  unreadable?: boolean;
 }): { system: string; prompt: string } {
+  const pageBlock = p.unreadable
+    ? `<pagina url="${p.page.url}">\n(Não foi possível ler o conteúdo desta página. Baseie-se no endereço, no briefing e nas palavras-semente; não afirme detalhes que não estejam neles.)\n</pagina>\n\n`
+    : `<pagina url="${p.page.url}">\nTítulo: ${p.page.title}\nDescrição: ${p.page.description}\nSeções: ${p.page.headings.slice(0, 30).join(' | ')}\nTexto: ${p.page.textExcerpt.slice(0, 7000)}\n</pagina>\n\n`;
   return {
     system:
       BASE_SYSTEM +
@@ -207,7 +212,7 @@ export function buildSearchAdFromPagePrompt(p: {
       ' O conteúdo entre <pagina> é a página de destino do anunciante: use apenas fatos presentes nela ou no briefing.',
     prompt:
       (p.brief && p.projectName ? `${briefToContext(p.brief, p.projectName)}\n\n` : '') +
-      `<pagina url="${p.page.url}">\nTítulo: ${p.page.title}\nDescrição: ${p.page.description}\nSeções: ${p.page.headings.slice(0, 30).join(' | ')}\nTexto: ${p.page.textExcerpt.slice(0, 7000)}\n</pagina>\n\n` +
+      pageBlock +
       (p.seeds.length ? `Palavras-semente do usuário: ${p.seeds.join(', ')}.\n\n` : '') +
       'Crie um anúncio responsivo de pesquisa completo para esta página, no idioma da página:\n' +
       '1. EXATAMENTE 15 títulos, cada um com NO MÁXIMO 30 caracteres (contando espaços), todos diferentes entre si. Distribua os ângulos: ' +

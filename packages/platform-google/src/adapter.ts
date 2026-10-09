@@ -83,7 +83,7 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
 
   /** `write`: mutações não são repetidas automaticamente (resultado incerto exige verificação). */
   private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown, write = false, loginOverride?: string): Promise<T> {
-    const customerId = /^customers\/(\d{10})\//.exec(path)?.[1];
+    const customerId = /^customers\/(\d{10})[/:]/.exec(path)?.[1];
     const res = await fetchWithRetry(
       this.fetchImpl,
       `https://${HOST}/${this.version}/${path}`,

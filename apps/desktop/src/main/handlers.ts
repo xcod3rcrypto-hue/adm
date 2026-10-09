@@ -1,6 +1,6 @@
 import { copyFileSync, writeFileSync } from 'node:fs';
 import { BrowserWindow, app, dialog, shell } from 'electron';
-import { AppError } from '@advertex/shared';
+import { AppError, type PageAnalysis } from '@advertex/shared';
 import * as core from '@advertex/core';
 import type { HandlerMap } from './ipc';
 import type { Updater } from './updater';
@@ -185,13 +185,21 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'search.keywordIdeasAi': ({ organizationId, campaignId, seeds }, ctx) => core.keywordIdeasFromAi(ctx, organizationId, campaignId, seeds),
     'search.adFromPage': async ({ organizationId, campaignId, url, seeds }, ctx) => {
       core.getOrganization(ctx, organizationId);
-      let page;
+      let page: PageAnalysis;
+      let fetchError: string | undefined;
       try {
         page = await core.fetchPublicPage(url);
       } catch (err) {
-        throw new AppError('EXTERNAL_API', `Não foi possível ler a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`, { cause: err });
+        // Links que não abrem (bloqueio, lentidão) não impedem a geração: segue com briefing e sementes.
+        const message = err instanceof Error ? err.message : 'erro desconhecido';
+        if (/privad|reservad|permitid|inválida|Somente|locais|bloqueou|autenticação/i.test(message)) {
+          throw new AppError('EXTERNAL_API', `Não foi possível ler a página: ${message}`, { cause: err });
+        }
+        ctx.logger.warn('Falha ao ler a página do anúncio; gerando sem o conteúdo', { error: message });
+        fetchError = message;
+        page = { url, finalUrl: url, fetchedAt: new Date().toISOString(), status: 0, title: '', description: '', headings: [], textExcerpt: '' };
       }
-      return core.generateSearchAdFromPage(ctx, organizationId, campaignId, page, seeds);
+      return core.generateSearchAdFromPage(ctx, organizationId, campaignId, page, seeds, fetchError);
     },
     'publishing.getLimits': ({ organizationId }, ctx) => core.getPublishingLimits(ctx, organizationId),
     'publishing.saveLimits': ({ organizationId, limits }, ctx) => core.savePublishingLimits(ctx, organizationId, limits),

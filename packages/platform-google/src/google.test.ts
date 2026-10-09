@@ -201,5 +201,9 @@ describe('contas sob MCC', () => {
     // Operações na conta filha usam a MCC como login-customer-id.
     await a.listCampaigns('2222222222');
     expect(calls.at(-1)).toMatchObject({ url: expect.stringContaining('customers/2222222222/'), login: '1111111111' });
+
+    // Métodos no formato customers/{id}:método também levam a MCC (Planejador de Palavras-chave).
+    await a.generateKeywordIdeas('2222222222', { seeds: ['internet rural'], url: '', languageId: '1014', geoTargetId: '2076' });
+    expect(calls.at(-1)).toMatchObject({ url: expect.stringContaining('customers/2222222222:generateKeywordIdeas'), login: '1111111111' });
   });
 });

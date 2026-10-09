@@ -344,16 +344,34 @@ export async function pushSearchAdGroup(ctx: AppContext, organizationId: string,
  * Textos fora do limite do Google são descartados; quando o Planejador de
  * Palavras-chave está disponível, os volumes de busca reais são anexados.
  */
-export async function generateSearchAdFromPage(ctx: AppContext, organizationId: string, campaignId: string, page: PageAnalysis, seeds: string[]): Promise<SearchAdDraft> {
+/**
+ * Gera o anúncio a partir da página. Se a página não pôde ser lida (`fetchError`), usa o link,
+ * o briefing e as palavras-semente — desde que haja briefing ou sementes para se basear.
+ */
+export async function generateSearchAdFromPage(
+  ctx: AppContext,
+  organizationId: string,
+  campaignId: string,
+  page: PageAnalysis,
+  seeds: string[],
+  fetchError?: string,
+): Promise<SearchAdDraft> {
   const c = requireGoogleSearchCampaign(ctx, organizationId, campaignId);
   const brief = c.projectId ? getBrief(ctx, organizationId, c.projectId) : null;
   const project = c.projectId ? getProject(ctx, organizationId, c.projectId) : null;
+  if (fetchError && !brief && seeds.length === 0) {
+    throw new AppError(
+      'EXTERNAL_API',
+      `Não foi possível ler a página: ${fetchError} Informe algumas palavras-chave de partida (ou vincule a campanha a um projeto com briefing) para gerar mesmo assim.`,
+    );
+  }
   const p = aiProvider(ctx);
   const prompt = buildSearchAdFromPagePrompt({
     page: { url: page.finalUrl, title: page.title, description: page.description, headings: page.headings, textExcerpt: page.textExcerpt },
     brief: brief?.data ?? null,
     projectName: project?.name ?? null,
     seeds: seeds.slice(0, 20),
+    unreadable: !!fetchError,
   });
   const { data, model } = await runAiJob(ctx, { organizationId, projectId: c.projectId, kind: 'search.adFromPage' }, p, () =>
     p.generateStructured({ ...prompt, schema: SearchAdFromPageOutput, maxTokens: 12_000, effort: 'medium' }),
@@ -367,7 +385,11 @@ export async function generateSearchAdFromPage(ctx: AppContext, organizationId: 
   const allDescriptions = uniq(data.descriptions.map((d) => d.trim()));
   const headlines = allHeadlines.filter((h) => validateText('google_rsa_headline', h).withinLimit).slice(0, 15);
   const descriptions = allDescriptions.filter((d) => validateText('google_rsa_description', d).withinLimit).slice(0, 4);
-  const notes: string[] = [`Gerado por IA (${model}) a partir de ${new URL(page.finalUrl).hostname}${brief ? ' e do briefing do projeto' : ''}. Revise antes de publicar.`];
+  const notes: string[] = fetchError
+    ? [
+        `A página não pôde ser lida (${fetchError}). Gerado por IA (${model}) a partir do link${brief ? ', do briefing do projeto' : ''}${seeds.length ? ' e das palavras de partida' : ''}. Confira se os textos correspondem ao que a página oferece.`,
+      ]
+    : [`Gerado por IA (${model}) a partir de ${new URL(page.finalUrl).hostname}${brief ? ' e do briefing do projeto' : ''}. Revise antes de publicar.`];
   const dropped = allHeadlines.length - headlines.length + (allDescriptions.length - descriptions.length);
   if (dropped > 0) notes.push(`${dropped} texto(s) acima do limite de caracteres foram descartados.`);
   if (headlines.length < 3 || descriptions.length < 2) throw new AppError('EXTERNAL_API', 'A IA não gerou textos suficientes dentro dos limites do Google. Tente gerar novamente.');

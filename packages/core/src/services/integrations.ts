@@ -1,5 +1,5 @@
 import { AppError, type AdvertisingAccount, type IntegrationView, type Platform, type SyncResult } from '@advertex/shared';
-import type { DateRange, RemoteAccount, RemoteCampaign, RemoteInsightRow } from '@advertex/advertising-core';
+import type { AdPlatformWriter, DateRange, RemoteAccount, RemoteCampaign, RemoteInsightRow } from '@advertex/advertising-core';
 import { MetaAdsAdapter, META_DEFAULT_API_VERSION, META_CONVERSION_ACTIONS } from '@advertex/platform-meta';
 import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, refreshAccessToken, revokeToken, runLoopbackAuthorization } from '@advertex/platform-google';
 import type { AppContext } from '../context';
@@ -96,7 +96,7 @@ export function listIntegrations(ctx: AppContext, organizationId: string): Integ
   return [view(ctx, organizationId, 'meta'), view(ctx, organizationId, 'google')];
 }
 
-function assertNotDemo(ctx: AppContext, organizationId: string): void {
+export function assertNotDemo(ctx: AppContext, organizationId: string): void {
   if (requireOrg(ctx, organizationId).is_demo) {
     throw new AppError('FORBIDDEN', 'A organização de demonstração não pode ser conectada a contas reais. Crie ou selecione uma organização real.');
   }
@@ -227,6 +227,12 @@ type Reader = { platform: 'meta'; adapter: MetaAdsAdapter; conn: ConnRow } | { p
 
 function readerFor(ctx: AppContext, organizationId: string, platform: Platform): Reader {
   return platform === 'meta' ? { platform, ...metaAdapter(ctx, organizationId) } : { platform, ...googleAdapter(ctx, organizationId) };
+}
+
+/** Cliente de escrita da plataforma (mesmos adaptadores, credenciais da organização). */
+export function platformWriter(ctx: AppContext, organizationId: string, platform: Platform): AdPlatformWriter {
+  assertNotDemo(ctx, organizationId);
+  return readerFor(ctx, organizationId, platform).adapter;
 }
 
 function listRemoteCampaigns(r: Reader, remoteId: string, currency: string | null): Promise<RemoteCampaign[]> {

@@ -18,6 +18,8 @@ export const CHANNEL_NAMES = [
   'creative.list', 'creative.create', 'creative.update', 'creative.setStatus', 'creative.versions', 'creative.delete',
   'asset.import', 'asset.list', 'asset.updateTags', 'asset.delete', 'asset.export',
   'campaign.list', 'campaign.create', 'campaign.update', 'campaign.delete',
+  'campaign.preflight', 'campaign.publish', 'campaign.setRemoteStatus', 'campaign.updateRemoteBudget', 'campaign.operations',
+  'publishing.getLimits', 'publishing.saveLimits', 'asset.uploadToPlatform',
   'dashboard.summary',
   'integration.list',
   'integration.meta.save', 'integration.meta.test', 'integration.meta.syncAccounts', 'integration.meta.syncCampaigns', 'integration.meta.syncInsights',

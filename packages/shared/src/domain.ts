@@ -555,3 +555,36 @@ export interface Experiment {
   createdAt: string;
   updatedAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Publicação controlada nas plataformas
+// ---------------------------------------------------------------------------
+
+export type PlatformOperationStatus = 'pending' | 'succeeded' | 'failed' | 'unknown';
+
+export interface PlatformOperation {
+  id: string;
+  campaignId: string | null;
+  campaignName: string | null;
+  platform: Platform;
+  operation: string;
+  status: PlatformOperationStatus;
+  request: Record<string, unknown>;
+  remoteId: string | null;
+  error: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export const PublishingLimits = z.object({
+  /** Orçamento diário máximo permitido por campanha (na moeda da campanha). */
+  maxDailyBudget: z.number().positive().max(10_000_000).nullable().default(null),
+  /** Aumento percentual máximo de orçamento em uma única alteração. */
+  maxBudgetIncreasePercent: z.number().positive().max(1000).nullable().default(50),
+});
+export type PublishingLimits = z.infer<typeof PublishingLimits>;
+
+export interface PublishCheck {
+  ok: boolean;
+  items: Array<{ label: string; ok: boolean; detail: string }>;
+}

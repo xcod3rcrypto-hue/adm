@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
+import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, Gauge, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
 import { formatDateTime } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
@@ -13,6 +13,7 @@ export function SettingsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <OrganizationCard />
         <AiCard />
+        <LimitsCard />
         <DemoCard />
         <DiagnosticsCard />
       </div>
@@ -144,6 +145,64 @@ function AiCard() {
             )}
           </div>
           {testResult && <Notice tone="success">{testResult}</Notice>}
+        </form>
+      )}
+    </Card>
+  );
+}
+
+function LimitsCard() {
+  const organizationId = useOrgId();
+  const { org } = useOrg();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const limits = useQuery({ queryKey: ['publishing-limits', organizationId], queryFn: () => api('publishing.getLimits', { organizationId }) });
+  const [maxBudget, setMaxBudget] = useState('');
+  const [maxIncrease, setMaxIncrease] = useState('');
+  useEffect(() => {
+    if (!limits.data) return;
+    setMaxBudget(limits.data.maxDailyBudget === null ? '' : String(limits.data.maxDailyBudget));
+    setMaxIncrease(limits.data.maxBudgetIncreasePercent === null ? '' : String(limits.data.maxBudgetIncreasePercent));
+  }, [limits.data]);
+  const save = useMutation({
+    mutationFn: () =>
+      api('publishing.saveLimits', {
+        organizationId,
+        limits: { maxDailyBudget: maxBudget === '' ? null : Number(maxBudget), maxBudgetIncreasePercent: maxIncrease === '' ? null : Number(maxIncrease) },
+      }),
+    onSuccess: async () => {
+      toast.success('Limites de publicação salvos.');
+      await qc.invalidateQueries({ queryKey: ['publishing-limits', organizationId] });
+    },
+    onError: (e) => toast.error(e),
+  });
+  return (
+    <Card>
+      <CardHeader
+        title={<span className="flex items-center gap-2"><Gauge className="size-4" /> Limites de publicação</span>}
+        description="Valem para ações manuais e automações: nenhuma alteração de orçamento ultrapassa estes limites."
+      />
+      {limits.isLoading && <div className="p-5"><LoadingState rows={1} /></div>}
+      {limits.error && <div className="p-5"><ErrorState error={limits.error} /></div>}
+      {limits.data && (
+        <form
+          className="grid gap-3 p-5 sm:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save.mutate();
+          }}
+        >
+          <Field label="Orçamento diário máximo por campanha" htmlFor="lim-budget" hint="Na moeda da campanha. Vazio = sem limite.">
+            <Input id="lim-budget" type="number" min="0" step="0.01" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} disabled={org?.isDemo} />
+          </Field>
+          <Field label="Aumento máximo por alteração (%)" htmlFor="lim-increase" hint="Vazio = sem limite. Padrão: 50%.">
+            <Input id="lim-increase" type="number" min="1" step="1" value={maxIncrease} onChange={(e) => setMaxIncrease(e.target.value)} disabled={org?.isDemo} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Button type="submit" variant="secondary" loading={save.isPending} disabled={org?.isDemo}>
+              Salvar limites
+            </Button>
+          </div>
         </form>
       )}
     </Card>

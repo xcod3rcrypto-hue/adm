@@ -98,8 +98,10 @@ export function createCampaignDraft(ctx: AppContext, organizationId: string, raw
 }
 
 function assertLocal(c: Campaign): void {
-  if (c.syncState !== 'local_only' || c.remoteId) {
-    throw new AppError('FORBIDDEN', 'Campanhas importadas da plataforma são somente leitura nesta versão. Edite-as no gerenciador da plataforma e sincronize novamente.');
+  // Rascunhos com publicação falha continuam editáveis; "pendente" (resultado
+  // incerto) não, pois a campanha pode já existir na plataforma.
+  if (c.remoteId || (c.syncState !== 'local_only' && c.syncState !== 'error')) {
+    throw new AppError('FORBIDDEN', 'Campanhas que já existem na plataforma não são editadas localmente. Use as ações de status e orçamento, ou edite no gerenciador da plataforma e sincronize.');
   }
 }
 

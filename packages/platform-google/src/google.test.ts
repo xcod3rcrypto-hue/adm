@@ -76,3 +76,63 @@ describe('GoogleAdsAdapter', () => {
     await expect(a.fetchInsights('1234567890', { from: "2026-01-01' OR 1=1 --", to: '2026-01-02' })).rejects.toThrow(/Período/);
   });
 });
+
+describe('GoogleAdsAdapter — escritas', () => {
+  const make = (fetchImpl: (url: string, init?: RequestInit) => Promise<Response>) =>
+    new GoogleAdsAdapter({ developerToken: 'dev', getAccessToken: async () => 'at', fetchImpl, retry: { retries: 3, baseDelayMs: 1, timeoutMs: 5000 } });
+
+  it('cria orçamento e campanha de Pesquisa pausada', async () => {
+    const calls: Array<{ url: string; body: { operations: Array<Record<string, Record<string, unknown>>> } }> = [];
+    const a = make(async (url, init) => {
+      calls.push({ url, body: JSON.parse(String(init?.body)) });
+      if (url.endsWith('campaignBudgets:mutate')) return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/77' }] });
+      return json({ results: [{ resourceName: 'customers/1234567890/campaigns/555' }] });
+    });
+    const r = await a.createCampaign('1234567890', { name: 'Pesquisa', objective: 'SEARCH', dailyBudget: 25, currency: 'BRL' });
+    expect(r.remoteId).toBe('555');
+    expect(calls[0]!.body.operations[0]!.create!.amountMicros).toBe('25000000');
+    const camp = calls[1]!.body.operations[0]!.create!;
+    expect(camp.status).toBe('PAUSED');
+    expect(camp.campaignBudget).toBe('customers/1234567890/campaignBudgets/77');
+  });
+
+  it('remove o orçamento órfão se a campanha falhar e não repete a mutação', async () => {
+    const urls: string[] = [];
+    const a = make(async (url, init) => {
+      urls.push(`${url} ${String(init?.body).includes('remove') ? 'remove' : ''}`);
+      if (url.endsWith('campaignBudgets:mutate')) return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/77' }] });
+      return json({ error: { code: 500, message: 'interno' } }, 500);
+    });
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'SEARCH', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow();
+    expect(urls.filter((u) => u.includes('campaigns:mutate'))).toHaveLength(1);
+    expect(urls.at(-1)).toMatch(/campaignBudgets:mutate remove/);
+  });
+
+  it('recusa tipos de campanha não suportados na criação', async () => {
+    const a = make(async () => json({}));
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'PERFORMANCE_MAX', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow(/apenas campanhas de Pesquisa/);
+  });
+
+  it('altera status com updateMask e escapa nomes em GAQL', async () => {
+    const bodies: string[] = [];
+    const a = make(async (_url, init) => {
+      bodies.push(String(init?.body));
+      return json({ results: [] });
+    });
+    await a.setCampaignStatus('1234567890', '555', 'active');
+    expect(JSON.parse(bodies[0]!).operations[0]).toEqual({ update: { resourceName: 'customers/1234567890/campaigns/555', status: 'ENABLED' }, updateMask: 'status' });
+    await a.findCampaignByName('1234567890', "D'Ávila");
+    expect(JSON.parse(bodies[1]!).query).toContain("campaign.name = 'D\\'Ávila'");
+  });
+
+  it('atualiza orçamento buscando o recurso da campanha', async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    const a = make(async (url, init) => {
+      bodies.push(JSON.parse(String(init?.body)));
+      if (url.endsWith('googleAds:search')) return json({ results: [{ campaign: { campaignBudget: 'customers/1234567890/campaignBudgets/9' } }] });
+      return json({ results: [{ resourceName: 'customers/1234567890/campaignBudgets/9' }] });
+    });
+    await a.updateDailyBudget('1234567890', '555', 42);
+    expect(bodies[1]).toEqual({ operations: [{ update: { resourceName: 'customers/1234567890/campaignBudgets/9', amountMicros: '42000000' }, updateMask: 'amount_micros' }] });
+  });
+});

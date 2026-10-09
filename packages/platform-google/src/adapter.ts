@@ -4,6 +4,8 @@ import {
   defaultRetry,
   fetchWithRetry,
   type AdPlatformReader,
+  type AdPlatformWriter,
+  type CampaignSpec,
   type DateRange,
   type FetchLike,
   type RemoteAccount,
@@ -35,11 +37,15 @@ interface GoogleErrorBody {
   };
 }
 
+const assertNumericCampaign = (id: string) => {
+  if (!/^\d{1,20}$/.test(id)) throw new Error('ID de campanha Google Ads inválido.');
+};
+
 const assertCustomerId = (id: string) => {
   if (!/^\d{10}$/.test(id)) throw new Error('ID de cliente Google Ads inválido (10 dígitos).');
 };
 
-export class GoogleAdsAdapter implements AdPlatformReader {
+export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
   readonly platform = 'google' as const;
   private readonly version: string;
   private readonly fetchImpl: FetchLike;
@@ -64,12 +70,13 @@ export class GoogleAdsAdapter implements AdPlatformReader {
     return h;
   }
 
-  private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+  /** `write`: mutações não são repetidas automaticamente (resultado incerto exige verificação). */
+  private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown, write = false): Promise<T> {
     const res = await fetchWithRetry(
       this.fetchImpl,
       `https://${HOST}/${this.version}/${path}`,
       { method, headers: await this.headers(), body: body === undefined ? undefined : JSON.stringify(body) },
-      this.retry,
+      write ? { ...this.retry, retries: 0 } : this.retry,
       this.breaker,
     );
     const json = (await res.json().catch(() => ({}))) as T & GoogleErrorBody;
@@ -166,6 +173,89 @@ export class GoogleAdsAdapter implements AdPlatformReader {
       conversions: Number(r.metrics.conversions ?? 0),
       revenue: r.metrics.conversionsValue === undefined ? null : Number(r.metrics.conversionsValue),
     }));
+  }
+
+  private async mutate(customerId: string, resource: 'campaigns' | 'campaignBudgets' | 'assets', operations: unknown[]): Promise<string[]> {
+    assertCustomerId(customerId);
+    const r = await this.request<{ results?: Array<{ resourceName?: string }> }>('POST', `customers/${customerId}/${resource}:mutate`, { operations }, true);
+    return (r.results ?? []).map((x) => x.resourceName ?? '');
+  }
+
+  /**
+   * Cria orçamento + campanha de Pesquisa, SEMPRE pausada. Outros tipos
+   * (Performance Max, Display, Vídeo) exigem ativos e configurações que esta
+   * versão não cria: são recusados com mensagem explícita.
+   */
+  async createCampaign(customerId: string, spec: CampaignSpec): Promise<{ remoteId: string }> {
+    assertCustomerId(customerId);
+    if (spec.objective !== 'SEARCH') {
+      throw new PlatformApiError('google', 400, 'Nesta versão, a criação pelo app suporta apenas campanhas de Pesquisa (SEARCH). Crie outros tipos no Google Ads e sincronize.', false);
+    }
+    if (!Number.isFinite(spec.dailyBudget) || spec.dailyBudget <= 0) throw new Error('Valor de orçamento inválido.');
+    const [budget] = await this.mutate(customerId, 'campaignBudgets', [
+      {
+        create: {
+          name: `${spec.name} — orçamento ${new Date().toISOString()}`,
+          amountMicros: String(Math.round(spec.dailyBudget * 1_000_000)),
+          deliveryMethod: 'STANDARD',
+          explicitlyShared: false,
+        },
+      },
+    ]);
+    if (!budget) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o orçamento criado.', false);
+    try {
+      const [campaign] = await this.mutate(customerId, 'campaigns', [
+        {
+          create: {
+            name: spec.name,
+            status: 'PAUSED',
+            advertisingChannelType: 'SEARCH',
+            campaignBudget: budget,
+            manualCpc: {},
+            networkSettings: { targetGoogleSearch: true, targetSearchNetwork: true, targetContentNetwork: false, targetPartnerSearchNetwork: false },
+            containsEuPoliticalAdvertising: 'DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING',
+          },
+        },
+      ]);
+      const id = campaign?.split('/').pop();
+      if (!id) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou a campanha criada.', false);
+      return { remoteId: id };
+    } catch (err) {
+      // Melhor esforço: não deixar um orçamento órfão na conta.
+      await this.mutate(customerId, 'campaignBudgets', [{ remove: budget }]).catch(() => undefined);
+      throw err;
+    }
+  }
+
+  async findCampaignByName(customerId: string, name: string): Promise<string | null> {
+    const escaped = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const rows = await this.search<{ campaign: { id: string; name: string } }>(
+      customerId,
+      `SELECT campaign.id, campaign.name FROM campaign WHERE campaign.name = '${escaped}' AND campaign.status != 'REMOVED'`,
+    );
+    return rows.find((r) => r.campaign.name === name)?.campaign.id ?? null;
+  }
+
+  async setCampaignStatus(customerId: string, campaignRemoteId: string, status: 'active' | 'paused'): Promise<void> {
+    assertNumericCampaign(campaignRemoteId);
+    await this.mutate(customerId, 'campaigns', [
+      { update: { resourceName: `customers/${customerId}/campaigns/${campaignRemoteId}`, status: status === 'active' ? 'ENABLED' : 'PAUSED' }, updateMask: 'status' },
+    ]);
+  }
+
+  async updateDailyBudget(customerId: string, campaignRemoteId: string, amount: number): Promise<void> {
+    assertNumericCampaign(campaignRemoteId);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error('Valor de orçamento inválido.');
+    const rows = await this.search<{ campaign: { campaignBudget?: string } }>(customerId, `SELECT campaign.campaign_budget FROM campaign WHERE campaign.id = ${campaignRemoteId}`);
+    const budget = rows[0]?.campaign.campaignBudget;
+    if (!budget) throw new PlatformApiError('google', 404, 'Orçamento da campanha não encontrado na conta.', false);
+    await this.mutate(customerId, 'campaignBudgets', [{ update: { resourceName: budget, amountMicros: String(Math.round(amount * 1_000_000)) }, updateMask: 'amount_micros' }]);
+  }
+
+  async uploadImage(customerId: string, fileName: string, data: Uint8Array): Promise<{ remoteId: string }> {
+    const [rn] = await this.mutate(customerId, 'assets', [{ create: { name: fileName.slice(0, 120), type: 'IMAGE', imageAsset: { data: Buffer.from(data).toString('base64') } } }]);
+    if (!rn) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o ativo criado.', false);
+    return { remoteId: rn };
   }
 }
 

@@ -4,6 +4,8 @@ import {
   defaultRetry,
   fetchWithRetry,
   type AdPlatformReader,
+  type AdPlatformWriter,
+  type CampaignSpec,
   type DateRange,
   type FetchLike,
   type RemoteAccount,
@@ -21,6 +23,12 @@ export const META_REVENUE_ACTIONS = ['purchase'];
 
 /** Moedas sem casas decimais na Meta (valores de orçamento já em unidades inteiras). */
 const ZERO_DECIMAL = new Set(['JPY', 'KRW', 'CLP', 'COP', 'CRC', 'HUF', 'ISK', 'IDR', 'PYG', 'TWD', 'VND']);
+
+/** Converte unidades da moeda para a unidade mínima exigida pela Graph API (centavos). */
+export function majorToMinor(value: number, currency: string): number {
+  if (!Number.isFinite(value) || value <= 0) throw new Error('Valor de orçamento inválido.');
+  return ZERO_DECIMAL.has(currency) ? Math.round(value) : Math.round(value * 100);
+}
 
 export function minorToMajor(value: string | number | undefined | null, currency: string | null): number | null {
   if (value === undefined || value === null || value === '') return null;
@@ -47,7 +55,7 @@ export interface MetaAdapterOptions {
   maxPages?: number;
 }
 
-export class MetaAdsAdapter implements AdPlatformReader {
+export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
   readonly platform = 'meta' as const;
   private readonly version: string;
   private readonly fetchImpl: FetchLike;
@@ -97,6 +105,27 @@ export class MetaAdsAdapter implements AdPlatformReader {
       pages += 1;
     }
     return out;
+  }
+
+  /**
+   * POST na Graph API sem retentativas: escritas não são idempotentes e uma
+   * repetição automática poderia, por exemplo, criar campanhas duplicadas.
+   */
+  private async post<T>(path: string, params: Record<string, string>): Promise<T> {
+    const res = await fetchWithRetry(
+      this.fetchImpl,
+      this.url(path, {}),
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${this.opts.accessToken}`, Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(params).toString(),
+      },
+      { ...this.retry, retries: 0 },
+      this.breaker,
+    );
+    const body = (await res.json().catch(() => ({}))) as T & GraphError;
+    if (!res.ok || body.error) throw toApiError(res.status, body);
+    return body;
   }
 
   /** Identidade do token: confirma que a credencial funciona. */
@@ -176,6 +205,55 @@ export class MetaAdsAdapter implements AdPlatformReader {
         revenue,
       };
     });
+  }
+
+  /** Cria a campanha SEMPRE pausada, com orçamento no nível da campanha (CBO). */
+  async createCampaign(accountRemoteId: string, spec: CampaignSpec): Promise<{ remoteId: string }> {
+    assertNumericId(accountRemoteId);
+    if (!/^OUTCOME_[A-Z_]+$/.test(spec.objective)) throw new Error('Objetivo da Meta inválido (use um objetivo OUTCOME_*).');
+    const r = await this.post<{ id?: string }>(`act_${accountRemoteId}/campaigns`, {
+      name: spec.name,
+      objective: spec.objective,
+      status: 'PAUSED',
+      special_ad_categories: '[]',
+      daily_budget: String(majorToMinor(spec.dailyBudget, spec.currency)),
+      bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+    });
+    if (!r.id) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o ID da campanha criada.', false);
+    return { remoteId: r.id };
+  }
+
+  async findCampaignByName(accountRemoteId: string, name: string): Promise<string | null> {
+    assertNumericId(accountRemoteId);
+    const rows = await this.getAll<{ id: string; name: string }>(
+      this.url(`act_${accountRemoteId}/campaigns`, {
+        fields: 'id,name',
+        filtering: JSON.stringify([{ field: 'name', operator: 'EQUAL', value: name }]),
+        limit: '25',
+      }),
+    );
+    return rows.find((r) => r.name === name)?.id ?? null;
+  }
+
+  async setCampaignStatus(_accountRemoteId: string, campaignRemoteId: string, status: 'active' | 'paused'): Promise<void> {
+    assertNumericId(campaignRemoteId);
+    await this.post(campaignRemoteId, { status: status === 'active' ? 'ACTIVE' : 'PAUSED' });
+  }
+
+  async updateDailyBudget(_accountRemoteId: string, campaignRemoteId: string, amount: number, currency: string): Promise<void> {
+    assertNumericId(campaignRemoteId);
+    await this.post(campaignRemoteId, { daily_budget: String(majorToMinor(amount, currency)) });
+  }
+
+  async uploadImage(accountRemoteId: string, fileName: string, data: Uint8Array): Promise<{ remoteId: string }> {
+    assertNumericId(accountRemoteId);
+    const r = await this.post<{ images?: Record<string, { hash?: string }> }>(`act_${accountRemoteId}/adimages`, {
+      name: fileName,
+      bytes: Buffer.from(data).toString('base64'),
+    });
+    const hash = Object.values(r.images ?? {})[0]?.hash;
+    if (!hash) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o hash da imagem enviada.', false);
+    return { remoteId: hash };
   }
 }
 

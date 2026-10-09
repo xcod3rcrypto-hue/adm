@@ -20,3 +20,4 @@ export * from './services/integrations';
 export * from './services/onboarding';
 export * from './services/intelligence';
 export * from './services/experiments';
+export * from './services/publishing';

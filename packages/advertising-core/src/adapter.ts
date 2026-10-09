@@ -32,14 +32,41 @@ export interface DateRange {
 
 /**
  * Operações explícitas do modelo unificado. Cada plataforma implementa o que
- * suporta; operações de escrita (create/update/pause/resume/uploadAsset/createAd)
- * entram na Fase 5 e, até lá, não são expostas pela interface.
+ * suporta. Leituras podem ser repetidas; escritas nunca são repetidas
+ * automaticamente (ver AdPlatformWriter).
  */
 export interface AdPlatformReader {
   readonly platform: Platform;
   listAccounts(): Promise<RemoteAccount[]>;
   listCampaigns(accountRemoteId: string): Promise<RemoteCampaign[]>;
   fetchInsights(accountRemoteId: string, range: DateRange): Promise<RemoteInsightRow[]>;
+}
+
+/** Especificação mínima para criar uma campanha. Sempre criada PAUSADA. */
+export interface CampaignSpec {
+  name: string;
+  objective: string;
+  dailyBudget: number;
+  currency: string;
+}
+
+export interface UploadedAsset {
+  /** Identificador remoto (hash da imagem na Meta, resource name no Google). */
+  remoteId: string;
+}
+
+/**
+ * Escritas nas plataformas. Requisições de escrita NÃO usam retentativas
+ * automáticas: uma falha de rede deixa o resultado incerto, e quem chama deve
+ * verificar o estado remoto (findCampaignByName) antes de tentar de novo.
+ */
+export interface AdPlatformWriter {
+  readonly platform: Platform;
+  createCampaign(accountRemoteId: string, spec: CampaignSpec): Promise<{ remoteId: string }>;
+  findCampaignByName(accountRemoteId: string, name: string): Promise<string | null>;
+  setCampaignStatus(accountRemoteId: string, campaignRemoteId: string, status: 'active' | 'paused'): Promise<void>;
+  updateDailyBudget(accountRemoteId: string, campaignRemoteId: string, amount: number, currency: string): Promise<void>;
+  uploadImage(accountRemoteId: string, fileName: string, data: Uint8Array): Promise<UploadedAsset>;
 }
 
 /** Erro retornado por uma API de anúncios, sem dados sensíveis. */

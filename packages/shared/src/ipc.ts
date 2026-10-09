@@ -25,6 +25,9 @@ import {
   type IntegrationView,
   type IntelligenceReport,
   type Experiment,
+  type PlatformOperation,
+  type PublishCheck,
+  PublishingLimits,
   ExperimentInput,
   type Recommendation,
   RecommendationStatus,
@@ -109,6 +112,15 @@ export const ipcInputs = {
   'campaign.create': z.object({ ...org, data: CampaignInput }),
   'campaign.update': z.object({ ...org, id: Id, data: CampaignInput }),
   'campaign.delete': z.object({ ...org, id: Id }),
+
+  'campaign.preflight': z.object({ ...org, id: Id, accountId: Id.nullable().default(null) }),
+  'campaign.publish': z.object({ ...org, id: Id, accountId: Id, confirm: z.literal(true) }),
+  'campaign.setRemoteStatus': z.object({ ...org, id: Id, status: z.enum(['active', 'paused']), confirm: z.literal(true) }),
+  'campaign.updateRemoteBudget': z.object({ ...org, id: Id, amount: z.number().positive().max(10_000_000), confirm: z.literal(true) }),
+  'campaign.operations': z.object({ ...org, id: Id.nullable().default(null) }),
+  'publishing.getLimits': z.object(org),
+  'publishing.saveLimits': z.object({ ...org, limits: PublishingLimits }),
+  'asset.uploadToPlatform': z.object({ ...org, id: Id, accountId: Id }),
 
   'dashboard.summary': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
 
@@ -207,6 +219,14 @@ export interface ChannelOutputs {
   'campaign.create': Campaign;
   'campaign.update': Campaign;
   'campaign.delete': void;
+  'campaign.preflight': PublishCheck;
+  'campaign.publish': Campaign;
+  'campaign.setRemoteStatus': Campaign;
+  'campaign.updateRemoteBudget': Campaign;
+  'campaign.operations': PlatformOperation[];
+  'publishing.getLimits': PublishingLimits;
+  'publishing.saveLimits': PublishingLimits;
+  'asset.uploadToPlatform': { remoteId: string };
   'dashboard.summary': DashboardSummary;
   'integration.list': IntegrationView[];
   'integration.meta.save': IntegrationView;

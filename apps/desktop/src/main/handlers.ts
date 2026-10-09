@@ -158,6 +158,15 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'campaign.update': ({ organizationId, id, data }, ctx) => core.updateCampaignDraft(ctx, organizationId, id, data),
     'campaign.delete': ({ organizationId, id }, ctx) => core.deleteCampaignDraft(ctx, organizationId, id),
 
+    'campaign.preflight': ({ organizationId, id, accountId }, ctx) => core.preflightPublish(ctx, organizationId, id, accountId),
+    'campaign.publish': ({ organizationId, id, accountId }, ctx) => core.publishCampaign(ctx, organizationId, id, accountId),
+    'campaign.setRemoteStatus': ({ organizationId, id, status }, ctx) => core.setCampaignRemoteStatus(ctx, organizationId, id, status),
+    'campaign.updateRemoteBudget': ({ organizationId, id, amount }, ctx) => core.updateCampaignRemoteBudget(ctx, organizationId, id, amount),
+    'campaign.operations': ({ organizationId, id }, ctx) => core.listPlatformOperations(ctx, organizationId, id),
+    'publishing.getLimits': ({ organizationId }, ctx) => core.getPublishingLimits(ctx, organizationId),
+    'publishing.saveLimits': ({ organizationId, limits }, ctx) => core.savePublishingLimits(ctx, organizationId, limits),
+    'asset.uploadToPlatform': ({ organizationId, id, accountId }, ctx) => core.uploadAssetToPlatform(ctx, organizationId, id, accountId),
+
     'dashboard.summary': ({ organizationId, from, to, platform }, ctx) => core.dashboardSummary(ctx, organizationId, from, to, platform),
 
     'integration.list': ({ organizationId }, ctx) => core.listIntegrations(ctx, organizationId),

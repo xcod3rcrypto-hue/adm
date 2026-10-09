@@ -87,6 +87,15 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('cell', { name: /^Leads — Verão Sem projeto/ })).toBeVisible();
     await page.screenshot({ path: join(shots, '05-campanhas.png') });
 
+    // Publicação: sem conta conectada, o checklist bloqueia e explica (nada é simulado)
+    await page.getByRole('button', { name: 'Publicar' }).click();
+    const checks = page.getByRole('list', { name: 'Verificações antes de publicar' });
+    await expect(checks.getByText('Selecione uma conta sincronizada da plataforma.')).toBeVisible();
+    await expect(checks.getByText(/criada PAUSADA/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Publicar pausada' })).toBeDisabled();
+    await page.screenshot({ path: join(shots, '05a-publicar.png') });
+    await page.getByRole('dialog').getByRole('button', { name: 'Cancelar' }).click();
+
     // Experimento A/B com teste estatístico
     await page.getByRole('link', { name: 'Experimentos' }).click();
     await page.getByRole('button', { name: 'Novo experimento' }).first().click();

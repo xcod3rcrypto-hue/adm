@@ -146,3 +146,27 @@ describe('toGoogleError — mensagens orientadas', () => {
     expect(test.message).toMatch(/só tem acesso a contas de teste/);
   });
 });
+
+describe('erros detalhados na criação', () => {
+  it('informa etapa, código, campo e request-id', async () => {
+    const a = new GoogleAdsAdapter({
+      developerToken: 'dev',
+      getAccessToken: async () => 'at',
+      retry: { retries: 0, baseDelayMs: 1, timeoutMs: 5000 },
+      fetchImpl: async (url) =>
+        url.endsWith('campaignBudgets:mutate')
+          ? json({
+              error: {
+                code: 400,
+                message: 'Request contains an invalid argument.',
+                status: 'INVALID_ARGUMENT',
+                details: [{ requestId: 'abc123', errors: [{ errorCode: { fieldError: 'REQUIRED' }, message: 'The required field was not present.', location: { fieldPathElements: [{ fieldName: 'operations' }, { fieldName: 'create' }, { fieldName: 'amount_micros' }] } }] }],
+              },
+            }, 400)
+          : json({}),
+    });
+    await expect(a.createCampaign('1234567890', { name: 'P', objective: 'SEARCH', dailyBudget: 10, currency: 'BRL' })).rejects.toThrow(
+      /Google Ads recusou ao criar o orçamento: The required field was not present\. \(código REQUIRED · campo operations\.create\.amount_micros · request-id abc123\)/,
+    );
+  });
+});

@@ -33,7 +33,10 @@ interface GoogleErrorBody {
     code?: number;
     message?: string;
     status?: string;
-    details?: Array<{ errors?: Array<{ errorCode?: Record<string, string>; message?: string }> }>;
+    details?: Array<{
+      requestId?: string;
+      errors?: Array<{ errorCode?: Record<string, string>; message?: string; location?: { fieldPathElements?: Array<{ fieldName?: string; index?: number }> } }>;
+    }>;
   };
 }
 
@@ -196,7 +199,7 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
       throw new PlatformApiError('google', 400, 'Nesta versão, a criação pelo app suporta apenas campanhas de Pesquisa (SEARCH). Crie outros tipos no Google Ads e sincronize.', false);
     }
     if (!Number.isFinite(spec.dailyBudget) || spec.dailyBudget <= 0) throw new Error('Valor de orçamento inválido.');
-    const [budget] = await this.mutate(customerId, 'campaignBudgets', [
+    const [budget] = await withStep('ao criar o orçamento', () => this.mutate(customerId, 'campaignBudgets', [
       {
         create: {
           name: `${spec.name} — orçamento ${new Date().toISOString()}`,
@@ -205,10 +208,10 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
           explicitlyShared: false,
         },
       },
-    ]);
+    ]));
     if (!budget) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou o orçamento criado.', false);
     try {
-      const [campaign] = await this.mutate(customerId, 'campaigns', [
+      const [campaign] = await withStep('ao criar a campanha', () => this.mutate(customerId, 'campaigns', [
         {
           create: {
             name: spec.name,
@@ -216,11 +219,12 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
             advertisingChannelType: 'SEARCH',
             campaignBudget: budget,
             manualCpc: {},
-            networkSettings: { targetGoogleSearch: true, targetSearchNetwork: true, targetContentNetwork: false, targetPartnerSearchNetwork: false },
+            // target_partner_search_network fica de fora: só é aceito em contas parceiras selecionadas.
+            networkSettings: { targetGoogleSearch: true, targetSearchNetwork: true, targetContentNetwork: false },
             containsEuPoliticalAdvertising: 'DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING',
           },
         },
-      ]);
+      ]));
       const id = campaign?.split('/').pop();
       if (!id) throw new PlatformApiError('google', 200, 'A Google Ads API não retornou a campanha criada.', false);
       return { remoteId: id };
@@ -278,5 +282,19 @@ export function toGoogleError(status: number, body: GoogleErrorBody): PlatformAp
   else if (codeKey === 'USER_PERMISSION_DENIED') message = 'Usuário sem permissão nesta conta. Para contas gerenciadas, informe o login-customer-id da MCC.';
   else if (status === 401) message = 'Credenciais OAuth inválidas ou expiradas. Autorize novamente.';
   else if (status === 429 || codeKey === 'RESOURCE_EXHAUSTED') message = 'Cota da Google Ads API esgotada. Tente novamente mais tarde.';
+  const field = detail?.location?.fieldPathElements?.map((f) => f.fieldName).filter(Boolean).join('.');
+  const requestId = e?.details?.find((d) => d.requestId)?.requestId;
+  const extra = [codeKey && codeKey !== e?.status ? `código ${codeKey}` : null, field ? `campo ${field}` : null, requestId ? `request-id ${requestId}` : null].filter(Boolean);
+  if (extra.length) message += ` (${extra.join(' · ')})`;
   return new PlatformApiError('google', status, message, status === 429 || status >= 500, codeKey);
+}
+
+/** Prefixa a etapa da operação (ex.: "ao criar a campanha") na mensagem de erro da plataforma. */
+async function withStep<T>(step: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof PlatformApiError) throw new PlatformApiError(err.platform, err.status, `Google Ads recusou ${step}: ${err.message}`, err.retryable, err.remoteCode);
+    throw err;
+  }
 }

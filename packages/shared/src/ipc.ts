@@ -28,6 +28,8 @@ import {
   type PlatformOperation,
   type AppNotification,
   type Report,
+  type CalendarItem,
+  CalendarEventInput,
   type ReportSummary,
   ReportInput,
   type AutomationExecution,
@@ -189,6 +191,11 @@ export const ipcInputs = {
   'report.delete': z.object({ ...org, id: Id }),
   'report.export': z.object({ ...org, id: Id, format: z.enum(['csv', 'pdf']) }),
 
+  'calendar.list': z.object({ ...org, from: isoDate, to: isoDate }),
+  'calendar.create': z.object({ ...org, data: CalendarEventInput }),
+  'calendar.update': z.object({ ...org, id: Id, data: CalendarEventInput }),
+  'calendar.delete': z.object({ ...org, id: Id }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -296,6 +303,10 @@ export interface ChannelOutputs {
   'report.get': Report;
   'report.delete': void;
   'report.export': { savedTo: string | null };
+  'calendar.list': CalendarItem[];
+  'calendar.create': { id: string };
+  'calendar.update': void;
+  'calendar.delete': void;
   'audit.list': AuditEntry[];
 }
 

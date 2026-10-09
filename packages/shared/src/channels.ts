@@ -30,5 +30,6 @@ export const CHANNEL_NAMES = [
   'automation.overview', 'automation.create', 'automation.update', 'automation.delete', 'automation.setEnabled', 'automation.simulate', 'automation.runNow', 'automation.decide', 'automation.killSwitch',
   'notification.list', 'notification.unread', 'notification.markRead',
   'report.list', 'report.create', 'report.get', 'report.delete', 'report.export',
+  'calendar.list', 'calendar.create', 'calendar.update', 'calendar.delete',
   'audit.list',
 ] as const;

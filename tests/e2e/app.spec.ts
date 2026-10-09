@@ -116,6 +116,16 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Aprendizado registrado')).toBeVisible();
     await page.screenshot({ path: join(shots, '05b-experimentos.png'), fullPage: true });
 
+    // Calendário: evento com responsável
+    await page.getByRole('link', { name: 'Calendário' }).click();
+    await page.getByRole('button', { name: 'Novo evento' }).click();
+    await page.getByLabel('Título').fill('Revisar criativos do verão');
+    await page.getByLabel('Responsável').fill('Marina');
+    await page.getByRole('button', { name: 'Salvar', exact: true }).click();
+    await expect(page.getByText('Evento salvo.')).toBeVisible();
+    await expect(page.getByRole('listitem').filter({ hasText: 'Revisar criativos do verão' })).toContainText('Marina');
+    await page.screenshot({ path: join(shots, '05c-calendario.png') });
+
     // Integrações: sem credenciais não há conexão simulada
     await page.getByRole('link', { name: 'Integrações' }).click();
     await expect(page.getByText('Não configurado').first()).toBeVisible();

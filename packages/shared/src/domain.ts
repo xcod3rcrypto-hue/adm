@@ -767,3 +767,47 @@ export interface Report {
 }
 
 export type ReportSummary = Omit<Report, 'content'> & { isDemo: boolean; projectName: string | null; platform: Platform | null };
+
+// ---------------------------------------------------------------------------
+// Calendário
+// ---------------------------------------------------------------------------
+
+export const CalendarKind = z.enum(['task', 'launch', 'approval', 'review', 'deadline', 'other']);
+export type CalendarKind = z.infer<typeof CalendarKind>;
+
+export const CalendarStatus = z.enum(['todo', 'doing', 'done', 'cancelled']);
+export type CalendarStatus = z.infer<typeof CalendarStatus>;
+
+const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida');
+
+export const CalendarEventInput = z
+  .object({
+    title: text(200).min(2, 'Informe o título'),
+    kind: CalendarKind.default('task'),
+    startDate: ymd,
+    endDate: ymd.nullable().default(null),
+    responsible: text(120).default(''),
+    status: CalendarStatus.default('todo'),
+    notes: text(2000).default(''),
+    projectId: Id.nullable().default(null),
+    campaignId: Id.nullable().default(null),
+  })
+  .refine((e) => !e.endDate || e.endDate >= e.startDate, { message: 'A data final deve ser posterior à inicial', path: ['endDate'] });
+export type CalendarEventInput = z.input<typeof CalendarEventInput>;
+
+export interface CalendarItem {
+  id: string;
+  /** "event" é editável; campanhas, experimentos e aprovações são derivados. */
+  source: 'event' | 'campaign' | 'experiment' | 'approval';
+  title: string;
+  kind: CalendarKind | 'campaign' | 'experiment';
+  startDate: string;
+  endDate: string | null;
+  status: string;
+  responsible: string;
+  notes: string;
+  projectId: string | null;
+  projectName: string | null;
+  campaignId: string | null;
+  campaignName: string | null;
+}

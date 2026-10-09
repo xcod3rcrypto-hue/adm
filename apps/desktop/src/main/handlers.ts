@@ -229,6 +229,11 @@ export function createHandlers(paths: AppPaths): HandlerMap {
       return { savedTo: res.filePath };
     },
 
+    'calendar.list': ({ organizationId, from, to }, ctx) => core.listCalendar(ctx, organizationId, from, to),
+    'calendar.create': ({ organizationId, data }, ctx) => ({ id: core.createCalendarEvent(ctx, organizationId, data) }),
+    'calendar.update': ({ organizationId, id, data }, ctx) => core.updateCalendarEvent(ctx, organizationId, id, data),
+    'calendar.delete': ({ organizationId, id }, ctx) => core.deleteCalendarEvent(ctx, organizationId, id),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
 }

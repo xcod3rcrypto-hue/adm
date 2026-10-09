@@ -173,6 +173,10 @@ export function createHandlers(paths: AppPaths): HandlerMap {
     'integration.google.syncInsights': ({ organizationId, accountId, from, to }, ctx) => core.syncInsights(ctx, organizationId, 'google', accountId, { from, to }),
     'integration.disconnect': ({ organizationId, platform }, ctx) => core.disconnect(ctx, organizationId, platform),
 
+    'intelligence.get': ({ organizationId }, ctx) => core.getIntelligence(ctx, organizationId),
+    'intelligence.run': ({ organizationId, from, to, platform }, ctx) => core.runDiagnostics(ctx, organizationId, from, to, platform),
+    'recommendation.setStatus': ({ organizationId, id, status }, ctx) => core.setRecommendationStatus(ctx, organizationId, id, status),
+
     'audit.list': ({ organizationId, limit }, ctx) => core.listAudit(ctx, organizationId, limit),
   };
 }

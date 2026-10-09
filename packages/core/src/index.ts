@@ -18,3 +18,4 @@ export * from './services/demo';
 export * from './services/ai';
 export * from './services/integrations';
 export * from './services/onboarding';
+export * from './services/intelligence';

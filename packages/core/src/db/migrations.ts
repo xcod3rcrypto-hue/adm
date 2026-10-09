@@ -416,4 +416,111 @@ CREATE TABLE settings (
 );
 `;
 
-export const MIGRATIONS: Migration[] = [{ version: 1, name: 'initial_schema', sql: m001 }];
+/**
+ * Fases 5–7: inteligência, experimentos, automações, publicação controlada,
+ * calendário e inteligência competitiva.
+ */
+const m002 = `
+ALTER TABLE insights ADD COLUMN campaign_id TEXT REFERENCES campaigns(id) ON DELETE CASCADE;
+ALTER TABLE insights ADD COLUMN severity TEXT NOT NULL DEFAULT 'info';
+ALTER TABLE insights ADD COLUMN fingerprint TEXT;
+CREATE INDEX idx_insights_org ON insights(organization_id, kind, created_at);
+
+ALTER TABLE recommendations ADD COLUMN campaign_id TEXT REFERENCES campaigns(id) ON DELETE CASCADE;
+ALTER TABLE recommendations ADD COLUMN fingerprint TEXT;
+ALTER TABLE recommendations ADD COLUMN action TEXT;
+ALTER TABLE recommendations ADD COLUMN period_from TEXT;
+ALTER TABLE recommendations ADD COLUMN period_to TEXT;
+CREATE UNIQUE INDEX idx_recommendations_fp ON recommendations(organization_id, fingerprint);
+
+CREATE TABLE experiment_variants (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  experiment_id TEXT NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  creative_id TEXT REFERENCES creatives(id) ON DELETE SET NULL,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  impressions INTEGER NOT NULL DEFAULT 0 CHECK (impressions >= 0),
+  clicks INTEGER NOT NULL DEFAULT 0 CHECK (clicks >= 0),
+  conversions REAL NOT NULL DEFAULT 0 CHECK (conversions >= 0),
+  spend REAL NOT NULL DEFAULT 0 CHECK (spend >= 0),
+  position INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX idx_experiment_variants ON experiment_variants(experiment_id, position);
+
+ALTER TABLE automation_executions ADD COLUMN campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL;
+ALTER TABLE automation_executions ADD COLUMN approval_id TEXT REFERENCES approvals(id) ON DELETE SET NULL;
+CREATE INDEX idx_automation_exec_org ON automation_executions(organization_id, created_at);
+
+-- Operações de escrita nas plataformas: idempotência e trilha de cada chamada.
+CREATE TABLE platform_operations (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  platform TEXT NOT NULL CHECK (platform IN ('meta', 'google')),
+  operation TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'succeeded', 'failed', 'unknown')),
+  request TEXT NOT NULL DEFAULT '{}',
+  response TEXT,
+  remote_id TEXT,
+  error TEXT,
+  created_at TEXT NOT NULL,
+  finished_at TEXT,
+  UNIQUE (organization_id, idempotency_key)
+);
+CREATE INDEX idx_platform_ops_org ON platform_operations(organization_id, created_at);
+
+CREATE TABLE calendar_events (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+  campaign_id TEXT REFERENCES campaigns(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('task', 'launch', 'approval', 'review', 'deadline', 'other')),
+  start_date TEXT NOT NULL,
+  end_date TEXT,
+  responsible TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'doing', 'done', 'cancelled')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX idx_calendar_org_date ON calendar_events(organization_id, start_date);
+
+CREATE TABLE competitors (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  website_url TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE competitor_references (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  competitor_id TEXT NOT NULL REFERENCES competitors(id) ON DELETE CASCADE,
+  source_url TEXT NOT NULL,
+  captured_at TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT '',
+  excerpt TEXT NOT NULL DEFAULT '',
+  promise TEXT NOT NULL DEFAULT '',
+  concept TEXT NOT NULL DEFAULT '',
+  audience TEXT NOT NULL DEFAULT '',
+  format TEXT NOT NULL DEFAULT '',
+  positioning TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX idx_competitor_refs ON competitor_references(competitor_id, captured_at);
+`;
+
+export const MIGRATIONS: Migration[] = [
+  { version: 1, name: 'initial_schema', sql: m001 },
+  { version: 2, name: 'intelligence_automation_publishing', sql: m002 },
+];

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Building2, FlaskConical, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
+import { Brain, Building2, FlaskConical, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useOrg } from '../lib/org';
 import { useToast } from './ui';
@@ -12,6 +12,7 @@ const NAV = [
   { to: '/estudio', label: 'Estúdio de IA', icon: Sparkles },
   { to: '/criativos', label: 'Criativos', icon: Images },
   { to: '/campanhas', label: 'Campanhas', icon: Megaphone },
+  { to: '/inteligencia', label: 'Inteligência', icon: Brain },
   { to: '/integracoes', label: 'Integrações', icon: PlugZap },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];

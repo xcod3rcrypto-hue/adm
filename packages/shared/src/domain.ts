@@ -392,3 +392,84 @@ export interface AppInfo {
   logsPath: string;
   databasePath: string;
 }
+
+// ---------------------------------------------------------------------------
+// Inteligência (diagnósticos e recomendações)
+// ---------------------------------------------------------------------------
+
+export const DiagnosticKind = z.enum([
+  'cpa_increase',
+  'conversion_drop',
+  'overspend',
+  'tracking_issue',
+  'creative_fatigue',
+  'spend_anomaly',
+  'low_roas',
+  'scale_opportunity',
+]);
+export type DiagnosticKind = z.infer<typeof DiagnosticKind>;
+
+export type DiagnosticSeverity = 'critical' | 'warning' | 'opportunity' | 'info';
+
+/** Ação sugerida por uma recomendação. Nunca é executada sem decisão humana ou regra de automação. */
+export type SuggestedAction =
+  | { type: 'review_campaign' }
+  | { type: 'check_tracking' }
+  | { type: 'refresh_creative' }
+  | { type: 'pause_campaign' }
+  | { type: 'adjust_budget'; changePercent: number };
+
+export const RecommendationStatus = z.enum(['open', 'accepted', 'dismissed', 'done']);
+export type RecommendationStatus = z.infer<typeof RecommendationStatus>;
+
+export interface EvidenceItem {
+  label: string;
+  value: string;
+}
+
+export interface Insight {
+  id: string;
+  kind: DiagnosticKind;
+  severity: DiagnosticSeverity;
+  campaignId: string | null;
+  campaignName: string | null;
+  platform: Platform | null;
+  title: string;
+  summary: string;
+  evidence: EvidenceItem[];
+  confidence: number;
+  impact: string;
+  periodFrom: string | null;
+  periodTo: string | null;
+  createdAt: string;
+}
+
+export interface Recommendation {
+  id: string;
+  insightId: string | null;
+  campaignId: string | null;
+  campaignName: string | null;
+  title: string;
+  rationale: string;
+  evidence: EvidenceItem[];
+  confidence: number | null;
+  impact: string | null;
+  risks: string | null;
+  limitations: string | null;
+  action: SuggestedAction | null;
+  status: RecommendationStatus;
+  periodFrom: string | null;
+  periodTo: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntelligenceReport {
+  isDemo: boolean;
+  generatedAt: string | null;
+  period: { from: string; to: string } | null;
+  sources: MetricSource[];
+  insights: Insight[];
+  recommendations: Recommendation[];
+  limitations: string[];
+}

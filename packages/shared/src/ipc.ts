@@ -23,6 +23,9 @@ import {
   type CreativeVersion,
   type DashboardSummary,
   type IntegrationView,
+  type IntelligenceReport,
+  type Recommendation,
+  RecommendationStatus,
   type OnboardingState,
   type Organization,
   type PageAnalysis,
@@ -131,6 +134,10 @@ export const ipcInputs = {
   'integration.google.syncInsights': z.object({ ...org, accountId: Id, from: isoDate, to: isoDate }),
   'integration.disconnect': z.object({ ...org, platform: Platform }),
 
+  'intelligence.get': z.object(org),
+  'intelligence.run': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
+  'recommendation.setStatus': z.object({ ...org, id: Id, status: RecommendationStatus }),
+
   'audit.list': z.object({ ...org, limit: z.number().int().min(1).max(500).default(100) }),
 } as const;
 
@@ -202,6 +209,9 @@ export interface ChannelOutputs {
   'integration.google.syncCampaigns': SyncResult;
   'integration.google.syncInsights': SyncResult;
   'integration.disconnect': IntegrationView;
+  'intelligence.get': IntelligenceReport;
+  'intelligence.run': IntelligenceReport;
+  'recommendation.setStatus': Recommendation;
   'audit.list': AuditEntry[];
 }
 

@@ -169,4 +169,4 @@ function ico(sizes) {
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, 'icon.png'), png(512));
 writeFileSync(join(outDir, 'icon.ico'), ico([16, 24, 32, 48, 64, 128, 256]));
-console.log(`Ícones gerados em ${outDir}`);
+process.stdout.write(`Ícones gerados em ${outDir}\n`);

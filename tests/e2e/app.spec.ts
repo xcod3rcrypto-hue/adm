@@ -114,6 +114,15 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByRole('region', { name: 'Métricas em BRL' }).getByText('Investimento', { exact: true })).toBeVisible();
     await page.screenshot({ path: join(shots, '08-demo-dashboard.png'), fullPage: true });
 
+    // Inteligência: análise sobre dados demo, identificada como fictícia
+    await page.getByRole('link', { name: 'Inteligência' }).click();
+    await expect(page.getByText('Nenhuma análise executada')).toBeVisible();
+    await page.getByRole('button', { name: 'Executar análise' }).first().click();
+    await expect(page.getByRole('heading', { name: /^Diagnósticos \(\d+\)$/ })).toBeVisible();
+    await expect(page.getByText('Dados de demonstração')).toBeVisible();
+    await expect(page.getByText('Limitações da análise')).toBeVisible();
+    await page.screenshot({ path: join(shots, '09-inteligencia.png'), fullPage: true });
+
     // Voltar para a organização real: nenhum dado demo aparece
     await page.getByLabel('Organização').selectOption({ label: 'Agência Horizonte' });
     await expect(page.getByText(/MODO DEMONSTRAÇÃO/)).toBeHidden();

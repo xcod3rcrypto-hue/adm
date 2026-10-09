@@ -3,7 +3,7 @@ import { deriveMetrics, groupBy, relativeChange, sumRows, type MetricRow } from 
 import type { AppContext } from '../context';
 import { bool, requireOrg } from '../util';
 
-interface SnapshotRow extends MetricRow {
+export interface SnapshotRow extends MetricRow {
   campaign_id: string;
   campaign_name: string;
   platform: Platform;
@@ -11,17 +11,24 @@ interface SnapshotRow extends MetricRow {
   fetched_at: string;
 }
 
-function shiftDay(iso: string, days: number): string {
+export function shiftDay(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
-function daysBetween(from: string, to: string): number {
+export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
 }
 
-function load(ctx: AppContext, organizationId: string, from: string, to: string, platform: Platform | null): SnapshotRow[] {
+/** Período imediatamente anterior, de mesma duração. */
+export function previousPeriod(from: string, to: string): { from: string; to: string } {
+  const span = Math.max(daysBetween(from, to), 1);
+  const prevTo = shiftDay(from, -1);
+  return { from: shiftDay(prevTo, -(span - 1)), to: prevTo };
+}
+
+export function loadSnapshots(ctx: AppContext, organizationId: string, from: string, to: string, platform: Platform | null): SnapshotRow[] {
   const params: string[] = [organizationId, from, to];
   let extra = '';
   if (platform) {
@@ -46,12 +53,10 @@ const byCurrency = (rows: SnapshotRow[]) =>
 
 export function dashboardSummary(ctx: AppContext, organizationId: string, from: string, to: string, platform: Platform | null): DashboardSummary {
   const org = requireOrg(ctx, organizationId);
-  const span = Math.max(daysBetween(from, to), 1);
-  const prevTo = shiftDay(from, -1);
-  const prevFrom = shiftDay(prevTo, -(span - 1));
+  const { from: prevFrom, to: prevTo } = previousPeriod(from, to);
 
-  const rows = load(ctx, organizationId, from, to, platform);
-  const prevRows = load(ctx, organizationId, prevFrom, prevTo, platform);
+  const rows = loadSnapshots(ctx, organizationId, from, to, platform);
+  const prevRows = loadSnapshots(ctx, organizationId, prevFrom, prevTo, platform);
 
   const current = byCurrency(rows);
   const previous = byCurrency(prevRows);

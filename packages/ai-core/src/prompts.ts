@@ -153,3 +153,72 @@ export function buildCompetitiveAnalysisPrompt(p: {
       'e ressalvas sobre os limites desta análise (amostra, data de captura, ausência de dados de desempenho).',
   };
 }
+
+// ---------------------------------------------------------------------------
+// Palavras-chave para a Rede de Pesquisa
+// ---------------------------------------------------------------------------
+
+export const KeywordSuggestionsOutput = z.object({
+  keywords: z.array(z.object({ text: z.string(), matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']), intent: z.string() })),
+  negatives: z.array(z.string()),
+});
+export type KeywordSuggestionsOutput = z.infer<typeof KeywordSuggestionsOutput>;
+
+export function buildKeywordPrompt(p: { brief: BriefData; projectName: string; seeds: string[]; campaignName: string }): { system: string; prompt: string } {
+  return {
+    system: BASE_SYSTEM,
+    prompt:
+      `${briefToContext(p.brief, p.projectName)}\n\n` +
+      `Campanha de Pesquisa no Google Ads: "${p.campaignName.replace(/"/g, "'")}".\n` +
+      (p.seeds.length ? `Palavras-semente informadas pelo usuário: ${p.seeds.join(', ')}.\n` : '') +
+      '\nSugira de 20 a 40 palavras-chave que pessoas realmente digitariam no Google com intenção de contratar/comprar o que o briefing oferece, ' +
+      'no idioma do briefing. Para cada uma: o texto (sem símbolos como ! @ % , * =, até 10 palavras), o tipo de correspondência recomendado ' +
+      '(EXACT para termos de alta intenção e marca, PHRASE para a maioria, BROAD só para descoberta) e a intenção em poucas palavras. ' +
+      'Também sugira de 5 a 15 palavras negativas (ex.: grátis, emprego, curso, download, quando não fizerem sentido para o negócio). ' +
+      'Não invente volumes de busca nem dados de desempenho.',
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Anúncio de Pesquisa completo a partir da página de destino
+// ---------------------------------------------------------------------------
+
+export const SearchAdFromPageOutput = z.object({
+  headlines: z.array(z.string()),
+  descriptions: z.array(z.string()),
+  path1: z.string(),
+  path2: z.string(),
+  keywords: z.array(z.object({ text: z.string(), matchType: z.enum(['BROAD', 'PHRASE', 'EXACT']), intent: z.string() })),
+  negatives: z.array(z.string()),
+  strategy: z.string(),
+});
+export type SearchAdFromPageOutput = z.infer<typeof SearchAdFromPageOutput>;
+
+export function buildSearchAdFromPagePrompt(p: {
+  page: { url: string; title: string; description: string; headings: string[]; textExcerpt: string };
+  brief: BriefData | null;
+  projectName: string | null;
+  seeds: string[];
+}): { system: string; prompt: string } {
+  return {
+    system:
+      BASE_SYSTEM +
+      ' Você é especialista certificado em Google Ads (Rede de Pesquisa) e escreve anúncios responsivos de altíssimo desempenho.' +
+      ' O conteúdo entre <pagina> é a página de destino do anunciante: use apenas fatos presentes nela ou no briefing.',
+    prompt:
+      (p.brief && p.projectName ? `${briefToContext(p.brief, p.projectName)}\n\n` : '') +
+      `<pagina url="${p.page.url}">\nTítulo: ${p.page.title}\nDescrição: ${p.page.description}\nSeções: ${p.page.headings.slice(0, 30).join(' | ')}\nTexto: ${p.page.textExcerpt.slice(0, 7000)}\n</pagina>\n\n` +
+      (p.seeds.length ? `Palavras-semente do usuário: ${p.seeds.join(', ')}.\n\n` : '') +
+      'Crie um anúncio responsivo de pesquisa completo para esta página, no idioma da página:\n' +
+      '1. EXATAMENTE 15 títulos, cada um com NO MÁXIMO 30 caracteres (contando espaços), todos diferentes entre si. Distribua os ângulos: ' +
+      '3 com a palavra-chave principal/produto, 3 de benefício concreto, 2 de diferencial, 2 de prova/credibilidade (só se houver na página), ' +
+      '2 de oferta/condição (só se houver), 3 de chamada para ação. Use Maiúsculas Iniciais, sem pontuação excessiva, sem ponto de exclamação no título, sem emojis.\n' +
+      '2. EXATAMENTE 4 descrições, cada uma com NO MÁXIMO 90 caracteres, terminando com chamada para ação clara, cobrindo benefício, diferencial, oferta e objeção.\n' +
+      '3. path1 e path2: até 15 caracteres cada, sem espaços nem barras (ex.: "Internet", "Rural").\n' +
+      '4. 20 a 40 palavras-chave de alta intenção de compra que as pessoas digitariam para encontrar exatamente o que a página oferece ' +
+      '(sem símbolos ! @ % , * =, até 10 palavras), com tipo de correspondência (EXACT para alta intenção/marca, PHRASE para a maioria, BROAD raramente) e a intenção.\n' +
+      '5. 8 a 15 palavras negativas para evitar cliques sem intenção de compra.\n' +
+      '6. strategy: 2 a 3 frases explicando o posicionamento escolhido.\n' +
+      'Conte os caracteres com cuidado: textos acima do limite são rejeitados pelo Google. Não invente preços, prazos, prêmios ou números que não estejam na página.',
+  };
+}

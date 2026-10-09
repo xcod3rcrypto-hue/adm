@@ -3,11 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { CheckCircle2, History, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
+import { CheckCircle2, History, ListTree, Megaphone, Pause, Pencil, Play, Plus, Send, Trash2, Wallet, XCircle } from 'lucide-react';
 import { CampaignInput, formatCurrency, formatDateTime, type Campaign, type Platform, type PlatformOperation } from '@advertex/shared';
 import { OBJECTIVES, objectiveLabel } from '@advertex/advertising-core';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
+import { SearchStructureModal } from './SearchBuilder';
 import { CAMPAIGN_STATUS_LABEL, PLATFORM_LABEL, SYNC_LABEL } from '../lib/labels';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Input, LoadingState, Modal, Notice, PageHeader, Select, Tabs, Textarea, useToast } from '../components/ui';
 
@@ -23,6 +24,7 @@ export function CampaignsPage() {
   const [statusChange, setStatusChange] = useState<{ campaign: Campaign; to: 'active' | 'paused' } | null>(null);
   const [budgetOf, setBudgetOf] = useState<Campaign | null>(null);
   const [historyOf, setHistoryOf] = useState<Campaign | null>(null);
+  const [structureOf, setStructureOf] = useState<Campaign | null>(null);
   const campaigns = useQuery({
     queryKey: ['campaigns', organizationId, platform],
     queryFn: () => api('campaign.list', { organizationId, platform: platform === 'all' ? null : platform }),
@@ -139,6 +141,11 @@ export function CampaignsPage() {
                             {c.syncState === 'pending' ? 'Verificar e publicar' : 'Publicar'}
                           </Button>
                         )}
+                        {c.platform === 'google' && c.objective === 'SEARCH' && !org?.isDemo && (
+                          <Button size="sm" variant="secondary" icon={<ListTree className="size-3.5" />} onClick={() => setStructureOf(c)}>
+                            Anúncios e palavras-chave
+                          </Button>
+                        )}
                         {c.remoteId && c.status === 'active' && (
                           <Button size="sm" variant="ghost" aria-label={`Pausar ${c.name}`} icon={<Pause className="size-3.5" />} onClick={() => setStatusChange({ campaign: c, to: 'paused' })} />
                         )}
@@ -171,6 +178,7 @@ export function CampaignsPage() {
       {publishing && <PublishModal campaign={publishing} onClose={() => setPublishing(null)} />}
       {budgetOf && <BudgetModal campaign={budgetOf} onClose={() => setBudgetOf(null)} />}
       {historyOf && <HistoryModal campaign={historyOf} onClose={() => setHistoryOf(null)} />}
+      {structureOf && <SearchStructureModal campaign={structureOf} onClose={() => setStructureOf(null)} />}
       <ConfirmDialog
         open={!!statusChange}
         danger={statusChange?.to === 'active'}

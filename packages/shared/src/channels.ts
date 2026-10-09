@@ -19,6 +19,7 @@ export const CHANNEL_NAMES = [
   'asset.import', 'asset.list', 'asset.updateTags', 'asset.delete', 'asset.export',
   'campaign.list', 'campaign.create', 'campaign.update', 'campaign.delete',
   'campaign.preflight', 'campaign.publish', 'campaign.setRemoteStatus', 'campaign.updateRemoteBudget', 'campaign.operations',
+  'search.adGroups', 'search.saveAdGroup', 'search.deleteAdGroup', 'search.pushAdGroup', 'search.keywordIdeasGoogle', 'search.keywordIdeasAi', 'search.adFromPage',
   'publishing.getLimits', 'publishing.saveLimits', 'asset.uploadToPlatform',
   'dashboard.summary',
   'integration.list',

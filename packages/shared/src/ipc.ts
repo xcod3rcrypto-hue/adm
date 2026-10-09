@@ -28,6 +28,11 @@ import {
   type PlatformOperation,
   type AppNotification,
   type UpdateState,
+  type SearchAdGroup,
+  type SearchAdDraft,
+  type KeywordIdeasResult,
+  KeywordIdeasRequest,
+  SearchAdGroupInput,
   type Report,
   type CalendarItem,
   type Competitor,
@@ -139,6 +144,13 @@ export const ipcInputs = {
   'campaign.setRemoteStatus': z.object({ ...org, id: Id, status: z.enum(['active', 'paused']), confirm: z.literal(true) }),
   'campaign.updateRemoteBudget': z.object({ ...org, id: Id, amount: z.number().positive().max(10_000_000), confirm: z.literal(true) }),
   'campaign.operations': z.object({ ...org, id: Id.nullable().default(null) }),
+  'search.adGroups': z.object({ ...org, campaignId: Id }),
+  'search.saveAdGroup': z.object({ ...org, campaignId: Id, id: Id.nullable().default(null), data: SearchAdGroupInput }),
+  'search.deleteAdGroup': z.object({ ...org, id: Id }),
+  'search.pushAdGroup': z.object({ ...org, id: Id, confirm: z.literal(true) }),
+  'search.keywordIdeasGoogle': z.object({ ...org, campaignId: Id, request: KeywordIdeasRequest }),
+  'search.keywordIdeasAi': z.object({ ...org, campaignId: Id, seeds: z.array(z.string().trim().min(1).max(80)).max(20).default([]) }),
+  'search.adFromPage': z.object({ ...org, campaignId: Id, url: z.url({ protocol: /^https?$/ }), seeds: z.array(z.string().trim().min(1).max(80)).max(20).default([]) }),
   'publishing.getLimits': z.object(org),
   'publishing.saveLimits': z.object({ ...org, limits: PublishingLimits }),
   'asset.uploadToPlatform': z.object({ ...org, id: Id, accountId: Id }),
@@ -289,6 +301,13 @@ export interface ChannelOutputs {
   'campaign.setRemoteStatus': Campaign;
   'campaign.updateRemoteBudget': Campaign;
   'campaign.operations': PlatformOperation[];
+  'search.adGroups': SearchAdGroup[];
+  'search.saveAdGroup': SearchAdGroup;
+  'search.deleteAdGroup': void;
+  'search.pushAdGroup': SearchAdGroup;
+  'search.keywordIdeasGoogle': KeywordIdeasResult;
+  'search.keywordIdeasAi': KeywordIdeasResult;
+  'search.adFromPage': SearchAdDraft;
   'publishing.getLimits': PublishingLimits;
   'publishing.saveLimits': PublishingLimits;
   'asset.uploadToPlatform': { remoteId: string };

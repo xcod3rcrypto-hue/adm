@@ -96,6 +96,34 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await page.screenshot({ path: join(shots, '05a-publicar.png') });
     await page.getByRole('dialog').getByRole('button', { name: 'Cancelar' }).click();
 
+    // Rede de Pesquisa: grupo de anúncios com palavras-chave e anúncio responsivo (rascunho local)
+    await page.getByRole('button', { name: 'Novo rascunho' }).first().click();
+    await page.locator('#cp-name').fill('Pesquisa — Fotografia');
+    await page.locator('#cp-platform').selectOption('google');
+    await page.locator('#cp-obj').selectOption('SEARCH');
+    await page.getByLabel('Orçamento diário').fill('40');
+    await page.getByRole('button', { name: 'Salvar rascunho' }).click();
+    await expect(page.getByText('Rascunho salvo localmente.').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Anúncios e palavras-chave' }).click();
+    await page.getByRole('button', { name: 'Novo grupo de anúncios' }).click();
+    await page.getByLabel('Página de destino (URL final)').fill('https://exemplo.com.br/curso');
+    await page.getByLabel('Nova palavra-chave').fill('curso de fotografia online');
+    await page.getByRole('button', { name: 'Adicionar', exact: true }).click();
+    await expect(page.getByRole('cell', { name: '"curso de fotografia online"' })).toBeVisible();
+    await page.getByLabel('Título 1', { exact: true }).fill('Curso de Fotografia Online');
+    await page.getByLabel('Título 2', { exact: true }).fill('Aprenda do Zero');
+    await page.getByLabel('Título 3', { exact: true }).fill('Este título passa do limite de 30');
+    await expect(page.getByText('33/30')).toBeVisible();
+    await page.getByLabel('Título 3', { exact: true }).fill('Matrículas Abertas');
+    await page.getByLabel('Descrição 1').fill('Aulas práticas para iniciantes. Garanta sua vaga hoje.');
+    await page.getByLabel('Descrição 2').fill('Aprenda no seu ritmo, com suporte. Inscreva-se agora.');
+    await expect(page.getByLabel('Prévia do anúncio')).toContainText('Curso de Fotografia Online | Aprenda do Zero | Matrículas Abertas');
+    await page.screenshot({ path: join(shots, '05e-grupo-anuncios.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Salvar grupo' }).click();
+    await expect(page.getByText('Grupo de anúncios salvo.')).toBeVisible();
+    await expect(page.getByRole('dialog').getByText('Rascunho local', { exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
+
     // Experimento A/B com teste estatístico
     await page.getByRole('link', { name: 'Experimentos' }).click();
     await page.getByRole('button', { name: 'Novo experimento' }).first().click();

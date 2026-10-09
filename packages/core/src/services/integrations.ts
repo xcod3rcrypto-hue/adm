@@ -200,6 +200,12 @@ export async function authorizeGoogle(ctx: AppContext, organizationId: string): 
   return view(ctx, organizationId, 'google');
 }
 
+/** Cliente Google Ads da organização (recursos específicos do Google, como palavras-chave). */
+export function googleAdsClient(ctx: AppContext, organizationId: string): GoogleAdsAdapter {
+  assertNotDemo(ctx, organizationId);
+  return googleAdapter(ctx, organizationId).adapter;
+}
+
 function googleAdapter(ctx: AppContext, organizationId: string): { adapter: GoogleAdsAdapter; conn: ConnRow } {
   const { conn, cfg, clientId, clientSecret } = googleCreds(ctx, organizationId);
   const developerToken = getSecret(ctx, scopes.org(organizationId, 'google', 'developerToken'));

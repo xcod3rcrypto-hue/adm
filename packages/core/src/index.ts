@@ -25,3 +25,4 @@ export * from './services/automations';
 export * from './services/reports';
 export * from './services/calendar';
 export * from './services/competitors';
+export * from './services/searchAds';

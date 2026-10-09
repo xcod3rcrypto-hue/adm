@@ -169,6 +169,22 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'campaign.setRemoteStatus': ({ organizationId, id, status }, ctx) => core.setCampaignRemoteStatus(ctx, organizationId, id, status),
     'campaign.updateRemoteBudget': ({ organizationId, id, amount }, ctx) => core.updateCampaignRemoteBudget(ctx, organizationId, id, amount),
     'campaign.operations': ({ organizationId, id }, ctx) => core.listPlatformOperations(ctx, organizationId, id),
+    'search.adGroups': ({ organizationId, campaignId }, ctx) => core.listSearchAdGroups(ctx, organizationId, campaignId),
+    'search.saveAdGroup': ({ organizationId, campaignId, id, data }, ctx) => core.saveSearchAdGroup(ctx, organizationId, campaignId, id, data),
+    'search.deleteAdGroup': ({ organizationId, id }, ctx) => core.deleteSearchAdGroup(ctx, organizationId, id),
+    'search.pushAdGroup': ({ organizationId, id }, ctx) => core.pushSearchAdGroup(ctx, organizationId, id),
+    'search.keywordIdeasGoogle': ({ organizationId, campaignId, request }, ctx) => core.keywordIdeasFromGoogle(ctx, organizationId, campaignId, request),
+    'search.keywordIdeasAi': ({ organizationId, campaignId, seeds }, ctx) => core.keywordIdeasFromAi(ctx, organizationId, campaignId, seeds),
+    'search.adFromPage': async ({ organizationId, campaignId, url, seeds }, ctx) => {
+      core.getOrganization(ctx, organizationId);
+      let page;
+      try {
+        page = await core.fetchPublicPage(url);
+      } catch (err) {
+        throw new AppError('EXTERNAL_API', `Não foi possível ler a página: ${err instanceof Error ? err.message : 'erro desconhecido'}`, { cause: err });
+      }
+      return core.generateSearchAdFromPage(ctx, organizationId, campaignId, page, seeds);
+    },
     'publishing.getLimits': ({ organizationId }, ctx) => core.getPublishingLimits(ctx, organizationId),
     'publishing.saveLimits': ({ organizationId, limits }, ctx) => core.savePublishingLimits(ctx, organizationId, limits),
     'asset.uploadToPlatform': ({ organizationId, id, accountId }, ctx) => core.uploadAssetToPlatform(ctx, organizationId, id, accountId),

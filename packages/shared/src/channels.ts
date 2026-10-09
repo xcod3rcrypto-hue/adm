@@ -6,7 +6,7 @@
 export const IPC_CHANNEL = 'advertex:invoke';
 
 export const CHANNEL_NAMES = [
-  'app.getInfo', 'app.openPath', 'app.openExternal',
+  'app.getInfo', 'app.openPath', 'app.openExternal', 'app.updateStatus', 'app.checkUpdates', 'app.downloadUpdate', 'app.installUpdate',
   'onboarding.getState',
   'org.list', 'org.create', 'org.rename', 'org.getActive', 'org.setActive',
   'demo.enable', 'demo.disable',

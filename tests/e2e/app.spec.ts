@@ -150,6 +150,7 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByText('Sem chave')).toBeVisible();
     await expect(page.getByText('(desenvolvimento)').or(page.getByText('(instalado)'))).toBeVisible();
     await expect(page.getByText('project.create')).toBeVisible();
+    await expect(page.getByText('Atualização automática disponível apenas no app instalado.')).toBeVisible();
     await page.screenshot({ path: join(shots, '07-configuracoes.png'), fullPage: true });
 
     await app.close();

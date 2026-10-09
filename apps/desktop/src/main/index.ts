@@ -8,6 +8,7 @@ import { Database, defaultIds, resolveAssetFile, runDueAutomations, type AppCont
 import { createFileLogger } from './logger';
 import { registerIpc } from './ipc';
 import { createHandlers, isAllowedExternal } from './handlers';
+import { Updater } from './updater';
 
 const APP_NAME = 'ADVERTEX AI Studio';
 app.setName(APP_NAME);
@@ -136,7 +137,9 @@ async function bootstrap(): Promise<void> {
     return new Response(stream, { headers: { 'Content-Type': file.mime, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, max-age=3600' } });
   });
 
-  registerIpc(ctx, createHandlers({ userData: paths.userData, logs: paths.logs, database: paths.database }), isTrustedSender);
+  const updater = new Updater(logger);
+  registerIpc(ctx, createHandlers({ userData: paths.userData, logs: paths.logs, database: paths.database }, updater), isTrustedSender);
+  updater.start();
   startAutomationScheduler(ctx);
   Menu.setApplicationMenu(null);
   createWindow();

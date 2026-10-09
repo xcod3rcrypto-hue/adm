@@ -7,6 +7,7 @@ import { cn } from '../lib/cn';
 import { useOrg } from '../lib/org';
 import { useToast } from './ui';
 import { Logo } from './Logo';
+import { UpdateBanner } from './UpdateBanner';
 
 const NAV = [
   { to: '/', label: 'Visão geral', icon: LayoutDashboard, end: true },
@@ -108,6 +109,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
+        <UpdateBanner />
         {org?.isDemo && (
           <div role="status" className="flex items-center justify-center gap-2 border-b border-warning/30 bg-warning/10 px-4 py-1.5 text-xs font-medium text-warning">
             MODO DEMONSTRAÇÃO — todos os dados desta organização são fictícios e não representam resultados reais.

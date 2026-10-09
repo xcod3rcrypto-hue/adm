@@ -27,6 +27,7 @@ import {
   type Experiment,
   type PlatformOperation,
   type AppNotification,
+  type UpdateState,
   type Report,
   type CalendarItem,
   type Competitor,
@@ -67,6 +68,10 @@ export const ipcInputs = {
   'app.getInfo': none,
   'app.openPath': z.object({ target: z.enum(['logs', 'data']) }),
   'app.openExternal': z.object({ url: z.url({ protocol: /^https$/ }) }),
+  'app.updateStatus': none,
+  'app.checkUpdates': none,
+  'app.downloadUpdate': none,
+  'app.installUpdate': none,
 
   'onboarding.getState': z.object({ organizationId: Id.nullable() }),
 
@@ -234,6 +239,10 @@ export interface ChannelOutputs {
   'app.getInfo': AppInfo;
   'app.openPath': void;
   'app.openExternal': void;
+  'app.updateStatus': UpdateState;
+  'app.checkUpdates': UpdateState;
+  'app.downloadUpdate': UpdateState;
+  'app.installUpdate': void;
   'onboarding.getState': OnboardingState;
   'org.list': Organization[];
   'org.create': Organization;

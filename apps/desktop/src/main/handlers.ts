@@ -3,6 +3,7 @@ import { BrowserWindow, app, dialog, shell } from 'electron';
 import { AppError } from '@advertex/shared';
 import * as core from '@advertex/core';
 import type { HandlerMap } from './ipc';
+import type { Updater } from './updater';
 
 export interface AppPaths {
   userData: string;
@@ -33,7 +34,7 @@ export function isAllowedExternal(url: string): boolean {
   }
 }
 
-export function createHandlers(paths: AppPaths): HandlerMap {
+export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
   return {
     'app.getInfo': () => ({
       name: app.getName(),
@@ -53,6 +54,11 @@ export function createHandlers(paths: AppPaths): HandlerMap {
       if (!isAllowedExternal(url)) throw new AppError('FORBIDDEN', 'Link externo não permitido.');
       await shell.openExternal(url);
     },
+
+    'app.updateStatus': () => updater.getState(),
+    'app.checkUpdates': () => updater.check(),
+    'app.downloadUpdate': () => updater.download(),
+    'app.installUpdate': () => updater.install(),
 
     'onboarding.getState': ({ organizationId }, ctx) => core.onboardingState(ctx, organizationId),
 

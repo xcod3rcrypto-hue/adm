@@ -864,3 +864,16 @@ export interface CompetitiveAnalysis {
   differentiationIdeas: string[];
   caveats: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Atualização automática
+// ---------------------------------------------------------------------------
+
+export interface UpdateState {
+  status: 'disabled' | 'idle' | 'checking' | 'up-to-date' | 'available' | 'downloading' | 'downloaded';
+  currentVersion: string;
+  availableVersion: string | null;
+  progress: number | null;
+  error: string | null;
+  checkedAt: string | null;
+}

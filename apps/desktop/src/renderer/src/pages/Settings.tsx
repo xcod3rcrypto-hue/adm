@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, Gauge, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
+import { Bot, Building2, ExternalLink, FlaskConical, FolderOpen, Gauge, RefreshCw, ScrollText, Stethoscope, Trash2 } from 'lucide-react';
 import { formatDateTime } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
@@ -13,6 +13,7 @@ export function SettingsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <OrganizationCard />
         <AiCard />
+        <UpdatesCard />
         <LimitsCard />
         <DemoCard />
         <DiagnosticsCard />
@@ -147,6 +148,50 @@ function AiCard() {
           {testResult && <Notice tone="success">{testResult}</Notice>}
         </form>
       )}
+    </Card>
+  );
+}
+
+function UpdatesCard() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const state = useQuery({ queryKey: ['update'], queryFn: () => api('app.updateStatus') });
+  const check = useMutation({
+    mutationFn: () => api('app.checkUpdates'),
+    onSuccess: (s) => {
+      qc.setQueryData(['update'], s);
+      if (s.status === 'up-to-date') toast.success('Você já está na versão mais recente.');
+      else if (s.status === 'available') toast.info(`Versão ${s.availableVersion} disponível: use o aviso no topo para atualizar.`);
+      else if (s.error) toast.info(s.error);
+    },
+    onError: (e) => toast.error(e),
+  });
+  const s = state.data;
+  return (
+    <Card>
+      <CardHeader
+        title={<span className="flex items-center gap-2"><RefreshCw className="size-4" /> Atualizações</span>}
+        description="O app verifica novas versões ao abrir e a cada 4 horas. Você escolhe quando atualizar; seus dados são mantidos."
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3 p-5 text-sm">
+        <div>
+          <p>
+            Versão instalada: <b>{s?.currentVersion ?? '—'}</b>
+          </p>
+          <p className="text-xs text-subtle">
+            {s?.status === 'disabled'
+              ? 'Atualização automática disponível apenas no app instalado.'
+              : s?.status === 'up-to-date'
+                ? `Atualizado · verificado em ${formatDateTime(s.checkedAt)}`
+                : s?.status === 'available' || s?.status === 'downloading' || s?.status === 'downloaded'
+                  ? `Nova versão ${s.availableVersion} disponível.`
+                  : (s?.error ?? 'Ainda não verificado.')}
+          </p>
+        </div>
+        <Button variant="secondary" icon={<RefreshCw className="size-4" />} loading={check.isPending || s?.status === 'checking'} disabled={s?.status === 'disabled'} onClick={() => check.mutate()}>
+          Verificar agora
+        </Button>
+      </div>
     </Card>
   );
 }

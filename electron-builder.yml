@@ -46,3 +46,11 @@ nsis:
   # Os dados do usuário (%APPDATA%\ADVERTEX AI Studio) são preservados ao
   # desinstalar, para não perder projetos e histórico em reinstalações.
   deleteAppDataOnUninstall: false
+
+# Atualização automática: o app consulta as Releases deste repositório
+# (público) e baixa a nova versão quando o usuário aceita.
+publish:
+  provider: github
+  owner: xcod3rcrypto-hue
+  repo: adm
+  releaseType: release

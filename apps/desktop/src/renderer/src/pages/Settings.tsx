@@ -55,7 +55,7 @@ function OrganizationCard() {
           Salvar
         </Button>
       </form>
-      <p className="px-5 pb-5 text-xs text-subtle">Usuários, papéis e permissões multiusuário chegam com o backend hospedado (ver docs/ROADMAP.md). Nesta versão, há um único usuário local proprietário.</p>
+      <p className="px-5 pb-5 text-xs text-subtle">Usuários, papéis e permissões multiusuário dependem de um backend hospedado (ver docs/ROADMAP.md). Nesta versão, há um único usuário local proprietário.</p>
     </Card>
   );
 }

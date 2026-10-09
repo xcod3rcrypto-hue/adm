@@ -39,7 +39,7 @@ export function minorToMajor(value: string | number | undefined | null, currency
 }
 
 interface GraphError {
-  error?: { message?: string; type?: string; code?: number; error_subcode?: number; fbtrace_id?: string };
+  error?: { message?: string; type?: string; code?: number; error_subcode?: number; fbtrace_id?: string; error_user_title?: string; error_user_msg?: string };
 }
 
 interface Paged<T> {
@@ -321,6 +321,114 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     });
   }
 
+  // -------------------------------------------------------------------------
+  // Conjuntos de anúncios, criativos e anúncios (sempre criados PAUSADOS)
+  // -------------------------------------------------------------------------
+
+  /** Páginas do Facebook que a conta de anúncios pode usar para anunciar. */
+  async listPromotePages(accountRemoteId: string): Promise<Array<{ id: string; name: string }>> {
+    assertNumericId(accountRemoteId);
+    return this.getAll<{ id: string; name: string }>(this.url(`act_${accountRemoteId}/promote_pages`, { fields: 'id,name', limit: '100' }));
+  }
+
+  async listInstagramAccounts(accountRemoteId: string): Promise<Array<{ id: string; username: string }>> {
+    assertNumericId(accountRemoteId);
+    const rows = await this.getAll<{ id: string; username?: string }>(this.url(`act_${accountRemoteId}/instagram_accounts`, { fields: 'id,username', limit: '100' }));
+    return rows.map((r) => ({ id: r.id, username: r.username ?? r.id }));
+  }
+
+  async listPixels(accountRemoteId: string): Promise<Array<{ id: string; name: string }>> {
+    assertNumericId(accountRemoteId);
+    return this.getAll<{ id: string; name: string }>(this.url(`act_${accountRemoteId}/adspixels`, { fields: 'id,name', limit: '100' }));
+  }
+
+  async createAdSet(
+    accountRemoteId: string,
+    spec: {
+      name: string;
+      campaignId: string;
+      optimizationGoal: string;
+      destinationType: string | null;
+      targeting: Record<string, unknown>;
+      promotedObject: Record<string, string> | null;
+      dailyBudget: number | null;
+      currency: string;
+    },
+  ): Promise<{ remoteId: string }> {
+    assertNumericId(accountRemoteId);
+    assertNumericId(spec.campaignId);
+    const params: Record<string, string> = {
+      name: spec.name,
+      campaign_id: spec.campaignId,
+      status: 'PAUSED',
+      billing_event: 'IMPRESSIONS',
+      optimization_goal: spec.optimizationGoal,
+      targeting: JSON.stringify(spec.targeting),
+    };
+    if (spec.destinationType) params.destination_type = spec.destinationType;
+    if (spec.promotedObject) params.promoted_object = JSON.stringify(spec.promotedObject);
+    if (spec.dailyBudget !== null) {
+      params.daily_budget = String(majorToMinor(spec.dailyBudget, spec.currency));
+      params.bid_strategy = 'LOWEST_COST_WITHOUT_CAP';
+    }
+    const r = await this.post<{ id?: string }>(`act_${accountRemoteId}/adsets`, params);
+    if (!r.id) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o ID do conjunto de anúncios.', false);
+    return { remoteId: r.id };
+  }
+
+  async findAdSetByName(campaignRemoteId: string, name: string): Promise<string | null> {
+    assertNumericId(campaignRemoteId);
+    const rows = await this.getAll<{ id: string; name: string }>(this.url(`${campaignRemoteId}/adsets`, { fields: 'id,name', limit: '200' }));
+    return rows.find((r) => r.name === name)?.id ?? null;
+  }
+
+  async createAdCreative(
+    accountRemoteId: string,
+    spec: { name: string; pageId: string; instagramUserId: string | null; imageHash: string; link: string; message: string; headline: string; description: string; cta: string },
+  ): Promise<{ remoteId: string }> {
+    assertNumericId(accountRemoteId);
+    assertNumericId(spec.pageId);
+    const linkData: Record<string, unknown> = {
+      image_hash: spec.imageHash,
+      link: spec.link,
+      message: spec.message,
+      call_to_action: { type: spec.cta, value: { link: spec.link } },
+    };
+    if (spec.headline) linkData.name = spec.headline;
+    if (spec.description) linkData.description = spec.description;
+    const story: Record<string, unknown> = { page_id: spec.pageId, link_data: linkData };
+    if (spec.instagramUserId) story.instagram_user_id = spec.instagramUserId;
+    const r = await this.post<{ id?: string }>(`act_${accountRemoteId}/adcreatives`, { name: spec.name, object_story_spec: JSON.stringify(story) });
+    if (!r.id) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o ID do criativo.', false);
+    return { remoteId: r.id };
+  }
+
+  async findAdCreativeByName(accountRemoteId: string, name: string): Promise<string | null> {
+    assertNumericId(accountRemoteId);
+    const rows = await this.getAll<{ id: string; name?: string }>(this.url(`act_${accountRemoteId}/adcreatives`, { fields: 'id,name', limit: '200' }));
+    return rows.find((r) => r.name === name)?.id ?? null;
+  }
+
+  async createAd(accountRemoteId: string, spec: { name: string; adSetId: string; creativeId: string }): Promise<{ remoteId: string }> {
+    assertNumericId(accountRemoteId);
+    assertNumericId(spec.adSetId);
+    assertNumericId(spec.creativeId);
+    const r = await this.post<{ id?: string }>(`act_${accountRemoteId}/ads`, {
+      name: spec.name,
+      adset_id: spec.adSetId,
+      creative: JSON.stringify({ creative_id: spec.creativeId }),
+      status: 'PAUSED',
+    });
+    if (!r.id) throw new PlatformApiError('meta', 200, 'A Graph API não retornou o ID do anúncio.', false);
+    return { remoteId: r.id };
+  }
+
+  async findAdByName(adSetRemoteId: string, name: string): Promise<string | null> {
+    assertNumericId(adSetRemoteId);
+    const rows = await this.getAll<{ id: string; name: string }>(this.url(`${adSetRemoteId}/ads`, { fields: 'id,name', limit: '200' }));
+    return rows.find((r) => r.name === name)?.id ?? null;
+  }
+
   /** Pausa um anúncio. Repetir é seguro: o estado final é o mesmo. */
   async pauseAd(adRemoteId: string): Promise<void> {
     assertNumericId(adRemoteId);
@@ -398,7 +506,8 @@ function accountStatus(code: number): string {
 export function toApiError(status: number, body: GraphError): PlatformApiError {
   const e = body.error;
   const code = e?.code;
-  let message = e?.message ?? `Erro HTTP ${status} na Graph API.`;
+  // A Meta costuma explicar melhor em error_user_msg (já traduzida para o idioma da conta).
+  let message = e?.error_user_msg ? `${e.error_user_title ? `${e.error_user_title}: ` : ''}${e.error_user_msg}` : (e?.message ?? `Erro HTTP ${status} na Graph API.`);
   if (code === 190) message = 'Token de acesso inválido ou expirado. Gere um novo token e salve novamente.';
   else if (code === 10 || code === 200 || (code !== undefined && code >= 200 && code < 300))
     message = `Permissão insuficiente (${e?.message ?? 'verifique ads_read'}). Confirme as permissões ads_read/ads_management do aplicativo.`;

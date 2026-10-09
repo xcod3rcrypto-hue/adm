@@ -1194,3 +1194,104 @@ export interface FactoryResult {
   notes: string[];
   model: string;
 }
+
+// ---------------------------------------------------------------------------
+// Meta: conjuntos de anúncios e anúncios
+// ---------------------------------------------------------------------------
+
+export const MetaOptimizationGoal = z.enum(['OFFSITE_CONVERSIONS', 'LANDING_PAGE_VIEWS', 'LINK_CLICKS', 'REACH', 'IMPRESSIONS', 'POST_ENGAGEMENT']);
+export type MetaOptimizationGoal = z.infer<typeof MetaOptimizationGoal>;
+
+/** Metas de otimização aceitas por objetivo de campanha (Outcome). */
+export const META_GOALS_BY_OBJECTIVE: Record<string, MetaOptimizationGoal[]> = {
+  OUTCOME_SALES: ['OFFSITE_CONVERSIONS', 'LANDING_PAGE_VIEWS', 'LINK_CLICKS'],
+  OUTCOME_LEADS: ['OFFSITE_CONVERSIONS', 'LANDING_PAGE_VIEWS', 'LINK_CLICKS'],
+  OUTCOME_TRAFFIC: ['LANDING_PAGE_VIEWS', 'LINK_CLICKS'],
+  OUTCOME_AWARENESS: ['REACH', 'IMPRESSIONS'],
+  OUTCOME_ENGAGEMENT: ['POST_ENGAGEMENT'],
+};
+
+export const MetaConversionEvent = z.enum(['PURCHASE', 'LEAD', 'COMPLETE_REGISTRATION', 'ADD_TO_CART', 'INITIATE_CHECKOUT', 'CONTACT', 'SUBSCRIBE']);
+export type MetaConversionEvent = z.infer<typeof MetaConversionEvent>;
+
+export const MetaCta = z.enum(['SHOP_NOW', 'LEARN_MORE', 'SIGN_UP', 'BUY_NOW', 'ORDER_NOW', 'GET_OFFER', 'SUBSCRIBE', 'CONTACT_US', 'APPLY_NOW', 'GET_QUOTE', 'BOOK_NOW', 'DOWNLOAD']);
+export type MetaCta = z.infer<typeof MetaCta>;
+
+const metaId = z.string().trim().regex(/^\d{5,25}$/, 'ID numérico da Meta inválido');
+
+export const MetaAdInput = z.object({
+  id: Id.optional(),
+  creativeId: Id,
+  assetId: Id.nullable().default(null),
+  headline: text(40).default(''),
+  description: text(30).default(''),
+});
+export type MetaAdInput = z.input<typeof MetaAdInput>;
+
+export const MetaAdSetInput = z
+  .object({
+    name: text(200).min(2, 'Nomeie o conjunto de anúncios'),
+    optimizationGoal: MetaOptimizationGoal.default('LANDING_PAGE_VIEWS'),
+    pixelId: metaId.nullable().default(null),
+    conversionEvent: MetaConversionEvent.default('PURCHASE'),
+    countries: z.array(z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/, 'Use códigos de país com 2 letras (ex.: BR)')).min(1).max(25).default(['BR']),
+    ageMin: z.number().int().min(18).max(65).default(18),
+    ageMax: z.number().int().min(18).max(65).default(65),
+    gender: z.enum(['all', 'male', 'female']).default('all'),
+    advantageAudience: z.boolean().default(true),
+    dailyBudget: z.number().positive().max(1_000_000).nullable().default(null),
+    pageId: metaId.nullable().default(null),
+    instagramUserId: metaId.nullable().default(null),
+    link: z.string().trim().max(2000).default(''),
+    cta: MetaCta.default('SHOP_NOW'),
+    ads: z.array(MetaAdInput).max(20).default([]),
+  })
+  .refine((d) => d.ageMin <= d.ageMax, { message: 'A idade mínima deve ser menor que a máxima', path: ['ageMax'] })
+  .refine((d) => !d.link || /^https:\/\/[^\s]+$/i.test(d.link), { message: 'O link de destino deve começar com https://', path: ['link'] });
+export type MetaAdSetInput = z.input<typeof MetaAdSetInput>;
+
+export interface MetaAdView {
+  id: string;
+  creativeId: string | null;
+  creativeTitle: string | null;
+  body: string;
+  assetId: string | null;
+  headline: string;
+  description: string;
+  remoteId: string | null;
+  status: 'local' | 'image' | 'creative' | 'published';
+  lastError: string | null;
+}
+
+export interface MetaAdSet {
+  id: string;
+  campaignId: string;
+  name: string;
+  optimizationGoal: MetaOptimizationGoal;
+  pixelId: string | null;
+  conversionEvent: MetaConversionEvent;
+  countries: string[];
+  ageMin: number;
+  ageMax: number;
+  gender: 'all' | 'male' | 'female';
+  advantageAudience: boolean;
+  dailyBudget: number | null;
+  pageId: string | null;
+  instagramUserId: string | null;
+  link: string;
+  cta: MetaCta;
+  remoteId: string | null;
+  syncState: SyncState;
+  lastError: string | null;
+  ads: MetaAdView[];
+  /** O que ainda falta para enviar (vazio = pronto). */
+  missing: string[];
+  updatedAt: string;
+}
+
+export interface MetaAssetsOptions {
+  pages: Array<{ id: string; name: string }>;
+  instagram: Array<{ id: string; username: string }>;
+  pixels: Array<{ id: string; name: string }>;
+  notes: string[];
+}

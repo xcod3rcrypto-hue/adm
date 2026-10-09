@@ -33,6 +33,9 @@ import {
   type ImageGenerationResult,
   ImageGenerationRequest,
   type SearchAdDraft,
+  type MetaAdSet,
+  type MetaAssetsOptions,
+  MetaAdSetInput,
   type CreativeBrainReport,
   type AdPerformance,
   BrainSyncRequest,
@@ -218,6 +221,13 @@ export const ipcInputs = {
 
   'factory.run': z.object({ ...org, request: FactoryRequest }),
 
+  'meta.adSets': z.object({ ...org, campaignId: Id }),
+  'meta.saveAdSet': z.object({ ...org, campaignId: Id, id: Id.nullable(), data: MetaAdSetInput }),
+  'meta.deleteAdSet': z.object({ ...org, id: Id }),
+  'meta.pushAdSet': z.object({ ...org, id: Id, confirm: z.literal(true) }),
+  'meta.assetsOptions': z.object({ ...org, campaignId: Id }),
+  'meta.adSetFromCreatives': z.object({ ...org, campaignId: Id, creativeIds: z.array(Id).min(1).max(20) }),
+
   'intelligence.get': z.object(org),
   'intelligence.run': z.object({ ...org, from: isoDate, to: isoDate, platform: Platform.nullable().default(null) }),
   'recommendation.setStatus': z.object({ ...org, id: Id, status: RecommendationStatus }),
@@ -373,6 +383,12 @@ export interface ChannelOutputs {
   'autopilot.apply': { applied: number; failed: Array<{ id: string; error: string }> };
   'autopilot.dismiss': AutopilotOverview;
   'factory.run': FactoryResult;
+  'meta.adSets': MetaAdSet[];
+  'meta.saveAdSet': MetaAdSet;
+  'meta.deleteAdSet': void;
+  'meta.pushAdSet': MetaAdSet;
+  'meta.assetsOptions': MetaAssetsOptions;
+  'meta.adSetFromCreatives': MetaAdSet;
   'intelligence.get': IntelligenceReport;
   'intelligence.run': IntelligenceReport;
   'recommendation.setStatus': Recommendation;

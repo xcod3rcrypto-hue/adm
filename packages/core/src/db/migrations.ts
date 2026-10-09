@@ -617,9 +617,15 @@ CREATE INDEX idx_autopilot_org ON autopilot_actions(organization_id, status);
 CREATE INDEX idx_autopilot_dedupe ON autopilot_actions(organization_id, dedupe_key);
 `;
 
+/** Anúncios da Meta: imagem, título e etapas de envio por anúncio. */
+const m005 = `
+ALTER TABLE ads ADD COLUMN settings TEXT NOT NULL DEFAULT '{}';
+`;
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, name: 'initial_schema', sql: m001 },
   { version: 2, name: 'intelligence_automation_publishing', sql: m002 },
   { version: 3, name: 'account_login_customer', sql: m003 },
   { version: 4, name: 'creative_brain_autopilot', sql: m004 },
+  { version: 5, name: 'meta_ads_settings', sql: m005 },
 ];

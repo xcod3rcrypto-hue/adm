@@ -57,7 +57,7 @@ export async function runCreativeFactory(ctx: AppContext, organizationId: string
   const creatives: Creative[] = concepts.map((c) =>
     createCreative(ctx, organizationId, {
       projectId: project.id,
-      title: `Fábrica · ${c.name}`.slice(0, 200),
+      title: `Fábrica · ${c.headline.trim() || c.name}`.slice(0, 200),
       kind: req.kind,
       platform,
       funnelStage: req.funnelStage,

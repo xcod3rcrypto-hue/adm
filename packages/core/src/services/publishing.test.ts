@@ -154,3 +154,21 @@ describe('publicação controlada', () => {
     await expect(setCampaignRemoteStatus(ctx, demo.id, c.id, 'paused')).rejects.toThrow(/ainda não existe na plataforma/);
   });
 });
+
+describe('publicação — conta de administrador', () => {
+  it('bloqueia publicar em conta MCC do Google com explicação', async () => {
+    const ctx = await makeTestContext();
+    const org = createOrganization(ctx, { name: 'Org' });
+    const connId = ctx.newId();
+    ctx.db.run("INSERT INTO integration_connections (id, organization_id, platform, state, api_version, config, created_at, updated_at) VALUES (?, ?, 'google', 'connected', 'v25', '{}', 'n', 'n')", [connId, org.id]);
+    const accId = ctx.newId();
+    ctx.db.run(
+      "INSERT INTO advertising_accounts (id, organization_id, connection_id, platform, remote_id, name, currency, created_at, updated_at) VALUES (?, ?, ?, 'google', '1234567890', 'Minha MCC (MCC)', 'BRL', 'n', 'n')",
+      [accId, org.id, connId],
+    );
+    const draft = createCampaignDraft(ctx, org.id, { platform: 'google', name: 'Pesquisa marca', objective: 'SEARCH', dailyBudget: 30, currency: 'BRL' });
+    const item = preflightPublish(ctx, org.id, draft.id, accId).items.find((i) => i.label === 'Conta de anúncios')!;
+    expect(item.ok).toBe(false);
+    expect(item.detail).toMatch(/administrador \(MCC\)/);
+  });
+});

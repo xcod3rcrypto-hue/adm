@@ -1,7 +1,7 @@
 import { AppError, type AdvertisingAccount, type IntegrationView, type Platform, type SyncResult } from '@advertex/shared';
 import type { AdPlatformWriter, DateRange, RemoteAccount, RemoteCampaign, RemoteInsightRow } from '@advertex/advertising-core';
 import { MetaAdsAdapter, META_DEFAULT_API_VERSION, META_CONVERSION_ACTIONS } from '@advertex/platform-meta';
-import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, refreshAccessToken, revokeToken, runLoopbackAuthorization } from '@advertex/platform-google';
+import { GoogleAdsAdapter, GOOGLE_DEFAULT_API_VERSION, isManagerAccountName, refreshAccessToken, revokeToken, runLoopbackAuthorization } from '@advertex/platform-google';
 import type { AppContext } from '../context';
 import { parseJson, requireOrg } from '../util';
 import { recordAudit } from './audit';
@@ -322,7 +322,13 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
     recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, outcome: 'failure', details: { error: errMsg(err) } });
     throw err;
   }
-  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).` };
+  const hint =
+    imported + updated === 0 && platform === 'google'
+      ? isManagerAccountName(ctx.db.get<{ name: string }>('SELECT name FROM advertising_accounts WHERE id = ?', [account.id])?.name ?? '')
+        ? ' Esta é uma conta de administrador (MCC): as campanhas ficam nas contas de anúncios vinculadas a ela.'
+        : ' A conta não tem campanhas (exceto removidas).'
+      : '';
+  return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).${hint}` };
 }
 
 const DEFINITIONS: Record<Platform, string> = {

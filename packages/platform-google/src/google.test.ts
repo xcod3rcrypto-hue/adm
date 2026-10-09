@@ -136,3 +136,13 @@ describe('GoogleAdsAdapter — escritas', () => {
     expect(bodies[1]).toEqual({ operations: [{ update: { resourceName: 'customers/1234567890/campaignBudgets/9', amountMicros: '42000000' }, updateMask: 'amount_micros' }] });
   });
 });
+
+describe('toGoogleError — mensagens orientadas', () => {
+  it('explica conta MCC e projeto restrito a contas de teste', async () => {
+    const { toGoogleError } = await import('./adapter');
+    const mcc = toGoogleError(400, { error: { code: 400, message: 'x', details: [{ errors: [{ errorCode: { contextError: 'OPERATION_NOT_PERMITTED_FOR_CONTEXT' }, message: 'The operation is not allowed for the given context.' }] }] } });
+    expect(mcc.message).toMatch(/administrador \(MCC\)/);
+    const test = toGoogleError(403, { error: { code: 403, message: 'The Google Cloud project is only approved for use with test accounts. To access non-test accounts, apply for Explorer, Basic or Standard access.' } });
+    expect(test.message).toMatch(/só tem acesso a contas de teste/);
+  });
+});

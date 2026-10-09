@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { AppError, PublishingLimits, formatCurrency, type Campaign, type Platform, type PlatformOperation, type PlatformOperationStatus, type PublishCheck } from '@advertex/shared';
 import { CircuitOpenError, PlatformApiError } from '@advertex/advertising-core';
+import { isManagerAccountName } from '@advertex/platform-google';
 import type { AppContext } from '../context';
 import { bool, parseJson, requireOrg } from '../util';
 import { recordAudit } from './audit';
@@ -74,7 +75,18 @@ export function preflightPublish(ctx: AppContext, organizationId: string, campai
   add('Operação anterior', true, c.syncState === 'pending' ? 'Há uma publicação com resultado incerto: ao publicar, o app primeiro verifica se ela já existe na conta.' : 'Nenhuma operação em aberto.');
 
   const account = accountId ? ctx.db.get<AccountRow>('SELECT id, platform, remote_id, name, currency FROM advertising_accounts WHERE id = ? AND organization_id = ?', [accountId, organizationId]) : undefined;
-  add('Conta de anúncios', !!account && account.platform === c.platform, !account ? 'Selecione uma conta sincronizada da plataforma.' : account.platform !== c.platform ? 'A conta é de outra plataforma.' : `${account.name} (${account.remote_id})`);
+  const isManager = !!account && account.platform === 'google' && isManagerAccountName(account.name);
+  add(
+    'Conta de anúncios',
+    !!account && account.platform === c.platform && !isManager,
+    !account
+      ? 'Selecione uma conta sincronizada da plataforma.'
+      : account.platform !== c.platform
+        ? 'A conta é de outra plataforma.'
+        : isManager
+          ? 'Esta é uma conta de administrador (MCC), que não recebe campanhas. Escolha a conta de anúncios vinculada a ela.'
+          : `${account.name} (${account.remote_id})`,
+  );
   if (account?.currency) {
     add('Moeda compatível', account.currency === c.currency, account.currency === c.currency ? `Campanha e conta em ${c.currency}.` : `A campanha está em ${c.currency} e a conta em ${account.currency}. Ajuste a moeda do rascunho.`);
   }

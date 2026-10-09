@@ -37,6 +37,10 @@ interface GoogleErrorBody {
   };
 }
 
+/** Contas de administrador são marcadas com este sufixo no nome ao sincronizar. */
+export const MANAGER_SUFFIX = ' (MCC)';
+export const isManagerAccountName = (name: string) => name.endsWith(MANAGER_SUFFIX);
+
 const assertNumericCampaign = (id: string) => {
   if (!/^\d{1,20}$/.test(id)) throw new Error('ID de campanha Google Ads inválido.');
 };
@@ -119,7 +123,7 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
         const c = rows[0]?.customer;
         accounts.push({
           remoteId: id,
-          name: (c?.descriptiveName || `Cliente ${id}`) + (c?.manager ? ' (MCC)' : ''),
+          name: (c?.descriptiveName || `Cliente ${id}`) + (c?.manager ? MANAGER_SUFFIX : ''),
           currency: c?.currencyCode ?? null,
           timezone: c?.timeZone ?? null,
           status: c?.status ?? null,
@@ -266,6 +270,11 @@ export function toGoogleError(status: number, body: GoogleErrorBody): PlatformAp
   let message = detail?.message ?? e?.message ?? `Erro HTTP ${status} na Google Ads API.`;
   if (codeKey === 'DEVELOPER_TOKEN_NOT_APPROVED' || codeKey === 'DEVELOPER_TOKEN_PROHIBITED')
     message = 'O developer token não tem acesso a contas de produção. Solicite acesso básico/padrão no Centro de API do Google Ads ou use uma conta de teste.';
+  else if (/only approved for use with test accounts/i.test(message))
+    message =
+      'O projeto do Google Cloud ainda só tem acesso a contas de teste. Confira o nível de acesso em Google Cloud → Google Ads API → Níveis de acesso (Exploração ou Básico) no mesmo projeto do Client ID informado; após a liberação, pode levar alguns minutos.';
+  else if (codeKey === 'OPERATION_NOT_PERMITTED_FOR_CONTEXT' || codeKey === 'CANNOT_MODIFY_MANAGER_ACCOUNT' || /not allowed for the given context/i.test(message))
+    message = 'Operação não permitida nesta conta. Campanhas não podem ser criadas ou alteradas em contas de administrador (MCC): escolha a conta de anúncios vinculada.';
   else if (codeKey === 'USER_PERMISSION_DENIED') message = 'Usuário sem permissão nesta conta. Para contas gerenciadas, informe o login-customer-id da MCC.';
   else if (status === 401) message = 'Credenciais OAuth inválidas ou expiradas. Autorize novamente.';
   else if (status === 429 || codeKey === 'RESOURCE_EXHAUSTED') message = 'Cota da Google Ads API esgotada. Tente novamente mais tarde.';

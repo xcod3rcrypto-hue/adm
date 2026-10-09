@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Tokens do design system ADVERTEX. */
+@theme {
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+
+  --color-bg: #0b0d12;
+  --color-surface: #12151c;
+  --color-surface-2: #181c25;
+  --color-surface-3: #1f2430;
+  --color-border: #262c3a;
+  --color-border-strong: #343c4f;
+  --color-fg: #e8eaf0;
+  --color-muted: #9aa3b5;
+  --color-subtle: #6b7489;
+
+  --color-brand: #7c5cff;
+  --color-brand-strong: #6a46ff;
+  --color-brand-soft: #2a2350;
+  --color-accent: #22d3ee;
+
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+
+  --color-meta: #4f8cff;
+  --color-google: #f5b301;
+
+  --radius-xl: 14px;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable],
+.selectable {
+  user-select: text;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-brand) 45%, transparent);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #7c5cff 0%, #4f8cff 55%, #22d3ee 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #b9a8ff 0%, #7cc4ff 60%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-2) 0%, var(--color-surface-3) 50%, var(--color-surface-2) 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}

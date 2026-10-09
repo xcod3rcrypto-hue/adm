@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@advertex/shared": ["./packages/shared/src"],
+      "@advertex/core": ["./packages/core/src"],
+      "@advertex/ai-core": ["./packages/ai-core/src"],
+      "@advertex/advertising-core": ["./packages/advertising-core/src"],
+      "@advertex/platform-meta": ["./packages/platform-meta/src"],
+      "@advertex/platform-google": ["./packages/platform-google/src"],
+      "@renderer/*": ["./apps/desktop/src/renderer/src/*"]
+    }
+  }
+}

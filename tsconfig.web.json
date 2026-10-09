@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
+  },
+  "include": [
+    "apps/desktop/src/renderer/src/**/*.ts",
+    "apps/desktop/src/renderer/src/**/*.tsx",
+    "apps/desktop/src/preload/api.d.ts",
+    "packages/shared/src/**/*.ts",
+    "packages/advertising-core/src/**/*.ts"
+  ],
+  "exclude": ["packages/**/*.test.ts"]
+}

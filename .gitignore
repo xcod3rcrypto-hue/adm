@@ -1,0 +1,112 @@
+# ===========================================
+# 🔐 SEGREDOS (nunca podem ir para o GitHub)
+# ===========================================
+.env
+.env.*
+!.env.example
+*.env
+secrets/
+secret*.json
+credentials*.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
+
+# Carteiras e chaves de cripto
+wallet*.json
+*wallet*.dat
+keystore/
+*.seed
+seed*.txt
+mnemonic*
+private*key*
+*privatekey*
+*.wallet
+
+# Tokens de anúncios / APIs
+*token*.json
+*token*.txt
+config.local.*
+settings.local.*
+
+# ===========================================
+# 📦 Node.js / JavaScript
+# ===========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+.yarn/cache/
+.next/
+.nuxt/
+.vercel/
+.netlify/
+.turbo/
+.cache/
+.parcel-cache/
+dist/
+build/
+out/
+coverage/
+
+# ===========================================
+# 🐍 Python
+# ===========================================
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.venv/
+env/
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# ===========================================
+# 🪟 Windows / Mac
+# ===========================================
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+.DS_Store
+
+# ===========================================
+# 🧰 Editores
+# ===========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ===========================================
+# 📝 Logs e temporários
+# ===========================================
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# ===========================================
+# 🗄️ Bancos de dados locais
+# ===========================================
+*.sqlite
+*.sqlite3
+*.db

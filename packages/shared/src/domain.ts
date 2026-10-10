@@ -1295,3 +1295,50 @@ export interface MetaAssetsOptions {
   pixels: Array<{ id: string; name: string }>;
   notes: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Copiloto de IA
+// ---------------------------------------------------------------------------
+
+export interface CopilotToolStep {
+  name: string;
+  label: string;
+  ok: boolean;
+  summary: string;
+}
+
+/** Ação que o Copiloto sugere e que só é executada quando o usuário confirma. */
+export interface CopilotProposal {
+  id: string;
+  kind: 'pause_campaign' | 'activate_campaign' | 'set_budget';
+  campaignId: string;
+  campaignName: string;
+  value: number | null;
+  currency: string;
+  reason: string;
+  status: 'pending' | 'done' | 'failed' | 'dismissed';
+  error: string | null;
+}
+
+export interface CopilotMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  text: string;
+  steps: CopilotToolStep[];
+  proposals: CopilotProposal[];
+  createdAt: string;
+}
+
+export interface CopilotConversation {
+  id: string;
+  title: string;
+  messages: CopilotMessage[];
+  model: string | null;
+  updatedAt: string;
+}
+
+export interface CopilotConversationSummary {
+  id: string;
+  title: string;
+  updatedAt: string;
+}

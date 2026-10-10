@@ -29,6 +29,35 @@ describe('AnthropicProvider', () => {
     expect(args).not.toHaveProperty('thinking');
   });
 
+  it('conversa com ferramentas: cache, escolha automática, fallback e blocos devolvidos intactos', async () => {
+    const content = [
+      { type: 'thinking', thinking: '', signature: 'sig' },
+      { type: 'text', text: 'Vou consultar.' },
+      { type: 'tool_use', id: 'tu1', name: 'listar_campanhas', input: { plataforma: 'meta' } },
+    ];
+    const create = vi.fn(async () => ({ content, stop_reason: 'tool_use', model: 'claude-opus-5-5', usage: { input_tokens: 3, output_tokens: 2 } }));
+    const c = { beta: { messages: { parse: vi.fn(), create } } } as unknown as Pick<Anthropic, 'beta'>;
+    const p = new AnthropicProvider({ apiKey: 'k', client: c });
+    const r = await p.chatTurn({
+      system: 'sys',
+      messages: [{ role: 'user', content: 'oi' }],
+      tools: [{ name: 'listar_campanhas', description: 'd', inputSchema: { type: 'object', properties: {} } }],
+    });
+    expect(r.content).toBe(content);
+    expect(r.text).toBe('Vou consultar.');
+    expect(r.toolCalls).toEqual([{ id: 'tu1', name: 'listar_campanhas', input: { plataforma: 'meta' } }]);
+    expect(r.stopReason).toBe('tool_use');
+    const args = (create.mock.calls[0] as unknown as [Record<string, unknown>])[0];
+    expect(args).toMatchObject({
+      model: 'claude-opus-5-5',
+      cache_control: { type: 'ephemeral' },
+      tool_choice: { type: 'auto' },
+      fallbacks: 'default',
+      tools: [{ name: 'listar_campanhas', description: 'd', input_schema: { type: 'object', properties: {} } }],
+    });
+    expect(args).not.toHaveProperty('thinking');
+  });
+
   it('trata recusa e truncamento sem fingir sucesso', async () => {
     const refusal = new AnthropicProvider({ apiKey: 'k', client: client(async () => ({ stop_reason: 'refusal', parsed_output: null, usage: {} })) });
     await expect(refusal.generateStructured({ system: 's', prompt: 'p', schema })).rejects.toMatchObject({ kind: 'refusal' });

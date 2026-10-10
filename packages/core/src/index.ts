@@ -31,3 +31,4 @@ export * from './services/brain';
 export * from './services/autopilot';
 export * from './services/factory';
 export * from './services/metaAds';
+export * from './services/copilot';

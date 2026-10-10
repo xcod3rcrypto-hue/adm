@@ -235,6 +235,11 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
 
     'factory.run': ({ organizationId, request }, ctx) => core.runCreativeFactory(ctx, organizationId, request),
 
+    'copilot.list': ({ organizationId }, ctx) => core.listCopilotConversations(ctx, organizationId),
+    'copilot.get': ({ organizationId, id }, ctx) => core.getCopilotConversation(ctx, organizationId, id),
+    'copilot.send': ({ organizationId, conversationId, text }, ctx) => core.sendCopilotMessage(ctx, organizationId, conversationId, text),
+    'copilot.resolve': ({ organizationId, conversationId, proposalId, decision }, ctx) => core.resolveCopilotProposal(ctx, organizationId, conversationId, proposalId, decision),
+    'copilot.delete': ({ organizationId, id }, ctx) => core.deleteCopilotConversation(ctx, organizationId, id),
     'campaign.syncAll': ({ organizationId }, ctx) => core.syncAllCampaigns(ctx, organizationId),
     'campaign.deleteRemote': ({ organizationId, id, confirmName }, ctx) => core.deleteCampaignRemote(ctx, organizationId, id, confirmName),
     'campaign.removeLocal': ({ organizationId, id }, ctx) => core.removeCampaignLocal(ctx, organizationId, id),

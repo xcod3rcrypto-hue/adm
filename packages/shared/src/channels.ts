@@ -30,6 +30,7 @@ export const CHANNEL_NAMES = [
   'brain.report', 'brain.sync', 'brain.tag', 'brain.playbook', 'brain.setUseLearnings', 'brain.ads',
   'autopilot.overview', 'autopilot.saveSettings', 'autopilot.run', 'autopilot.apply', 'autopilot.dismiss',
   'factory.run',
+  'copilot.list', 'copilot.get', 'copilot.send', 'copilot.resolve', 'copilot.delete',
   'campaign.syncAll', 'campaign.deleteRemote', 'campaign.removeLocal',
   'meta.adSets', 'meta.saveAdSet', 'meta.deleteAdSet', 'meta.pushAdSet', 'meta.assetsOptions', 'meta.adSetFromCreatives',
   'intelligence.get', 'intelligence.run', 'recommendation.setStatus',

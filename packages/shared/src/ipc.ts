@@ -33,6 +33,8 @@ import {
   type ImageGenerationResult,
   ImageGenerationRequest,
   type SearchAdDraft,
+  type CopilotConversation,
+  type CopilotConversationSummary,
   type MetaAdSet,
   type MetaAssetsOptions,
   MetaAdSetInput,
@@ -221,6 +223,11 @@ export const ipcInputs = {
 
   'factory.run': z.object({ ...org, request: FactoryRequest }),
 
+  'copilot.list': z.object(org),
+  'copilot.get': z.object({ ...org, id: Id }),
+  'copilot.send': z.object({ ...org, conversationId: Id.nullable(), text: z.string().trim().min(1).max(4000) }),
+  'copilot.resolve': z.object({ ...org, conversationId: Id, proposalId: Id, decision: z.enum(['confirm', 'dismiss']) }),
+  'copilot.delete': z.object({ ...org, id: Id }),
   'campaign.syncAll': z.object(org),
   'campaign.deleteRemote': z.object({ ...org, id: Id, confirmName: z.string().max(300) }),
   'campaign.removeLocal': z.object({ ...org, id: Id }),
@@ -387,6 +394,11 @@ export interface ChannelOutputs {
   'autopilot.apply': { applied: number; failed: Array<{ id: string; error: string }> };
   'autopilot.dismiss': AutopilotOverview;
   'factory.run': FactoryResult;
+  'copilot.list': CopilotConversationSummary[];
+  'copilot.get': CopilotConversation;
+  'copilot.send': CopilotConversation;
+  'copilot.resolve': CopilotConversation;
+  'copilot.delete': void;
   'campaign.syncAll': { accounts: number; errors: string[]; syncedAt: string };
   'campaign.deleteRemote': Campaign;
   'campaign.removeLocal': void;

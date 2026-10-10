@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { Beaker, Brain, CalendarDays, Radar, FileBarChart, Workflow, Building2, HardDrive, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles, BrainCircuit, Factory, Plane } from 'lucide-react';
+import { Beaker, Brain, CalendarDays, Radar, FileBarChart, Workflow, Building2, HardDrive, FolderKanban, Images, LayoutDashboard, Megaphone, PlugZap, Settings, Sparkles, BrainCircuit, Factory, Plane, Bot } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { useOrg } from '../lib/org';
 import { useToast } from './ui';
@@ -11,6 +11,7 @@ import { UpdateBanner } from './UpdateBanner';
 
 const NAV = [
   { to: '/', label: 'Visão geral', icon: LayoutDashboard, end: true },
+  { to: '/copiloto', label: 'Copiloto', icon: Bot },
   { to: '/projetos', label: 'Projetos', icon: FolderKanban },
   { to: '/estudio', label: 'Estúdio de IA', icon: Sparkles },
   { to: '/criativos', label: 'Criativos', icon: Images },

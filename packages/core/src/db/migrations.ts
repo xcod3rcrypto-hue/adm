@@ -622,10 +622,26 @@ const m005 = `
 ALTER TABLE ads ADD COLUMN settings TEXT NOT NULL DEFAULT '{}';
 `;
 
+/** Copiloto: conversas (histórico da API, para reenviar sem edição, e a versão para exibição). */
+const m006 = `
+CREATE TABLE copilot_conversations (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  api_messages TEXT NOT NULL DEFAULT '[]',
+  display TEXT NOT NULL DEFAULT '[]',
+  model TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX idx_copilot_org ON copilot_conversations(organization_id, updated_at);
+`;
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, name: 'initial_schema', sql: m001 },
   { version: 2, name: 'intelligence_automation_publishing', sql: m002 },
   { version: 3, name: 'account_login_customer', sql: m003 },
   { version: 4, name: 'creative_brain_autopilot', sql: m004 },
   { version: 5, name: 'meta_ads_settings', sql: m005 },
+  { version: 6, name: 'copilot_conversations', sql: m006 },
 ];

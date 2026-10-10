@@ -273,6 +273,13 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await page.getByRole('tab', { name: 'Histórico' }).click();
     await expect(page.getByText(/Simulado \(demonstração\)/)).toBeVisible();
 
+    // Copiloto: sem chave de IA, orienta a configurar e não deixa enviar
+    await page.getByRole('link', { name: 'Copiloto' }).click();
+    await expect(page.getByText('Como posso ajudar com os seus anúncios?')).toBeVisible();
+    await expect(page.getByText('Configure o provedor de IA')).toBeVisible();
+    await expect(page.getByLabel('Mensagem para o Copiloto')).toBeDisabled();
+    await page.screenshot({ path: join(shots, '11d-copiloto.png'), fullPage: true });
+
     // Relatórios: gerar, visualizar e exportar PDF/CSV de verdade
     await page.getByRole('link', { name: 'Relatórios' }).click();
     await page.getByRole('button', { name: 'Novo relatório' }).first().click();

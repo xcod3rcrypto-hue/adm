@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
-import { AiProviderError, type StructuredRequest, type StructuredResult, type TextProvider } from './provider';
+import { AiProviderError, type ChatTurnRequest, type ChatTurnResult, type StructuredRequest, type StructuredResult, type TextProvider } from './provider';
 
 export const ANTHROPIC_DEFAULT_MODEL = 'claude-opus-5-5';
 /** Fallback no servidor quando o classificador de segurança recusa (roteado por categoria). */
@@ -53,6 +53,48 @@ export class AnthropicProvider implements TextProvider {
         data: validated.data,
         model: response.model,
         usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
+      };
+    } catch (err) {
+      throw mapError(err);
+    }
+  }
+
+  async chatTurn(req: ChatTurnRequest): Promise<ChatTurnResult> {
+    try {
+      const response = await this.client.beta.messages.create(
+        {
+          model: this.model,
+          max_tokens: req.maxTokens ?? 16_000,
+          // Sistema e ferramentas estáveis no início: o prefixo fica em cache entre as rodadas.
+          cache_control: { type: 'ephemeral' },
+          system: req.system,
+          tools: req.tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.inputSchema as Anthropic.Beta.BetaTool.InputSchema })),
+          tool_choice: { type: 'auto' },
+          messages: req.messages as Anthropic.Beta.BetaMessageParam[],
+          output_config: { effort: req.effort ?? 'medium' },
+          betas: [FALLBACK_BETA],
+          fallbacks: 'default',
+        },
+        { timeout: 300_000 },
+      );
+      if (response.stop_reason === 'refusal') {
+        throw new AiProviderError('refusal', 'O modelo recusou esta solicitação. Reformule o pedido.');
+      }
+      const text = response.content
+        .filter((b): b is Extract<typeof b, { type: 'text' }> => b.type === 'text')
+        .map((b) => b.text)
+        .join('\n')
+        .trim();
+      const toolCalls = response.content
+        .filter((b): b is Extract<typeof b, { type: 'tool_use' }> => b.type === 'tool_use')
+        .map((b) => ({ id: b.id, name: b.name, input: b.input }));
+      return {
+        content: response.content,
+        stopReason: response.stop_reason ?? 'end_turn',
+        model: response.model,
+        usage: { inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens },
+        text,
+        toolCalls,
       };
     } catch (err) {
       throw mapError(err);

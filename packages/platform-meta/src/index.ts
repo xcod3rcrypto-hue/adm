@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import {
   CircuitBreaker,
   PlatformApiError,
@@ -49,6 +50,8 @@ interface Paged<T> {
 
 export interface MetaAdapterOptions {
   accessToken: string;
+  /** Chave secreta do aplicativo: assina as chamadas com appsecret_proof. */
+  appSecret?: string;
   apiVersion?: string;
   fetchImpl?: FetchLike;
   retry?: RetryOptions;
@@ -78,14 +81,26 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     return u.toString();
   }
 
+  /**
+   * appsecret_proof = HMAC-SHA256(token, chave secreta). Exigido quando o app
+   * tem "Exigir chave secreta do aplicativo" ativo; a chave em si nunca é enviada.
+   */
+  private signed(url: string): string {
+    if (!this.opts.appSecret) return url;
+    const u = new URL(url);
+    u.searchParams.set('appsecret_proof', createHmac('sha256', this.opts.appSecret).update(this.opts.accessToken).digest('hex'));
+    return u.toString();
+  }
+
   private async get<T>(url: string): Promise<T> {
     const parsed = new URL(url);
     if (parsed.protocol !== 'https:' || parsed.hostname !== GRAPH_HOST) throw new Error('URL de paginação fora do domínio da Graph API.');
     // O token vai no cabeçalho, nunca na URL (evita vazamento em logs).
     parsed.searchParams.delete('access_token');
+    parsed.searchParams.delete('appsecret_proof');
     const res = await fetchWithRetry(
       this.fetchImpl,
-      parsed.toString(),
+      this.signed(parsed.toString()),
       { method: 'GET', headers: { Authorization: `Bearer ${this.opts.accessToken}`, Accept: 'application/json' } },
       this.retry,
       this.breaker,
@@ -115,7 +130,7 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
   private async post<T>(path: string, params: Record<string, string>): Promise<T> {
     const res = await fetchWithRetry(
       this.fetchImpl,
-      this.url(path, {}),
+      this.signed(this.url(path, {})),
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${this.opts.accessToken}`, Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -475,6 +490,14 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
         ? { type: r.funding_source_details.type === undefined ? null : String(r.funding_source_details.type), display: r.funding_source_details.display_string ?? null }
         : null,
     };
+  }
+
+  /** Gasto de hoje da conta (insights da própria Meta, atraso de alguns minutos). */
+  async getSpendToday(accountRemoteId: string): Promise<number | null> {
+    assertNumericId(accountRemoteId);
+    const r = await this.get<{ data?: Array<{ spend?: string }> }>(this.url(`act_${accountRemoteId}/insights`, { level: 'account', date_preset: 'today', fields: 'spend' }));
+    const v = r.data?.[0]?.spend;
+    return v === undefined ? 0 : Number(v);
   }
 
   /** Pausa um anúncio. Repetir é seguro: o estado final é o mesmo. */

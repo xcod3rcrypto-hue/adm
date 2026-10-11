@@ -1375,6 +1375,8 @@ export interface BillingAccountView {
   /** Gasto médio por dia nos últimos 7 dias (métricas sincronizadas). */
   avgDailySpend7d: number | null;
   spendToday: number | null;
+  /** true quando o gasto de hoje veio direto da plataforma nesta leitura. */
+  spendTodayLive: boolean;
   /** Dias estimados até acabar o saldo/orçamento/limite, no ritmo atual. */
   daysLeft: number | null;
   alert: BillingAlert;

@@ -86,10 +86,12 @@ function StatusLine({ view }: { view: IntegrationView }) {
 function MetaCard({ view, disabled }: { view: IntegrationView; disabled: boolean }) {
   const organizationId = useOrgId();
   const [token, setToken] = useState('');
+  const [appSecret, setAppSecret] = useState('');
   const [version, setVersion] = useState(view.apiVersion);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
-  const save = useIntegrationMutation(() => api('integration.meta.save', { organizationId, accessToken: token || undefined, apiVersion: version }), () => {
+  const save = useIntegrationMutation(() => api('integration.meta.save', { organizationId, accessToken: token || undefined, appSecret: appSecret || undefined, apiVersion: version }), () => {
     setToken('');
+    setAppSecret('');
     return 'Configuração da Meta salva.';
   });
   const test = useIntegrationMutation(() => api('integration.meta.test', { organizationId }), (v) => `Conexão verificada: ${v.identity}`);
@@ -99,6 +101,7 @@ function MetaCard({ view, disabled }: { view: IntegrationView; disabled: boolean
     return 'Meta Ads desconectado; credenciais removidas.';
   });
   const hasToken = view.configuredFields.includes('accessToken');
+  const hasAppSecret = view.configuredFields.includes('appSecret');
 
   return (
     <Card>
@@ -146,6 +149,17 @@ function MetaCard({ view, disabled }: { view: IntegrationView; disabled: boolean
         >
           <Field label="Token de acesso" htmlFor="meta-token" hint={hasToken ? 'Já existe um token salvo. Preencha somente para substituí-lo.' : 'O token é cifrado e não poderá ser visualizado depois.'}>
             <Input id="meta-token" type="password" autoComplete="off" value={token} onChange={(e) => setToken(e.target.value)} placeholder={hasToken ? '••••••••••••' : 'EAA…'} disabled={disabled} />
+          </Field>
+          <Field
+            label="Chave secreta do aplicativo (opcional)"
+            htmlFor="meta-app-secret"
+            hint={
+              hasAppSecret
+                ? 'Já existe uma chave salva. Preencha somente para substituí-la.'
+                : 'Meta for Developers → seu app → Configurações → Básico. Assina cada chamada (appsecret_proof); a chave nunca é enviada nem exibida.'
+            }
+          >
+            <Input id="meta-app-secret" type="password" autoComplete="off" value={appSecret} onChange={(e) => setAppSecret(e.target.value)} placeholder={hasAppSecret ? '••••••••••••' : '32 caracteres'} disabled={disabled} />
           </Field>
           <Field label="Versão da Graph API" htmlFor="meta-version" hint="Verifique a versão vigente no changelog da Meta.">
             <Input id="meta-version" value={version} onChange={(e) => setVersion(e.target.value)} disabled={disabled} />

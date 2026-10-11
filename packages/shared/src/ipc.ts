@@ -184,6 +184,7 @@ export const ipcInputs = {
   'integration.meta.save': z.object({
     ...org,
     accessToken: z.string().trim().min(20).max(1000).optional(),
+    appSecret: z.string().trim().regex(/^[A-Za-z0-9]{16,128}$/, 'Chave secreta inválida: use a "Chave secreta do aplicativo" (Configurações → Básico do app).').optional(),
     apiVersion: z.string().regex(/^v\d+\.\d+$/, 'Formato: v26.0'),
   }),
   'integration.meta.test': z.object(org),
@@ -230,7 +231,7 @@ export const ipcInputs = {
   'copilot.resolve': z.object({ ...org, conversationId: Id, proposalId: Id, decision: z.enum(['confirm', 'dismiss']) }),
   'copilot.delete': z.object({ ...org, id: Id }),
   'campaign.syncAll': z.object(org),
-  'billing.overview': z.object(org),
+  'billing.overview': z.object({ ...org, force: z.boolean().default(false) }),
   'campaign.deleteRemote': z.object({ ...org, id: Id, confirmName: z.string().max(300) }),
   'campaign.removeLocal': z.object({ ...org, id: Id }),
 

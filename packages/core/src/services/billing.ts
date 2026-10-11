@@ -64,6 +64,11 @@ export function daysLeftFrom(remainingValues: Array<number | null>, avgDaily: nu
   return Math.max(0, Math.round((Math.min(...known) / avgDaily) * 10) / 10);
 }
 
+/** Usa o gasto de hoje lido agora da plataforma, quando disponível. */
+function withLiveToday(v: BillingAccountView, today: number | null): BillingAccountView {
+  return today === null ? v : { ...v, spendToday: round2(today), spendTodayLive: true };
+}
+
 interface AccountRow {
   id: string;
   platform: Platform;
@@ -90,6 +95,7 @@ function base(a: AccountRow, pace: { avg7d: number | null; today: number | null 
     budget: null,
     avgDailySpend7d: pace.avg7d,
     spendToday: pace.today,
+    spendTodayLive: false,
     daysLeft: null,
     alert: 'none',
     paymentUrl: a.platform === 'meta' ? metaPaymentUrl(a.remote_id) : GOOGLE_PAYMENT_URL,
@@ -98,8 +104,11 @@ function base(a: AccountRow, pace: { avg7d: number | null; today: number | null 
   };
 }
 
-async function metaView(ctx: AppContext, organizationId: string, a: AccountRow, v: BillingAccountView): Promise<BillingAccountView> {
-  const info = await metaAdsClient(ctx, organizationId).getBillingInfo(a.remote_id);
+async function metaView(ctx: AppContext, organizationId: string, a: AccountRow, input: BillingAccountView): Promise<BillingAccountView> {
+  let v = input;
+  const client = metaAdsClient(ctx, organizationId);
+  const [info, today] = await Promise.all([client.getBillingInfo(a.remote_id), client.getSpendToday(a.remote_id).catch(() => null)]);
+  v = withLiveToday(v, today);
   const kind: BillingKind = info.isPrepay === true ? 'prepaid' : info.isPrepay === false ? 'card' : 'unknown';
   const capRemaining = info.spendCap !== null && info.amountSpent !== null ? round2(Math.max(0, info.spendCap - info.amountSpent)) : null;
   // Pré-pago: o crédito disponível vem no texto da forma de pagamento.
@@ -127,8 +136,11 @@ async function metaView(ctx: AppContext, organizationId: string, a: AccountRow, 
   };
 }
 
-async function googleView(ctx: AppContext, organizationId: string, a: AccountRow, v: BillingAccountView): Promise<BillingAccountView> {
-  const budgets = await googleAdsClient(ctx, organizationId).fetchAccountBudgets(a.remote_id);
+async function googleView(ctx: AppContext, organizationId: string, a: AccountRow, input: BillingAccountView): Promise<BillingAccountView> {
+  let v = input;
+  const client = googleAdsClient(ctx, organizationId);
+  const [budgets, today] = await Promise.all([client.fetchAccountBudgets(a.remote_id), client.fetchSpendToday(a.remote_id).catch(() => null)]);
+  v = withLiveToday(v, today);
   if (budgets.length === 0) {
     return {
       ...v,
@@ -167,6 +179,7 @@ function demoOverview(ctx: AppContext): BillingOverview {
     budget: null,
     avgDailySpend7d: null,
     spendToday: null,
+    spendTodayLive: false,
     daysLeft: null,
     alert: 'none',
     paymentUrl: over.platform === 'meta' ? metaPaymentUrl('0') : GOOGLE_PAYMENT_URL,
@@ -185,23 +198,42 @@ function demoOverview(ctx: AppContext): BillingOverview {
   };
 }
 
-/** Visão de saldo e pagamentos de todas as contas conectadas (cada conta é independente). */
-export async function getBillingOverview(ctx: AppContext, organizationId: string): Promise<BillingOverview> {
+/** Leituras recentes por organização: várias telas/Copiloto pedindo ao mesmo tempo não multiplicam chamadas. */
+const caches = new WeakMap<AppContext, Map<string, { at: number; data: BillingOverview }>>();
+const CACHE_MS = 15_000;
+
+/**
+ * Visão de saldo e pagamentos de todas as contas conectadas, lida ao vivo das
+ * plataformas (cada conta é independente; contas em paralelo).
+ */
+export async function getBillingOverview(ctx: AppContext, organizationId: string, opts: { force?: boolean } = {}): Promise<BillingOverview> {
   if (requireOrg(ctx, organizationId).is_demo) return demoOverview(ctx);
+  let cache = caches.get(ctx);
+  if (!cache) caches.set(ctx, (cache = new Map()));
+  const hit = cache.get(organizationId);
+  if (!opts.force && hit && Date.now() - hit.at < CACHE_MS) return hit.data;
+  const data = await readOverview(ctx, organizationId);
+  cache.set(organizationId, { at: Date.now(), data });
+  return data;
+}
+
+async function readOverview(ctx: AppContext, organizationId: string): Promise<BillingOverview> {
   const accounts = ctx.db.all<AccountRow>(
     `SELECT a.id, a.platform, a.remote_id, a.name, a.currency, a.status FROM advertising_accounts a
      JOIN integration_connections c ON c.id = a.connection_id WHERE a.organization_id = ? ORDER BY a.platform DESC, a.name`,
     [organizationId],
   );
-  const out: BillingAccountView[] = [];
-  for (const a of accounts) {
-    if (a.platform === 'google' && isManagerAccountName(a.name)) continue;
-    const v = base(a, spendPace(ctx, organizationId, a.id));
-    try {
-      out.push(a.platform === 'meta' ? await metaView(ctx, organizationId, a, v) : await googleView(ctx, organizationId, a, v));
-    } catch (err) {
-      out.push({ ...v, error: errMsg(err) });
-    }
-  }
+  const out = await Promise.all(
+    accounts
+      .filter((a) => !(a.platform === 'google' && isManagerAccountName(a.name)))
+      .map(async (a) => {
+        const v = base(a, spendPace(ctx, organizationId, a.id));
+        try {
+          return a.platform === 'meta' ? await metaView(ctx, organizationId, a, v) : await googleView(ctx, organizationId, a, v);
+        } catch (err) {
+          return { ...v, error: errMsg(err) };
+        }
+      }),
+  );
   return { accounts: out, checkedAt: ctx.now() };
 }

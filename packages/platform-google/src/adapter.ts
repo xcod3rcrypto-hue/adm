@@ -507,6 +507,12 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     });
   }
 
+  /** Custo de hoje da conta (fuso da conta). */
+  async fetchSpendToday(customerId: string): Promise<number> {
+    const rows = await this.search<{ metrics?: { costMicros?: string } }>(customerId, 'SELECT metrics.cost_micros FROM customer WHERE segments.date DURING TODAY');
+    return rows.reduce((s, r) => s + Number(r.metrics?.costMicros ?? 0), 0) / 1_000_000;
+  }
+
   /** Termos de busca reais que acionaram os anúncios (relatório de termos de pesquisa). */
   async fetchSearchTerms(customerId: string, range: DateRange): Promise<RemoteSearchTerm[]> {
     assertRange(range);

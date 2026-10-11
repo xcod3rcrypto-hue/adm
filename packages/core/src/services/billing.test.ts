@@ -17,6 +17,7 @@ function platforms() {
     if (url.includes('googleAds:search')) {
       const q = String(JSON.parse(String(init?.body)).query);
       const id = url.match(/customers\/(\d+)/)![1]!;
+      if (q.includes('DURING TODAY')) return jsonResponse({ results: id === '3333333333' ? [{ metrics: { costMicros: '42500000' } }] : [] });
       if (q.includes('FROM customer ')) return jsonResponse({ results: [{ customer: { id, descriptiveName: `Google ${id}`, currencyCode: 'BRL', manager: false } }] });
       if (q.includes('FROM account_budget')) {
         if (id === '4444444444') return jsonResponse({ results: [] });
@@ -31,6 +32,8 @@ function platforms() {
     if (path === 'me/adaccounts') {
       return jsonResponse({ data: [{ id: 'act_111', account_id: '111', name: 'Pix', currency: 'BRL', account_status: 1 }, { id: 'act_222', account_id: '222', name: 'Cartão', currency: 'BRL', account_status: 1 }] });
     }
+    if (path === 'act_111/insights') return jsonResponse({ data: [{ spend: '57.30' }] });
+    if (path === 'act_222/insights') return jsonResponse({ error: { message: 'insights indisponível' } }, 400);
     if (path === 'act_111/campaigns') return jsonResponse({ data: [{ id: '900', name: 'Vendas', objective: 'OUTCOME_SALES', status: 'ACTIVE', daily_budget: '5000' }] });
     if (path === 'act_111') {
       return jsonResponse({ name: 'Pix', currency: 'BRL', account_status: 1, is_prepay_account: true, balance: '0', amount_spent: '421390', spend_cap: '0', funding_source_details: { type: 20, display_string: 'Saldo disponível (R$1.186,40 BRL)' } });
@@ -71,15 +74,24 @@ describe('saldo e pagamentos', () => {
     const p = byName['Pix']!;
     expect(p).toMatchObject({ kind: 'prepaid', balance: 1186.4, amountSpent: 4213.9, spendCap: null, avgDailySpend7d: 100, error: null });
     expect(p.daysLeft).toBeCloseTo(11.9, 1);
+    // Gasto de hoje lido ao vivo da plataforma.
+    expect(p).toMatchObject({ spendToday: 57.3, spendTodayLive: true });
     expect(p.alert).toBe('ok');
     expect(p.paymentUrl).toContain('business.facebook.com/billing_hub');
     expect(p.paymentUrl).toContain('asset_id=111');
 
     const c = byName['Cartão']!;
-    expect(c).toMatchObject({ kind: 'card', balance: 312.75, amountSpent: 9870, spendCap: 15000, spendCapRemaining: 5130, fundingSource: 'Visa •••• 4242', avgDailySpend7d: null, daysLeft: null, alert: 'none' });
+    expect(c).toMatchObject({ kind: 'card', balance: 312.75, amountSpent: 9870, spendCap: 15000, spendCapRemaining: 5130, fundingSource: 'Visa •••• 4242', avgDailySpend7d: null, daysLeft: null, alert: 'none', spendTodayLive: false });
 
     const gb = byName['Google 3333333333']!;
-    expect(gb).toMatchObject({ kind: 'budget', budget: { limit: 3000, served: 2650, remaining: 350 } });
+    expect(gb).toMatchObject({ kind: 'budget', budget: { limit: 3000, served: 2650, remaining: 350 }, spendToday: 42.5, spendTodayLive: true });
+
+    // Leituras seguidas usam o cache de 15 s; "Atualizar" (force) relê das plataformas.
+    const calls = api.fetch.mock.calls.length;
+    await getBillingOverview(ctx, org.id);
+    expect(api.fetch.mock.calls.length).toBe(calls);
+    await getBillingOverview(ctx, org.id, { force: true });
+    expect(api.fetch.mock.calls.length).toBeGreaterThan(calls);
     const gc = byName['Google 4444444444']!;
     expect(gc.kind).toBe('card');
     expect(gc.budget).toBeNull();

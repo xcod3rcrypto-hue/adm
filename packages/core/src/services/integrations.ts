@@ -28,7 +28,7 @@ interface GoogleConfig {
 const DEFAULT_VERSION: Record<Platform, string> = { meta: META_DEFAULT_API_VERSION, google: GOOGLE_DEFAULT_API_VERSION };
 
 const SECRET_FIELDS: Record<Platform, string[]> = {
-  meta: ['accessToken'],
+  meta: ['accessToken', 'appSecret'],
   google: ['clientSecret', 'developerToken', 'refreshToken'],
 };
 
@@ -109,14 +109,15 @@ const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 // Meta
 // ---------------------------------------------------------------------------
 
-export function saveMeta(ctx: AppContext, organizationId: string, input: { accessToken?: string; apiVersion: string }): IntegrationView {
+export function saveMeta(ctx: AppContext, organizationId: string, input: { accessToken?: string; appSecret?: string; apiVersion: string }): IntegrationView {
   assertNotDemo(ctx, organizationId);
   const conn = ensureConn(ctx, organizationId, 'meta', input.apiVersion);
   if (input.accessToken) {
     putSecret(ctx, scopes.org(organizationId, 'meta', 'accessToken'), organizationId, input.accessToken);
     setState(ctx, conn.id, 'configured');
   }
-  recordAudit(ctx, { organizationId, action: 'integration.meta.save', entityType: 'integration', entityId: conn.id, details: { apiVersion: input.apiVersion, tokenUpdated: !!input.accessToken } });
+  if (input.appSecret) putSecret(ctx, scopes.org(organizationId, 'meta', 'appSecret'), organizationId, input.appSecret);
+  recordAudit(ctx, { organizationId, action: 'integration.meta.save', entityType: 'integration', entityId: conn.id, details: { apiVersion: input.apiVersion, tokenUpdated: !!input.accessToken, appSecretUpdated: !!input.appSecret } });
   return view(ctx, organizationId, 'meta');
 }
 
@@ -130,7 +131,8 @@ function metaAdapter(ctx: AppContext, organizationId: string): { adapter: MetaAd
   const conn = getConn(ctx, organizationId, 'meta');
   const token = getSecret(ctx, scopes.org(organizationId, 'meta', 'accessToken'));
   if (!conn || !token) throw new AppError('NOT_CONFIGURED', 'Informe um token de acesso da Meta em Integrações → Meta Ads.');
-  return { adapter: new MetaAdsAdapter({ accessToken: token, apiVersion: conn.api_version, fetchImpl: ctx.fetch }), conn };
+  const appSecret = getSecret(ctx, scopes.org(organizationId, 'meta', 'appSecret')) ?? undefined;
+  return { adapter: new MetaAdsAdapter({ accessToken: token, appSecret, apiVersion: conn.api_version, fetchImpl: ctx.fetch }), conn };
 }
 
 export async function testMeta(ctx: AppContext, organizationId: string): Promise<IntegrationView> {

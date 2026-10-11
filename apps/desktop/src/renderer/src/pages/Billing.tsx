@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ExternalLink, RefreshCw, Wallet } from 'lucide-react';
+import { ExternalLink, Pause, Radio, RefreshCw, Wallet } from 'lucide-react';
 import { formatCurrency, formatDateTime, type BillingAccountView, type BillingAlert, type BillingKind } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrg, useOrgId } from '../lib/org';
@@ -20,17 +21,55 @@ const ALERT: Record<BillingAlert, { label: string; tone: 'danger' | 'warning' | 
   none: null,
 };
 
+const LIVE_MS = 30_000;
+const LIVE_KEY = 'billing.live';
+
+function readLive(): boolean {
+  try {
+    return localStorage.getItem(LIVE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+function useSecondsSince(iso: string | undefined): number | null {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return iso ? Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000)) : null;
+}
+
 const days = (d: number) => (d < 1 ? 'menos de 1 dia' : `${d.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} dia(s)`);
 
 export function BillingPage() {
   const organizationId = useOrgId();
   const { org } = useOrg();
+  const [live, setLive] = useState(readLive);
+  const force = useRef(false);
   const q = useQuery({
     queryKey: ['billing', organizationId],
-    queryFn: () => api('billing.overview', { organizationId }),
-    refetchInterval: 5 * 60_000,
+    queryFn: () => {
+      const f = force.current;
+      force.current = false;
+      return api('billing.overview', { organizationId, force: f });
+    },
+    // Ao vivo: relê das plataformas a cada 30 s enquanto a janela está visível.
+    refetchInterval: live ? LIVE_MS : 5 * 60_000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
+  const ago = useSecondsSince(q.data?.checkedAt);
+  const toggleLive = () => {
+    const next = !live;
+    setLive(next);
+    try {
+      localStorage.setItem(LIVE_KEY, next ? 'on' : 'off');
+    } catch {
+      /* sem armazenamento: vale só nesta sessão */
+    }
+  };
   const accounts = q.data?.accounts ?? [];
   const urgent = accounts.filter((a) => a.alert === 'critical' || a.alert === 'warning');
   const byCurrency = new Map<string, number>();
@@ -42,9 +81,22 @@ export function BillingPage() {
         title="Saldo e pagamentos"
         description="Saldo, gasto, limite e forma de pagamento de cada conta, do jeito que a Meta e o Google informam pela API. Para pagar ou adicionar saldo, o botão abre a página de pagamento da própria plataforma — nenhuma API permite pagar por aplicativos de terceiros."
         actions={
-          <Button variant="secondary" icon={<RefreshCw className="size-4" />} loading={q.isFetching} onClick={() => void q.refetch()}>
-            Atualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant={live ? 'secondary' : 'ghost'} icon={live ? <Radio className="size-4 text-success" /> : <Pause className="size-4" />} onClick={toggleLive} aria-pressed={live}>
+              {live ? 'Ao vivo' : 'Pausado'}
+            </Button>
+            <Button
+              variant="secondary"
+              icon={<RefreshCw className="size-4" />}
+              loading={q.isFetching}
+              onClick={() => {
+                force.current = true;
+                void q.refetch();
+              }}
+            >
+              Atualizar
+            </Button>
+          </div>
         }
       />
       {q.isLoading && <LoadingState rows={3} />}
@@ -67,7 +119,17 @@ export function BillingPage() {
           ) : (
             <>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                <Stat label="Contas" value={accounts.length} sub={`Verificado ${formatDateTime(q.data.checkedAt)}`} />
+                <Stat
+                  label="Contas"
+                  value={accounts.length}
+                  sub={
+                    <span className="inline-flex items-center gap-1.5" data-testid="billing-freshness">
+                      {live && <span className="size-2 animate-pulse rounded-full bg-success" aria-hidden />}
+                      {ago === null ? '' : ago < 5 ? 'Atualizado agora' : ago < 120 ? `Atualizado há ${ago} s` : `Verificado ${formatDateTime(q.data.checkedAt)}`}
+                      {live ? ' · ao vivo a cada 30 s' : ''}
+                    </span>
+                  }
+                />
                 <Stat
                   label="Gasto médio por dia"
                   value={[...byCurrency].map(([c, v]) => formatCurrency(v, c)).join(' + ') || '—'}
@@ -81,7 +143,7 @@ export function BillingPage() {
                 ))}
               </div>
               <p className="text-xs text-subtle">
-                A previsão de dias usa o gasto médio dos últimos 7 dias das métricas sincronizadas. Sincronize as métricas em Campanhas para manter a previsão atualizada.
+                Saldo, gasto e limite são lidos direto da Meta e do Google a cada atualização; as próprias plataformas atualizam esses valores com alguns minutos de atraso. A previsão de dias usa o gasto médio dos últimos 7 dias das métricas sincronizadas.
               </p>
             </>
           )}
@@ -146,7 +208,7 @@ function AccountCard({ a }: { a: BillingAccountView }) {
             </>
           )}
           <Row label="Gasto médio por dia (7 dias)" value={money(a.avgDailySpend7d)} strong={a.platform === 'google' && !a.budget} />
-          <Row label="Gasto hoje" value={money(a.spendToday)} />
+          <Row label={a.spendTodayLive ? 'Gasto hoje (ao vivo)' : 'Gasto hoje'} value={money(a.spendToday)} />
           {a.daysLeft !== null && <Row label="Previsão" value={`acaba em ${days(a.daysLeft)}`} strong />}
         </div>
       )}

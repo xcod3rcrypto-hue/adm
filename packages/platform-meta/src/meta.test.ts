@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 import { PlatformApiError } from '@advertex/advertising-core';
 import { MetaAdsAdapter, minorToMajor } from './index';
@@ -16,6 +17,18 @@ describe('MetaAdsAdapter', () => {
     expect(list.map((x) => x.remoteId)).toEqual(['1', '2']);
     // O token presente na URL de paginação é removido; autenticação só via cabeçalho.
     expect(fetchImpl.mock.calls[1]![0]).not.toContain('access_token');
+  });
+
+  it('assina as chamadas com appsecret_proof quando há chave secreta, sem enviar a chave', async () => {
+    const fetchImpl = vi.fn(async (_url: string) => json({ data: [] }));
+    const a = new MetaAdsAdapter({ accessToken: 'tok', appSecret: 'segredo123456789', fetchImpl, retry: noRetry });
+    await a.listAccounts();
+    const url = new URL(String(fetchImpl.mock.calls[0]![0]));
+    expect(url.searchParams.get('appsecret_proof')).toBe(createHmac('sha256', 'segredo123456789').update('tok').digest('hex'));
+    expect(String(fetchImpl.mock.calls[0]![0])).not.toContain('segredo123456789');
+    const plain = vi.fn(async (_url: string) => json({ data: [] }));
+    await new MetaAdsAdapter({ accessToken: 'tok', fetchImpl: plain, retry: noRetry }).listAccounts();
+    expect(String(plain.mock.calls[0]![0])).not.toContain('appsecret_proof');
   });
 
   it('recusa paginação para outros domínios', async () => {

@@ -241,6 +241,7 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'copilot.resolve': ({ organizationId, conversationId, proposalId, decision }, ctx) => core.resolveCopilotProposal(ctx, organizationId, conversationId, proposalId, decision),
     'copilot.delete': ({ organizationId, id }, ctx) => core.deleteCopilotConversation(ctx, organizationId, id),
     'campaign.syncAll': ({ organizationId }, ctx) => core.syncAllCampaigns(ctx, organizationId),
+    'billing.overview': ({ organizationId }, ctx) => core.getBillingOverview(ctx, organizationId),
     'campaign.deleteRemote': ({ organizationId, id, confirmName }, ctx) => core.deleteCampaignRemote(ctx, organizationId, id, confirmName),
     'campaign.removeLocal': ({ organizationId, id }, ctx) => core.removeCampaignLocal(ctx, organizationId, id),
     'meta.adSets': ({ organizationId, campaignId }, ctx) => core.listMetaAdSets(ctx, organizationId, campaignId),

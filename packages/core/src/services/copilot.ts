@@ -5,6 +5,7 @@ import { parseJson, requireOrg } from '../util';
 import { aiProvider, generateVariations } from './ai';
 import { recordAudit } from './audit';
 import { getAutopilotOverview, runAutopilot } from './autopilot';
+import { getBillingOverview } from './billing';
 import { getBrainReport } from './brain';
 import { getBrief } from './briefs';
 import { createCampaignDraft, getCampaign, listCampaigns } from './campaigns';
@@ -60,6 +61,11 @@ export const COPILOT_TOOLS: ChatTool[] = [
     name: 'termos_e_acoes_do_piloto',
     description: 'Termos de busca que gastam sem converter e que convertem, e as ações propostas pelo Piloto automático. Se analisar=true, roda uma nova análise antes (sem aplicar nada).',
     inputSchema: obj({ analisar: { type: 'boolean' } }),
+  },
+  {
+    name: 'saldo_das_contas',
+    description: 'Saldo, valor gasto, limite de gastos, forma de pagamento (Meta), orçamento da conta e consumo (Google), gasto médio diário e previsão de dias até o saldo acabar, por conta. Use para perguntas sobre saldo, pagamento, quanto falta ou quando vai acabar. O Copiloto não consegue pagar nem adicionar saldo: indique a tela Saldo e pagamentos.',
+    inputSchema: obj({}),
   },
   {
     name: 'listar_projetos',
@@ -232,6 +238,34 @@ async function runTool(t: ToolContext, name: string, raw: unknown): Promise<{ re
           observacao: 'As ações do Piloto são aplicadas pelo usuário na tela Piloto automático.',
         },
         summary: `${o.proposed.length} ação(ões) na fila`,
+      };
+    }
+    case 'saldo_das_contas': {
+      const o = await getBillingOverview(ctx, organizationId);
+      return {
+        result: {
+          verificado_em: o.checkedAt,
+          contas: o.accounts.map((a) => ({
+            conta: a.name,
+            plataforma: a.platform,
+            moeda: a.currency,
+            tipo: a.kind,
+            saldo: a.balance,
+            gasto_total: a.amountSpent,
+            limite_de_gastos: a.spendCap,
+            restante_ate_limite: a.spendCapRemaining,
+            forma_de_pagamento: a.fundingSource,
+            orcamento_da_conta: a.budget,
+            gasto_medio_dia_7d: a.avgDailySpend7d,
+            gasto_hoje: a.spendToday,
+            dias_restantes: a.daysLeft,
+            alerta: a.alert,
+            observacoes: a.notes,
+            erro: a.error,
+          })),
+          observacao: 'Pagamentos e recargas são feitos na plataforma: botão "Adicionar saldo" na tela Saldo e pagamentos.',
+        },
+        summary: `${o.accounts.length} conta(s)`,
       };
     }
     case 'listar_projetos': {

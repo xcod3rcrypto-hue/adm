@@ -1342,3 +1342,48 @@ export interface CopilotConversationSummary {
   title: string;
   updatedAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Saldo e pagamentos
+// ---------------------------------------------------------------------------
+
+/**
+ * prepaid: saldo pré-pago (Pix/boleto) · card: cobrança automática (cartão) ·
+ * budget: orçamento da conta / faturamento mensal (Google) · unknown: a API não informou.
+ */
+export type BillingKind = 'prepaid' | 'card' | 'budget' | 'unknown';
+export type BillingAlert = 'ok' | 'warning' | 'critical' | 'none';
+
+export interface BillingAccountView {
+  accountId: string;
+  platform: Platform;
+  remoteId: string;
+  name: string;
+  currency: string;
+  status: string;
+  kind: BillingKind;
+  /** Meta: saldo informado pela API (pré-pago: crédito disponível; cartão: valor a cobrar). */
+  balance: number | null;
+  /** Meta: total já gasto na conta (amount_spent, acumulado desde o último reset do limite). */
+  amountSpent: number | null;
+  /** Meta: limite de gastos da conta (null = sem limite). */
+  spendCap: number | null;
+  spendCapRemaining: number | null;
+  fundingSource: string | null;
+  /** Google: orçamento aprovado da conta. */
+  budget: { name: string; limit: number | null; served: number; remaining: number | null; start: string | null; end: string | null } | null;
+  /** Gasto médio por dia nos últimos 7 dias (métricas sincronizadas). */
+  avgDailySpend7d: number | null;
+  spendToday: number | null;
+  /** Dias estimados até acabar o saldo/orçamento/limite, no ritmo atual. */
+  daysLeft: number | null;
+  alert: BillingAlert;
+  paymentUrl: string;
+  notes: string[];
+  error: string | null;
+}
+
+export interface BillingOverview {
+  accounts: BillingAccountView[];
+  checkedAt: string;
+}

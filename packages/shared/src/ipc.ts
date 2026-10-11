@@ -35,6 +35,7 @@ import {
   type SearchAdDraft,
   type CopilotConversation,
   type CopilotConversationSummary,
+  type BillingOverview,
   type MetaAdSet,
   type MetaAssetsOptions,
   MetaAdSetInput,
@@ -229,6 +230,7 @@ export const ipcInputs = {
   'copilot.resolve': z.object({ ...org, conversationId: Id, proposalId: Id, decision: z.enum(['confirm', 'dismiss']) }),
   'copilot.delete': z.object({ ...org, id: Id }),
   'campaign.syncAll': z.object(org),
+  'billing.overview': z.object(org),
   'campaign.deleteRemote': z.object({ ...org, id: Id, confirmName: z.string().max(300) }),
   'campaign.removeLocal': z.object({ ...org, id: Id }),
 
@@ -400,6 +402,7 @@ export interface ChannelOutputs {
   'copilot.resolve': CopilotConversation;
   'copilot.delete': void;
   'campaign.syncAll': { accounts: number; errors: string[]; syncedAt: string };
+  'billing.overview': BillingOverview;
   'campaign.deleteRemote': Campaign;
   'campaign.removeLocal': void;
   'meta.adSets': MetaAdSet[];

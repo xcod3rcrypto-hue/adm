@@ -434,6 +434,49 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     return rows.find((r) => r.name === name)?.id ?? null;
   }
 
+  /**
+   * Situação financeira da conta, do jeito que a Graph API informa: saldo,
+   * valor gasto, limite de gastos e forma de pagamento (valores em unidades
+   * menores da moeda, convertidos aqui). Somente leitura.
+   */
+  async getBillingInfo(accountRemoteId: string): Promise<{
+    name: string;
+    currency: string;
+    status: string;
+    isPrepay: boolean | null;
+    balance: number | null;
+    amountSpent: number | null;
+    spendCap: number | null;
+    fundingSource: { type: string | null; display: string | null } | null;
+  }> {
+    assertNumericId(accountRemoteId);
+    const r = await this.get<{
+      name?: string;
+      currency?: string;
+      account_status?: number;
+      is_prepay_account?: boolean;
+      balance?: string;
+      amount_spent?: string;
+      spend_cap?: string;
+      funding_source_details?: { type?: number | string; display_string?: string };
+    }>(this.url(`act_${accountRemoteId}`, { fields: 'name,currency,account_status,is_prepay_account,balance,amount_spent,spend_cap,funding_source_details' }));
+    const currency = r.currency ?? 'USD';
+    const cap = minorToMajor(r.spend_cap, currency);
+    return {
+      name: r.name ?? accountRemoteId,
+      currency,
+      status: r.account_status === undefined ? '' : accountStatus(r.account_status),
+      isPrepay: r.is_prepay_account ?? null,
+      balance: minorToMajor(r.balance, currency),
+      amountSpent: minorToMajor(r.amount_spent, currency),
+      // spend_cap "0" significa sem limite definido.
+      spendCap: cap && cap > 0 ? cap : null,
+      fundingSource: r.funding_source_details
+        ? { type: r.funding_source_details.type === undefined ? null : String(r.funding_source_details.type), display: r.funding_source_details.display_string ?? null }
+        : null,
+    };
+  }
+
   /** Pausa um anúncio. Repetir é seguro: o estado final é o mesmo. */
   async pauseAd(adRemoteId: string): Promise<void> {
     assertNumericId(adRemoteId);

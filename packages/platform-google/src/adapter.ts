@@ -465,6 +465,48 @@ export class GoogleAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     });
   }
 
+  /**
+   * Orçamentos da conta (faturamento mensal/por orçamento aprovado). Contas
+   * pagas no cartão normalmente não têm orçamento: a lista volta vazia.
+   */
+  async fetchAccountBudgets(customerId: string): Promise<
+    Array<{ id: string; name: string; status: string; limit: number | null; served: number; adjustments: number; start: string | null; end: string | null }>
+  > {
+    const rows = await this.search<{
+      accountBudget: {
+        id?: string;
+        name?: string;
+        status?: string;
+        approvedSpendingLimitMicros?: string;
+        approvedSpendingLimitType?: string;
+        amountServedMicros?: string;
+        totalAdjustmentsMicros?: string;
+        approvedStartDateTime?: string;
+        approvedEndDateTime?: string;
+      };
+    }>(
+      customerId,
+      'SELECT account_budget.id, account_budget.name, account_budget.status, account_budget.approved_spending_limit_micros, account_budget.approved_spending_limit_type, ' +
+        'account_budget.amount_served_micros, account_budget.total_adjustments_micros, account_budget.approved_start_date_time, account_budget.approved_end_date_time ' +
+        "FROM account_budget WHERE account_budget.status = 'APPROVED'",
+    );
+    const m = (v?: string) => (v === undefined ? 0 : Number(v) / 1_000_000);
+    return rows.map((r) => {
+      const b = r.accountBudget;
+      return {
+        id: b.id ?? '',
+        name: b.name ?? '',
+        status: b.status ?? '',
+        // INFINITE = sem limite.
+        limit: b.approvedSpendingLimitMicros ? m(b.approvedSpendingLimitMicros) : null,
+        served: m(b.amountServedMicros),
+        adjustments: m(b.totalAdjustmentsMicros),
+        start: b.approvedStartDateTime ?? null,
+        end: b.approvedEndDateTime ?? null,
+      };
+    });
+  }
+
   /** Termos de busca reais que acionaram os anúncios (relatório de termos de pesquisa). */
   async fetchSearchTerms(customerId: string, range: DateRange): Promise<RemoteSearchTerm[]> {
     assertRange(range);

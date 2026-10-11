@@ -280,6 +280,15 @@ test.describe.serial('ADVERTEX AI Studio', () => {
     await expect(page.getByLabel('Mensagem para o Copiloto')).toBeDisabled();
     await page.screenshot({ path: join(shots, '11d-copiloto.png'), fullPage: true });
 
+    // Saldo e pagamentos: tipos de conta, alertas e botão de pagamento
+    await page.getByRole('link', { name: 'Saldo e pagamentos' }).click();
+    await expect(page.getByRole('heading', { name: 'Saldo e pagamentos' })).toBeVisible();
+    await expect(page.getByTestId('billing-account')).toHaveCount(4);
+    await expect(page.getByText('Contas que precisam de saldo')).toBeVisible();
+    await expect(page.getByText('Pré-pago (Pix/boleto)')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Adicionar saldo' })).toBeVisible();
+    await page.screenshot({ path: join(shots, '11e-saldo.png'), fullPage: true });
+
     // Relatórios: gerar, visualizar e exportar PDF/CSV de verdade
     await page.getByRole('link', { name: 'Relatórios' }).click();
     await page.getByRole('button', { name: 'Novo relatório' }).first().click();

@@ -32,3 +32,4 @@ export * from './services/autopilot';
 export * from './services/factory';
 export * from './services/metaAds';
 export * from './services/copilot';
+export * from './services/billing';

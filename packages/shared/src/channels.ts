@@ -33,7 +33,7 @@ export const CHANNEL_NAMES = [
   'copilot.list', 'copilot.get', 'copilot.send', 'copilot.resolve', 'copilot.delete',
   'campaign.syncAll', 'campaign.deleteRemote', 'campaign.removeLocal',
   'billing.overview',
-  'meta.adSets', 'meta.saveAdSet', 'meta.deleteAdSet', 'meta.pushAdSet', 'meta.assetsOptions', 'meta.adSetFromCreatives',
+  'meta.adSets', 'meta.remoteStructure', 'meta.saveAdSet', 'meta.deleteAdSet', 'meta.pushAdSet', 'meta.assetsOptions', 'meta.adSetFromCreatives',
   'intelligence.get', 'intelligence.run', 'recommendation.setStatus',
   'experiment.list', 'experiment.create', 'experiment.update', 'experiment.importMetrics', 'experiment.evaluate', 'experiment.conclude', 'experiment.setStatus', 'experiment.delete',
   'automation.overview', 'automation.create', 'automation.update', 'automation.delete', 'automation.setEnabled', 'automation.simulate', 'automation.runNow', 'automation.decide', 'automation.killSwitch',

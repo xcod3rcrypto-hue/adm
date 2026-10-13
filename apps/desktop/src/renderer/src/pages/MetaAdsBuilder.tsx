@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Layers, Pencil, Plus, Send, Trash2, X } from 'lucide-react';
-import { META_GOALS_BY_OBJECTIVE, MetaConversionEvent, MetaCta, type Asset, type Campaign, type MetaAdSet, type MetaOptimizationGoal } from '@advertex/shared';
+import { formatCurrency, META_GOALS_BY_OBJECTIVE, MetaConversionEvent, MetaCta, type Asset, type Campaign, type MetaAdSet, type MetaOptimizationGoal } from '@advertex/shared';
 import { api } from '../lib/api';
 import { useOrgId } from '../lib/org';
 import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, Field, Input, LoadingState, Modal, Notice, Select, useToast } from '../components/ui';
@@ -83,6 +83,7 @@ export function MetaAdSetsModal({ campaign, onClose, openId }: { campaign: Campa
   return (
     <Modal open onClose={onClose} size="xl" title={`Conjuntos e anúncios — ${campaign.name}`} description="Público, otimização e anúncios (imagem + texto + título + botão). Tudo é criado pausado na Meta.">
       <div className="flex flex-col gap-3">
+        {campaign.remoteId && <RemoteStructure campaign={campaign} />}
         {!campaign.remoteId && <Notice tone="info">A campanha ainda é um rascunho local. Monte os conjuntos agora; o envio fica disponível depois de publicar a campanha.</Notice>}
         {sets.isLoading && <LoadingState rows={2} />}
         {sets.error && <ErrorState error={sets.error} />}
@@ -423,5 +424,84 @@ function AdSetEditor({ campaign, set, onClose }: { campaign: Campaign; set: Meta
         </div>
       </div>
     </Modal>
+  );
+}
+
+const REMOTE_STATUS_TONE: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> = {
+  ACTIVE: 'success',
+  PAUSED: 'neutral',
+  CAMPAIGN_PAUSED: 'neutral',
+  ADSET_PAUSED: 'neutral',
+  ARCHIVED: 'neutral',
+  DISAPPROVED: 'danger',
+  WITH_ISSUES: 'danger',
+  PENDING_REVIEW: 'warning',
+  IN_PROCESS: 'warning',
+};
+const REMOTE_STATUS_LABEL: Record<string, string> = {
+  ACTIVE: 'Ativo',
+  PAUSED: 'Pausado',
+  CAMPAIGN_PAUSED: 'Campanha pausada',
+  ADSET_PAUSED: 'Conjunto pausado',
+  ARCHIVED: 'Arquivado',
+  DISAPPROVED: 'Reprovado',
+  WITH_ISSUES: 'Com problemas',
+  PENDING_REVIEW: 'Em análise',
+  IN_PROCESS: 'Processando',
+};
+
+/** O que já está na Meta para esta campanha, lido ao vivo (somente leitura). */
+function RemoteStructure({ campaign }: { campaign: Campaign }) {
+  const organizationId = useOrgId();
+  const q = useQuery({
+    queryKey: ['meta-remote', campaign.id],
+    queryFn: () => api('meta.remoteStructure', { organizationId, campaignId: campaign.id }),
+    refetchInterval: 60_000,
+  });
+  if (q.isLoading) return <LoadingState rows={2} />;
+  if (q.error) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
+  const d = q.data;
+  if (!d) return null;
+  const money = (v: number | null) => (v === null ? null : formatCurrency(v, d.currency));
+  return (
+    <div className="rounded-lg border border-border p-3" data-testid="meta-remote">
+      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-subtle">
+        Já na Meta · {d.adSets.length} conjunto(s) · {d.ads.length} anúncio(s)
+      </p>
+      {d.adSets.length === 0 && <p className="text-sm text-muted">A campanha ainda não tem conjuntos de anúncios na Meta.</p>}
+      <div className="flex flex-col gap-3">
+        {d.adSets.map((s) => {
+          const ads = d.ads.filter((a) => a.adSetId === s.id);
+          return (
+            <div key={s.id}>
+              <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                {s.name}
+                <Badge tone={REMOTE_STATUS_TONE[s.status] ?? 'neutral'}>{REMOTE_STATUS_LABEL[s.status] ?? s.status}</Badge>
+                <span className="text-xs font-normal text-subtle">
+                  {[money(s.dailyBudget) && `${money(s.dailyBudget)}/dia`, s.optimizationGoal, `ID ${s.id}`].filter(Boolean).join(' · ')}
+                </span>
+              </p>
+              {ads.length > 0 && (
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {ads.map((a) => (
+                    <li key={a.id} className="flex gap-2 rounded-md border border-border bg-surface-2 p-2">
+                      {a.imageUrl ? <img src={a.imageUrl} alt="" className="size-14 shrink-0 rounded object-cover" /> : <div className="size-14 shrink-0 rounded bg-border" />}
+                      <div className="min-w-0 text-xs">
+                        <p className="flex items-center gap-1.5 truncate font-medium text-fg">
+                          {a.name}
+                          <Badge tone={REMOTE_STATUS_TONE[a.status] ?? 'neutral'}>{REMOTE_STATUS_LABEL[a.status] ?? a.status}</Badge>
+                        </p>
+                        {a.title && <p className="truncate text-fg/90">{a.title}</p>}
+                        {a.body && <p className="line-clamp-2 text-muted">{a.body}</p>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

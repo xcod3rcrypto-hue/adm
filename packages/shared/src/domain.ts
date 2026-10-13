@@ -1389,3 +1389,10 @@ export interface BillingOverview {
   accounts: BillingAccountView[];
   checkedAt: string;
 }
+
+/** Conjuntos e anúncios que já existem na campanha da Meta (lidos ao vivo). */
+export interface MetaRemoteStructure {
+  adSets: Array<{ id: string; name: string; status: string; dailyBudget: number | null; optimizationGoal: string | null }>;
+  ads: Array<{ id: string; name: string; status: string; adSetId: string; title: string | null; body: string | null; imageUrl: string | null }>;
+  currency: string;
+}

@@ -8,6 +8,7 @@ import {
   type MetaAdSet,
   type MetaAdView,
   type MetaAssetsOptions,
+  type MetaRemoteStructure,
   type SyncState,
 } from '@advertex/shared';
 import type { AppContext } from '../context';
@@ -157,6 +158,15 @@ export function listMetaAdSets(ctx: AppContext, organizationId: string, campaign
   return ctx.db
     .all<SetRow>("SELECT * FROM ad_groups WHERE organization_id = ? AND campaign_id = ? AND platform = 'meta' ORDER BY created_at", [organizationId, campaignId])
     .map((r) => toView(ctx, r));
+}
+
+/** Conjuntos e anúncios que já existem na Meta para a campanha (somente leitura, ao vivo). */
+export async function getMetaRemoteStructure(ctx: AppContext, organizationId: string, campaignId: string): Promise<MetaRemoteStructure> {
+  const campaign = getCampaign(ctx, organizationId, campaignId);
+  if (campaign.platform !== 'meta') throw new AppError('VALIDATION', 'Esta campanha não é da Meta.');
+  if (!campaign.remoteId) return { adSets: [], ads: [], currency: campaign.currency };
+  const s = await metaAdsClient(ctx, organizationId).listCampaignStructure(campaign.remoteId, campaign.currency);
+  return { ...s, currency: campaign.currency };
 }
 
 export function getMetaAdDefaults(ctx: AppContext, organizationId: string): Defaults {

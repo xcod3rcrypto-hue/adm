@@ -173,7 +173,14 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
       daily_budget?: string;
       start_time?: string;
       stop_time?: string;
-    }>(this.url(`act_${accountRemoteId}/campaigns`, { fields: 'id,name,objective,status,effective_status,daily_budget,start_time,stop_time', limit: '100' }));
+    }>(
+      this.url(`act_${accountRemoteId}/campaigns`, {
+        fields: 'id,name,objective,status,effective_status,daily_budget,start_time,stop_time',
+        // Sem filtro explícito a Graph omite alguns status; pede todos exceto excluídas.
+        effective_status: JSON.stringify(CAMPAIGN_STATUSES),
+        limit: '100',
+      }),
+    );
     return rows.map((r) => ({
       remoteId: r.id,
       name: r.name,
@@ -492,6 +499,54 @@ export class MetaAdsAdapter implements AdPlatformReader, AdPlatformWriter {
     };
   }
 
+  /**
+   * Explica por que uma conta voltou sem campanhas: estado da conta, total
+   * (inclusive arquivadas) e as permissões que o token realmente tem.
+   */
+  async diagnoseEmptyAccount(accountRemoteId: string): Promise<{ accountStatus: string | null; archived: number; permissions: string[] | null; identity: string | null }> {
+    assertNumericId(accountRemoteId);
+    const [acct, archived, perms, me] = await Promise.all([
+      this.get<{ account_status?: number }>(this.url(`act_${accountRemoteId}`, { fields: 'account_status' })).catch(() => null),
+      this.get<{ data?: unknown[] }>(this.url(`act_${accountRemoteId}/campaigns`, { fields: 'id', effective_status: '["ARCHIVED"]', limit: '100' })).catch(() => null),
+      this.get<{ data?: Array<{ permission: string; status: string }> }>(this.url('me/permissions', {})).catch(() => null),
+      this.me().catch(() => null),
+    ]);
+    return {
+      accountStatus: acct?.account_status === undefined ? null : accountStatus(acct.account_status),
+      archived: archived?.data?.length ?? 0,
+      permissions: perms?.data ? perms.data.filter((p) => p.status === 'granted').map((p) => p.permission) : null,
+      identity: me ? `${me.name} (${me.id})` : null,
+    };
+  }
+
+  /** Conjuntos e anúncios que já existem na campanha (somente leitura). */
+  async listCampaignStructure(campaignRemoteId: string, currency: string | null): Promise<{
+    adSets: Array<{ id: string; name: string; status: string; dailyBudget: number | null; optimizationGoal: string | null }>;
+    ads: Array<{ id: string; name: string; status: string; adSetId: string; title: string | null; body: string | null; imageUrl: string | null }>;
+  }> {
+    assertNumericId(campaignRemoteId);
+    const [sets, ads] = await Promise.all([
+      this.getAll<{ id: string; name: string; effective_status?: string; daily_budget?: string; optimization_goal?: string }>(
+        this.url(`${campaignRemoteId}/adsets`, { fields: 'id,name,effective_status,daily_budget,optimization_goal', limit: '100' }),
+      ),
+      this.getAll<{ id: string; name: string; effective_status?: string; adset_id?: string; creative?: { title?: string; body?: string; image_url?: string; thumbnail_url?: string } }>(
+        this.url(`${campaignRemoteId}/ads`, { fields: 'id,name,effective_status,adset_id,creative{title,body,image_url,thumbnail_url}', limit: '100' }),
+      ),
+    ]);
+    return {
+      adSets: sets.map((s) => ({ id: s.id, name: s.name, status: s.effective_status ?? '', dailyBudget: minorToMajor(s.daily_budget, currency), optimizationGoal: s.optimization_goal ?? null })),
+      ads: ads.map((a) => ({
+        id: a.id,
+        name: a.name,
+        status: a.effective_status ?? '',
+        adSetId: a.adset_id ?? '',
+        title: a.creative?.title ?? null,
+        body: a.creative?.body ?? null,
+        imageUrl: a.creative?.image_url ?? a.creative?.thumbnail_url ?? null,
+      })),
+    };
+  }
+
   /** Gasto de hoje da conta (insights da própria Meta, atraso de alguns minutos). */
   async getSpendToday(accountRemoteId: string): Promise<number | null> {
     assertNumericId(accountRemoteId);
@@ -554,6 +609,8 @@ function sumActions(list: Array<{ action_type: string; value: string }> | undefi
 function assertNumericId(id: string): void {
   if (!/^\d{1,30}$/.test(id)) throw new Error('ID de conta Meta inválido.');
 }
+
+const CAMPAIGN_STATUSES = ['ACTIVE', 'PAUSED', 'IN_PROCESS', 'WITH_ISSUES', 'PENDING_REVIEW', 'DISAPPROVED', 'PREAPPROVED', 'PENDING_BILLING_INFO', 'ARCHIVED'];
 
 function mapStatus(s: string | undefined): RemoteCampaign['status'] {
   switch (s) {

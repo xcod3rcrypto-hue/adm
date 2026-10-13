@@ -245,6 +245,7 @@ export function createHandlers(paths: AppPaths, updater: Updater): HandlerMap {
     'campaign.deleteRemote': ({ organizationId, id, confirmName }, ctx) => core.deleteCampaignRemote(ctx, organizationId, id, confirmName),
     'campaign.removeLocal': ({ organizationId, id }, ctx) => core.removeCampaignLocal(ctx, organizationId, id),
     'meta.adSets': ({ organizationId, campaignId }, ctx) => core.listMetaAdSets(ctx, organizationId, campaignId),
+    'meta.remoteStructure': ({ organizationId, campaignId }, ctx) => core.getMetaRemoteStructure(ctx, organizationId, campaignId),
     'meta.saveAdSet': ({ organizationId, campaignId, id, data }, ctx) => core.saveMetaAdSet(ctx, organizationId, campaignId, id, data),
     'meta.deleteAdSet': ({ organizationId, id }, ctx) => core.deleteMetaAdSet(ctx, organizationId, id),
     'meta.pushAdSet': ({ organizationId, id }, ctx) => core.pushMetaAdSet(ctx, organizationId, id),

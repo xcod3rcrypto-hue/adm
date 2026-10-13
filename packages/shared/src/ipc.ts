@@ -36,6 +36,7 @@ import {
   type CopilotConversation,
   type CopilotConversationSummary,
   type BillingOverview,
+  type MetaRemoteStructure,
   type MetaAdSet,
   type MetaAssetsOptions,
   MetaAdSetInput,
@@ -236,6 +237,7 @@ export const ipcInputs = {
   'campaign.removeLocal': z.object({ ...org, id: Id }),
 
   'meta.adSets': z.object({ ...org, campaignId: Id }),
+  'meta.remoteStructure': z.object({ ...org, campaignId: Id }),
   'meta.saveAdSet': z.object({ ...org, campaignId: Id, id: Id.nullable(), data: MetaAdSetInput }),
   'meta.deleteAdSet': z.object({ ...org, id: Id }),
   'meta.pushAdSet': z.object({ ...org, id: Id, confirm: z.literal(true) }),
@@ -407,6 +409,7 @@ export interface ChannelOutputs {
   'campaign.deleteRemote': Campaign;
   'campaign.removeLocal': void;
   'meta.adSets': MetaAdSet[];
+  'meta.remoteStructure': MetaRemoteStructure;
   'meta.saveAdSet': MetaAdSet;
   'meta.deleteAdSet': void;
   'meta.pushAdSet': MetaAdSet;

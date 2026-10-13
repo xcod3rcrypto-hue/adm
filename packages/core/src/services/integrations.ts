@@ -366,6 +366,10 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
     recordAudit(ctx, { organizationId, action: `integration.${platform}.syncCampaigns`, entityType: 'advertising_account', entityId: account.id, outcome: 'failure', details: { error: errMsg(err) } });
     throw err;
   }
+  if (imported + updated === 0 && reader.platform === 'meta') {
+    const d = await reader.adapter.diagnoseEmptyAccount(account.remote_id);
+    return { imported, updated, message: `0 campanhas importadas.${metaEmptyHint(d, account.remote_id)}` };
+  }
   const hint =
     imported + updated === 0 && platform === 'google'
       ? isManagerAccountName(ctx.db.get<{ name: string }>('SELECT name FROM advertising_accounts WHERE id = ?', [account.id])?.name ?? '')
@@ -374,6 +378,24 @@ export async function syncCampaigns(ctx: AppContext, organizationId: string, pla
       : '';
   const gone = removed ? ` ${removed} excluída(s) na plataforma marcada(s) como removida(s).` : '';
   return { imported, updated, message: `${imported} campanha(s) importada(s), ${updated} atualizada(s).${gone}${hint}` };
+}
+
+/** Explica, em linguagem simples, por que a Meta devolveu a conta sem campanhas. */
+export function metaEmptyHint(d: { accountStatus: string | null; archived: number; permissions: string[] | null; identity: string | null }, remoteId: string): string {
+  const parts: string[] = [];
+  if (d.archived > 0) parts.push(`A conta tem ${d.archived} campanha(s) arquivada(s); arquivadas não são importadas.`);
+  if (d.permissions && !d.permissions.includes('ads_read') && !d.permissions.includes('ads_management')) {
+    parts.push('O token não tem a permissão ads_read nem ads_management: gere um novo token do usuário do sistema marcando essas permissões.');
+  }
+  if (d.accountStatus && d.accountStatus !== 'ACTIVE') parts.push(`Situação da conta na Meta: ${d.accountStatus}.`);
+  if (parts.length === 0) {
+    parts.push(
+      `A Meta respondeu que a conta ${remoteId} não tem campanhas visíveis para este token${d.identity ? ` (${d.identity})` : ''}. ` +
+        'Confira se é a mesma conta do Gerenciador de Anúncios (o ID aparece na URL como act=…) e, no Gerenciador de Negócios → Usuários do sistema → Atribuir ativos, ' +
+        'se a conta de anúncios está atribuída ao usuário do sistema com "Gerenciar campanhas" ou "Ver desempenho".',
+    );
+  }
+  return ` ${parts.join(' ')}`;
 }
 
 /**

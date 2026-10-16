@@ -23,7 +23,7 @@ const MAX_SESSION_AGE_S = 60 * 60;
  * If the bank requires authentication, we fall back to a hosted Checkout page.
  */
 export async function POST(req: NextRequest) {
-  if (rateLimited(`upsell:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
+  if (await rateLimited(`upsell:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
   const body = await readJson<{ sessionId?: unknown; offer?: unknown }>(req);
   const offerKey = body?.offer as Offer;
   if (!body || !(offerKey in OFFERS)) return badRequest('Invalid offer');

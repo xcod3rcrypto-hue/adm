@@ -28,7 +28,7 @@ interface Body {
  *   post-purchase upsells can be 1-click. The upsell pages disclose this before charging.
  */
 export async function POST(req: NextRequest) {
-  if (rateLimited(`checkout:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
+  if (await rateLimited(`checkout:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
   const body = await readJson<Body>(req);
   const planId = body?.plan as PlanId;
   const plan = PLANS[planId];

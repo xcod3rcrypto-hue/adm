@@ -98,8 +98,12 @@ Algumas partes do briefing original fariam o funil enganar o comprador ou expor 
 - [ ] Confirmar a fórmula real e ajustar a tabela comparativa (`offer.comparison.rows` nos 5 idiomas).
 - [ ] Substituir `/privacy` e `/terms` por textos revisados por advogado.
 - [ ] Revisar as traduções geradas da VSL em `scripts/vsl/`.
-- [ ] Colocar um rate limit de verdade (Upstash/Vercel WAF) em `/api/chat` e `/api/quiz`: o limitador em memória é só um freio.
+- [ ] Criar um banco Upstash Redis (plano grátis serve) e preencher `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`: é o que limita de verdade `/api/chat`, `/api/quiz`, `/api/checkout` etc. Sem elas, o limite fica só na memória de cada instância.
 - [ ] Testar o fluxo completo em modo teste da Stripe com o cartão `4000 0025 0000 3155` (3-D Secure) e confirmar que o upsell cai na página segura.
+
+## Demo para revisar no celular
+
+`npm run demo:build` gera `demo/dist/index.html`: uma página única com os mesmos componentes, um roteador em memória e um backend simulado (`demo/mock-api.ts`). Nada é salvo, cobrado ou enviado, e uma faixa no topo avisa que é demonstração. Serve para revisar o visual em qualquer celular antes de configurar as contas. O site de verdade continua sendo o app Next.js.
 
 ## Estrutura
 
@@ -109,5 +113,6 @@ components/     quiz/, offer/ (20 seções), checkout/, ui/ (botão com brilho, 
 content/        prova social real (vazio até ter autorização)
 lib/            i18n/ (5 idiomas), claude, prompts, heygen, stripe, supabase, notify, followups, quiz, products, store
 scripts/        stripe-setup.ts, heygen-generate.ts, vsl/ (roteiros traduzidos)
+demo/           build de demonstração (roteador e backend simulados)
 supabase/       schema.sql
 ```

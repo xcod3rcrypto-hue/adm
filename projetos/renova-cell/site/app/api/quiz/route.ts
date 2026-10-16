@@ -18,7 +18,7 @@ interface Body {
 
 /** Saves the answers, generates the headline (variant A) and sends the diagnosis email if asked. */
 export async function POST(req: NextRequest) {
-  if (rateLimited(`quiz:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
+  if (await rateLimited(`quiz:${clientIp(req)}`, 10, 60_000)) return json({ error: 'Too many requests' }, 429);
   const body = await readJson<Body>(req);
   const answers = parseAnswers(body?.answers);
   if (!body || !answers) return badRequest('Invalid answers');

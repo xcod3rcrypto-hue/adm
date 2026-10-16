@@ -22,12 +22,15 @@ export async function readJson<T = Record<string, unknown>>(req: NextRequest): P
 }
 
 /**
- * Best-effort fixed-window limiter. Serverless instances do not share memory, so this
- * only slows down a single abusive client; put a real limiter (Upstash, Vercel WAF)
- * in front of /api/chat and /api/quiz before spending real money on ads.
+ * Fixed-window rate limiter.
+ * With UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN set, counters live in Upstash Redis
+ * and are shared by every serverless instance. Without them, it falls back to per-instance
+ * memory, which only slows down one abusive client (fine for local dev).
+ * Fails open: if Redis is unreachable, the request is allowed and the error is logged.
  */
 const hits = new Map<string, { count: number; reset: number }>();
-export function rateLimited(key: string, limit: number, windowMs: number): boolean {
+
+function memoryLimited(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
   const entry = hits.get(key);
   if (!entry || entry.reset < now) {
@@ -37,6 +40,30 @@ export function rateLimited(key: string, limit: number, windowMs: number): boole
   }
   entry.count += 1;
   return entry.count > limit;
+}
+
+export async function rateLimited(key: string, limit: number, windowMs: number): Promise<boolean> {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return memoryLimited(key, limit, windowMs);
+  try {
+    const res = await fetch(`${url.replace(/\/$/, '')}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['INCR', `rl:${key}`],
+        ['PEXPIRE', `rl:${key}`, String(windowMs), 'NX'],
+      ]),
+      cache: 'no-store',
+    });
+    const data = (await res.json()) as { result?: number; error?: string }[];
+    const count = data[0]?.result;
+    if (!res.ok || typeof count !== 'number') throw new Error(data[0]?.error ?? `HTTP ${res.status}`);
+    return count > limit;
+  } catch (error) {
+    console.error('rate limiter unavailable, allowing request', error);
+    return false;
+  }
 }
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

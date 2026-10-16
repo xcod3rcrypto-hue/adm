@@ -10,7 +10,7 @@ const PERSONAS: Persona[] = ['woman', 'man', 'senior'];
 
 /** Streaming AI assistant. The client sends the visible conversation; we validate it hard. */
 export async function POST(req: NextRequest) {
-  if (rateLimited(`chat:${clientIp(req)}`, 20, 60_000)) return json({ error: 'Too many requests' }, 429);
+  if (await rateLimited(`chat:${clientIp(req)}`, 20, 60_000)) return json({ error: 'Too many requests' }, 429);
   const body = await readJson<{ messages?: unknown; locale?: unknown; persona?: unknown; plan?: unknown }>(req);
   if (!body || !Array.isArray(body.messages)) return badRequest('Invalid messages');
 

@@ -51,12 +51,15 @@ export async function POST(req: NextRequest) {
 
   try {
     if (offerKey === 'kit6') {
-      const price = await s.prices.retrieve(priceId);
-      if (!price.unit_amount) throw new Error('Upsell price has no unit_amount');
+      // Charge in the same currency as the original order (USD or EUR).
+      const currency = session.currency ?? 'usd';
+      const price = await s.prices.retrieve(priceId, { expand: ['currency_options'] });
+      const amount = currency === price.currency ? price.unit_amount : price.currency_options?.[currency]?.unit_amount;
+      if (!amount) throw new Error(`Upsell price has no amount in ${currency}`);
       const pi = await s.paymentIntents.create(
         {
-          amount: price.unit_amount,
-          currency: price.currency,
+          amount,
+          currency,
           customer,
           payment_method: paymentMethod,
           off_session: true,
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
         {
           customer,
           items: [{ price: priceId }],
+          currency: session.currency ?? 'usd',
           default_payment_method: paymentMethod,
           off_session: true,
           payment_behavior: 'error_if_incomplete',
@@ -88,6 +92,7 @@ export async function POST(req: NextRequest) {
     if (error instanceof Stripe.errors.StripeCardError) {
       const fallback = await s.checkout.sessions.create({
         mode: offerKey === 'subscription' ? 'subscription' : 'payment',
+        currency: session.currency ?? 'usd',
         customer,
         line_items: [{ price: priceId, quantity: 1 }],
         metadata,

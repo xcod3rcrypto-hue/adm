@@ -2,7 +2,7 @@ import type Stripe from 'stripe';
 import type { NextRequest } from 'next/server';
 import { findPromotionCode, shippingCountries } from '@/lib/checkout';
 import { EMAIL_RE, badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
-import { ORDER_BUMP, PLANS, priceIdFor } from '@/lib/products';
+import { ORDER_BUMP, PLANS, currencyForCountry, priceIdFor } from '@/lib/products';
 import type { PlanId } from '@/lib/quiz';
 import { siteUrl } from '@/lib/site';
 import { stripe } from '@/lib/stripe';
@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   if (!EMAIL_RE.test(email)) return badRequest('Invalid email');
   const locale = localeOr(body.locale);
+  // Charged currency comes from the IP country, never from the request body.
+  const currency = currencyForCountry(req.headers.get('x-vercel-ip-country'));
   const quizId = typeof body.quizId === 'string' && /^[0-9a-f-]{36}$/i.test(body.quizId) ? body.quizId : '';
   const bump = body.bump === true;
 
@@ -64,6 +66,8 @@ export async function POST(req: NextRequest) {
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: plan.recurring ? 'subscription' : 'payment',
     line_items: lineItems,
+    // Prices carry an EUR currency option (npm run stripe:setup); USD is their default currency.
+    currency,
     customer_email: email,
     locale: locale === 'pt' ? 'pt-BR' : locale,
     shipping_address_collection: {

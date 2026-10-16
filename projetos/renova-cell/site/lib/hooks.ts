@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
 import { readCookie } from './browser';
 import { format, getDictionary, type Locale } from './i18n';
+import { money, type Currency } from './products';
 import { useFunnel } from './store';
 
 /** true once the persisted funnel state has been loaded from localStorage. */
@@ -24,9 +25,22 @@ export function useLocale(): Locale {
   return hydrated ? stored : initial;
 }
 
+/**
+ * Currency for this visitor, decided on the server from the IP country (middleware → layout)
+ * so server and client render the same prices.
+ */
+export const CurrencyContext = createContext<Currency>('usd');
+
+export function useCurrency(): Currency {
+  return useContext(CurrencyContext);
+}
+
 export function useT() {
   const locale = useLocale();
-  return { locale, d: getDictionary(locale), f: format };
+  const currency = useCurrency();
+  /** Formats cents in the visitor's currency and language, e.g. 2990 → "29,90 €" or "$29.90". */
+  const m = (cents: number) => money(cents, locale, currency);
+  return { locale, currency, d: getDictionary(locale), f: format, m };
 }
 
 export function usePrefersReducedMotion(): boolean {

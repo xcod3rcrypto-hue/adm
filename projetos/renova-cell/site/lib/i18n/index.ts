@@ -57,8 +57,36 @@ export function localeFromCountry(country: string | null | undefined): Locale {
 
 /** 'pt-BR' → 'pt'; unsupported → null. */
 export function localeFromLanguageTag(tag: string | null | undefined): Locale | null {
-  const base = tag?.slice(0, 2).toLowerCase();
+  const base = tag?.trim().slice(0, 2).toLowerCase();
   return isLocale(base) ? base : null;
+}
+
+/** First supported language in a preference list (navigator.languages order). */
+export function localeFromLanguageList(tags: readonly string[] | null | undefined): Locale | null {
+  for (const tag of tags ?? []) {
+    const locale = localeFromLanguageTag(tag);
+    if (locale) return locale;
+  }
+  return null;
+}
+
+/**
+ * The visitor's phone/browser language from the Accept-Language header,
+ * e.g. "es-US,es;q=0.9,en;q=0.8" → 'es'. Honors q-values; unsupported languages are skipped.
+ */
+export function localeFromAcceptLanguage(header: string | null | undefined): Locale | null {
+  if (!header) return null;
+  const ranked = header
+    .split(',')
+    .map((part, index) => {
+      const [tag = '', ...params] = part.trim().split(';');
+      const q = params.map((p) => p.trim()).find((p) => p.startsWith('q='));
+      const weight = q ? Number(q.slice(2)) : 1;
+      return { tag: tag.trim(), weight: Number.isFinite(weight) ? weight : 0, index };
+    })
+    .filter((x) => x.tag && x.tag !== '*' && x.weight > 0)
+    .sort((a, b) => b.weight - a.weight || a.index - b.index);
+  return localeFromLanguageList(ranked.map((x) => x.tag));
 }
 
 export type { Dictionary };

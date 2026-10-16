@@ -33,12 +33,19 @@ const specs: PriceSpec[] = [
   { env: UPSELL_SUBSCRIPTION.priceEnv, lookupKey: 'rc_upsell_sub', productName: 'RENOVA CELL — Kit 3 monthly (member price)', amount: UPSELL_SUBSCRIPTION.amount, recurring: true },
 ];
 
+/** EUR option with the same numbers as USD ($29.90 → €29.90), used for euro-area visitors. */
+const eurOption = (amount: number) => ({ eur: { unit_amount: amount } });
+
 async function ensurePrice(spec: PriceSpec): Promise<string> {
-  const existing = await stripe.prices.list({ lookup_keys: [spec.lookupKey], active: true, limit: 1 });
+  const existing = await stripe.prices.list({ lookup_keys: [spec.lookupKey], active: true, limit: 1, expand: ['data.currency_options'] });
   const found = existing.data[0];
   if (found) {
     if (found.unit_amount !== spec.amount) {
       console.warn(`! ${spec.lookupKey} exists with ${found.unit_amount} but products.ts says ${spec.amount}. Archive it in Stripe to recreate.`);
+    }
+    if (found.currency_options?.eur?.unit_amount !== spec.amount) {
+      await stripe.prices.update(found.id, { currency_options: eurOption(spec.amount) });
+      console.log(`+ ${spec.lookupKey}: EUR option set to ${spec.amount}`);
     }
     return found.id;
   }
@@ -48,6 +55,7 @@ async function ensurePrice(spec: PriceSpec): Promise<string> {
     currency: CURRENCY,
     unit_amount: spec.amount,
     lookup_key: spec.lookupKey,
+    currency_options: eurOption(spec.amount),
     ...(spec.recurring ? { recurring: { interval: 'month' as const } } : {}),
   });
   return price.id;
@@ -72,7 +80,8 @@ async function main() {
   await ensurePromotionCode();
   console.log('\nStripe is ready. Add these to .env.local:\n');
   console.log(lines.join('\n'));
-  console.log('\nPromotion code RENOVA10 (10% off, first payment) is active.');
+  console.log('\nEvery price also has an EUR option with the same numbers (euro-area visitors pay in EUR).');
+  console.log('Promotion code RENOVA10 (10% off, first payment) is active.');
 }
 
 main().catch((error) => {

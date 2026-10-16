@@ -2,6 +2,7 @@ import type Stripe from 'stripe';
 import type { NextRequest } from 'next/server';
 import { findPromotionCode, shippingCountries } from '@/lib/checkout';
 import { EMAIL_RE, badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
+import { stripeLocale } from '@/lib/i18n';
 import { ORDER_BUMP, PLANS, currencyForCountry, priceIdFor } from '@/lib/products';
 import type { PlanId } from '@/lib/quiz';
 import { siteUrl } from '@/lib/site';
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Prices carry an EUR currency option (npm run stripe:setup); USD is their default currency.
     currency,
     customer_email: email,
-    locale: locale === 'pt' ? 'pt-BR' : locale,
+    locale: stripeLocale(locale),
     shipping_address_collection: {
       allowed_countries: shippingCountries() as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
     },

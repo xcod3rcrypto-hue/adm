@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
 import { readCookie } from './browser';
-import { format, getDictionary, type Locale } from './i18n';
+import { en } from './i18n/en';
+import { format, type Dictionary, type Locale } from './i18n';
 import { money, type Currency } from './products';
 import { useFunnel } from './store';
 
@@ -35,12 +36,16 @@ export function useCurrency(): Currency {
   return useContext(CurrencyContext);
 }
 
+/** The dictionary for the current locale, kept by <Providers> (loaded on demand per language). */
+export const DictionaryContext = createContext<Dictionary>(en);
+
 export function useT() {
   const locale = useLocale();
   const currency = useCurrency();
+  const d = useContext(DictionaryContext);
   /** Formats cents in the visitor's currency and language, e.g. 2990 → "29,90 €" or "$29.90". */
   const m = (cents: number) => money(cents, locale, currency);
-  return { locale, currency, d: getDictionary(locale), f: format, m };
+  return { locale, currency, d, f: format, m };
 }
 
 export function usePrefersReducedMotion(): boolean {

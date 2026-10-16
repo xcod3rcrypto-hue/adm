@@ -12,6 +12,13 @@ export const fr: Dictionary = {
     resultsVary: 'Les résultats varient selon les personnes.',
     fdaDisclaimer:
       "Ces allégations n'ont pas été évaluées par la FDA. Ce produit n'est pas destiné à diagnostiquer, traiter, guérir ou prévenir une maladie.",
+    euDisclaimer:
+      "Les compléments alimentaires ne doivent pas être utilisés comme substituts d'un régime alimentaire varié et équilibré et d'un mode de vie sain. Ne pas dépasser la dose journalière recommandée. Tenir hors de la portée des jeunes enfants.",
+  },
+  consent: {
+    text: 'Nous utilisons des cookies pour la mesure d’audience et publicitaire.',
+    accept: 'Accepter',
+    decline: 'Refuser',
   },
   quiz: {
     progress: '{pct} % terminé',

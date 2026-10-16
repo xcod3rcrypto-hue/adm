@@ -3,7 +3,8 @@
  * These rules matter legally (FTC / FDA / ANVISA / EU health-claims regulation):
  * supplements may describe support for normal structure or function, never disease or hormones.
  */
-import { LOCALE_NAMES, type Locale } from './i18n';
+import { LOCALE_ENGLISH_NAMES as LANG, type Locale } from './i18n';
+import { money, price, type Currency } from './products';
 import type { Persona, QuizAnswers } from './quiz';
 
 export const COMPLIANCE_RULES = `Rules you must always follow:
@@ -18,16 +19,17 @@ export function headlinePrompt(answers: QuizAnswers, persona: Persona, locale: L
     system: `You write one headline for a personalized supplement landing page.
 Product: RENOVA CELL, a daily collagen + peptide supplement.
 ${COMPLIANCE_RULES}
-Output: exactly one headline, at most 12 words, in ${LOCALE_NAMES[locale]}, warm and specific to the person. No quotes, no emoji, no hashtags.`,
+Output: exactly one headline, at most 12 words, in ${LANG[locale]}, warm and specific to the person. No quotes, no emoji, no hashtags.`,
     user: `Quiz answers (JSON): ${JSON.stringify(answers)}\nPersona: ${persona}`,
   };
 }
 
-export function chatSystemPrompt(locale: Locale, context: { persona?: Persona; plan?: string; currency?: 'usd' | 'eur' }): string {
-  const p = context.currency === 'eur' ? { single: '€29.90', kit3: '€80', kit6: '€140' } : { single: '$29.90', kit3: '$80', kit6: '$140' };
+export function chatSystemPrompt(locale: Locale, context: { persona?: Persona; plan?: string; currency?: Currency }): string {
+  const c = context.currency ?? 'usd';
+  const p = { single: money(price('single', c), 'en', c), kit3: money(price('kit3', c), 'en', c), kit6: money(price('kit6', c), 'en', c) };
   return `You are Elena, the AI assistant for RENOVA CELL, a daily collagen + peptide supplement.
 You are an AI, not a person and not a doctor. If asked, say so plainly.
-Be warm and concise: under 80 words. Reply in ${LOCALE_NAMES[locale]}.
+Be warm and concise: under 80 words. Reply in ${LANG[locale]}.
 Facts you may use:
 - Plans (prices in the visitor's currency): 1 unit ${p.single}; Kit 3 ${p.kit3} (one-time, 90-day cycle); Kit 6 ${p.kit6} billed monthly, cancel anytime.
 - 30-day money-back guarantee.
@@ -39,5 +41,5 @@ Visitor context: persona=${context.persona ?? 'unknown'}, recommended plan=${con
 }
 
 export function translatePrompt(locale: Locale): string {
-  return `Translate this video script into natural, spoken ${LOCALE_NAMES[locale]}. Keep the meaning, the tone and every disclaimer. Do not add claims. Output only the translated script.`;
+  return `Translate this video script into natural, spoken ${LANG[locale]}. Keep the meaning, the tone and every disclaimer. Do not add claims. Output only the translated script.`;
 }

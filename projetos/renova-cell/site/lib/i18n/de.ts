@@ -12,6 +12,13 @@ export const de: Dictionary = {
     resultsVary: 'Ergebnisse sind individuell verschieden.',
     fdaDisclaimer:
       'Diese Aussagen wurden nicht von der FDA bewertet. Dieses Produkt ist nicht dazu bestimmt, Krankheiten zu diagnostizieren, zu behandeln, zu heilen oder zu verhindern.',
+    euDisclaimer:
+      'Nahrungsergänzungsmittel sind kein Ersatz für eine abwechslungsreiche und ausgewogene Ernährung und eine gesunde Lebensweise. Die angegebene empfohlene tägliche Verzehrsmenge darf nicht überschritten werden. Außerhalb der Reichweite von kleinen Kindern lagern.',
+  },
+  consent: {
+    text: 'Wir verwenden Cookies für Analyse und Anzeigenmessung.',
+    accept: 'Akzeptieren',
+    decline: 'Ablehnen',
   },
   quiz: {
     progress: '{pct} % erledigt',

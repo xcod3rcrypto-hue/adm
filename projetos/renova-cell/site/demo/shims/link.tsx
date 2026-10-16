@@ -1,7 +1,7 @@
 import type { AnchorHTMLAttributes, MouseEvent } from 'react';
 import { navigate } from './navigation';
 
-type Props = AnchorHTMLAttributes<HTMLAnchorElement> & { href: string | { pathname?: string } };
+type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { href: string | { pathname?: string } };
 
 /** Demo stand-in for `next/link`. */
 export default function Link({ href, onClick, ...rest }: Props) {

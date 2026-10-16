@@ -15,6 +15,13 @@ export const en = {
     resultsVary: 'Individual results vary.',
     fdaDisclaimer:
       'These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.',
+    euDisclaimer:
+      'Food supplements are not a substitute for a varied and balanced diet and a healthy lifestyle. Do not exceed the recommended daily dose. Keep out of reach of young children.',
+  },
+  consent: {
+    text: 'We use cookies for analytics and ad measurement.',
+    accept: 'Accept',
+    decline: 'Decline',
   },
   quiz: {
     progress: '{pct}% complete',

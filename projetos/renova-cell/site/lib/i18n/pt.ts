@@ -12,6 +12,13 @@ export const pt: Dictionary = {
     resultsVary: 'Os resultados variam de pessoa para pessoa.',
     fdaDisclaimer:
       'Estas afirmações não foram avaliadas pela FDA nem pela ANVISA. Este produto não se destina a diagnosticar, tratar, curar ou prevenir qualquer doença.',
+    euDisclaimer:
+      'Os suplementos alimentares não substituem uma alimentação variada e equilibrada nem um estilo de vida saudável. Não exceda a dose diária recomendada. Mantenha fora do alcance das crianças.',
+  },
+  consent: {
+    text: 'Usamos cookies para análise e medição de anúncios.',
+    accept: 'Aceitar',
+    decline: 'Recusar',
   },
   quiz: {
     progress: '{pct}% concluído',

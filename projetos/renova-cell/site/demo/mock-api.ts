@@ -2,7 +2,7 @@
  * Simulated backend for the demo build. It answers the same routes as app/api/*
  * with the same response shapes, but nothing is saved, charged or sent.
  */
-import { PLANS, UPSELL_KIT6, UPSELL_SUBSCRIPTION } from '../lib/products';
+import { PLANS, price, type Currency } from '../lib/products';
 import type { PlanId } from '../lib/quiz';
 
 const json = (data: unknown, status = 200) =>
@@ -17,7 +17,13 @@ const CHAT_REPLY: Record<string, string> = {
   de: 'Das ist eine Demo. Auf der echten Seite antworte ich (Elena, KI-Assistentin) hier in Echtzeit, ohne medizinische Versprechen.',
 };
 
-let lastOrder: { plan: PlanId; bump: boolean; name: string; amount: number; upsells: number } | null = null;
+let lastOrder: { plan: PlanId; bump: boolean; name: string; amount: number; upsells: number; currency: Currency } | null = null;
+
+/** In the real app the server picks the currency from the IP country; the demo lets you switch it. */
+let demoCurrency: Currency = 'usd';
+export function setDemoCurrency(currency: Currency): void {
+  demoCurrency = currency;
+}
 
 async function handle(path: string, init?: RequestInit): Promise<Response> {
   const url = new URL(path, 'https://demo.local');
@@ -25,7 +31,7 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
 
   switch (url.pathname) {
     case '/api/geo':
-      return json({ country: null, locale: 'pt' });
+      return json({ country: null, locale: 'pt', currency: demoCurrency });
     case '/api/quiz':
       if ((init?.method ?? 'GET') === 'GET') return json({ error: 'Not found' }, 404);
       await wait(700);
@@ -42,15 +48,16 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
     case '/api/checkout': {
       await wait(900);
       const plan = (body.plan as PlanId) in PLANS ? (body.plan as PlanId) : 'kit3';
-      const discount = String(body.coupon ?? '').toUpperCase() === 'RENOVA10' ? Math.round(PLANS[plan].amount * 0.1) : 0;
-      const amount = PLANS[plan].amount - discount + (body.bump ? 1990 : 0);
-      lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0 };
+      const base = price(plan, demoCurrency);
+      const discount = String(body.coupon ?? '').toUpperCase() === 'RENOVA10' ? Math.round(base * 0.1) : 0;
+      const amount = base - discount + (body.bump ? price('bump', demoCurrency) : 0);
+      lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0, currency: demoCurrency };
       const next = PLANS[plan].recurring ? '/thank-you' : '/upsell-1';
       return json({ url: `${next}?session_id=cs_test_demo` });
     }
     case '/api/upsell': {
       await wait(800);
-      if (lastOrder) lastOrder.upsells += body.offer === 'kit6' ? UPSELL_KIT6.amount : UPSELL_SUBSCRIPTION.amount;
+      if (lastOrder) lastOrder.upsells += price(body.offer === 'kit6' ? 'upsellKit6' : 'upsellSub', lastOrder.currency);
       const next = body.offer === 'kit6' ? '/upsell-2' : '/thank-you';
       return json({ status: 'succeeded', next: `${next}?session_id=cs_test_demo` });
     }
@@ -60,7 +67,7 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
         plan: lastOrder.plan,
         bump: lastOrder.bump,
         amount: lastOrder.amount + lastOrder.upsells,
-        currency: 'usd',
+        currency: lastOrder.currency,
         firstName: lastOrder.name.split(' ')[0] ?? '',
         mode: PLANS[lastOrder.plan].recurring ? 'subscription' : 'payment',
       });

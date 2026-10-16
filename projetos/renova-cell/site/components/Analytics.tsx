@@ -11,17 +11,10 @@ const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
 const HOTJAR = process.env.NEXT_PUBLIC_HOTJAR_ID;
 
-const COPY = {
-  en: { text: 'We use cookies for analytics and ads measurement.', accept: 'Accept', decline: 'Decline' },
-  pt: { text: 'Usamos cookies para análise e medição de anúncios.', accept: 'Aceitar', decline: 'Recusar' },
-  es: { text: 'Usamos cookies para analítica y medición de anuncios.', accept: 'Aceptar', decline: 'Rechazar' },
-  fr: { text: 'Nous utilisons des cookies pour la mesure d’audience et publicitaire.', accept: 'Accepter', decline: 'Refuser' },
-  de: { text: 'Wir verwenden Cookies für Analyse und Anzeigenmessung.', accept: 'Akzeptieren', decline: 'Ablehnen' },
-};
 
 /** Tracking scripts load only after explicit consent (GDPR/LGPD friendly, also fine for the US). */
 export function Analytics() {
-  const { locale } = useT();
+  const { d } = useT();
   const [consent, setConsent] = useState<'granted' | 'denied' | null | 'loading'>('loading');
   useEffect(() => setConsent(readConsent()), []);
 
@@ -38,7 +31,7 @@ export function Analytics() {
   };
 
   if (consent === null) {
-    const c = COPY[locale];
+    const c = d.consent;
     return (
       <div role="dialog" aria-live="polite" className="fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-2xl bg-ink p-4 text-sm text-cream shadow-2xl sm:flex-row sm:items-center">
         <p className="flex-1">{c.text}</p>

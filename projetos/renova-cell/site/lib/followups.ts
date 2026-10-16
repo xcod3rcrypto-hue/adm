@@ -1,5 +1,6 @@
 import 'server-only';
-import { format, getDictionary, isLocale, type Locale } from './i18n';
+import { format, isLocale, type Locale } from './i18n';
+import { getDictionary } from './i18n/dictionaries';
 import { sendEmail, sendSms, unsubscribeUrl } from './notify';
 import { siteUrl } from './site';
 

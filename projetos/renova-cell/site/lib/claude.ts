@@ -1,6 +1,7 @@
 import 'server-only';
 import Anthropic from '@anthropic-ai/sdk';
 import type { Locale } from './i18n';
+import type { Currency } from './products';
 import { chatSystemPrompt, headlinePrompt } from './prompts';
 import { personaOf, type Persona, type QuizAnswers } from './quiz';
 
@@ -59,7 +60,7 @@ export async function generateHeadline(answers: QuizAnswers, locale: Locale): Pr
 export function chatStream(
   messages: Anthropic.Beta.BetaMessageParam[],
   locale: Locale,
-  context: { persona?: Persona; plan?: string; currency?: 'usd' | 'eur' },
+  context: { persona?: Persona; plan?: string; currency?: Currency },
 ): ReadableStream<Uint8Array> {
   const ai = anthropic();
   const encoder = new TextEncoder();

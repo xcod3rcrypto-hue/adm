@@ -17,7 +17,8 @@ const config: Config = {
         cream: '#FAF7F2',
         emerald: { brand: '#0E5C4A', deep: '#093D31' },
         ink: '#0D0D0D',
-        coral: '#FF6B5A',
+        // `deep` keeps coral text at WCAG AA on cream/white; the brand coral stays for fills and dark backgrounds.
+        coral: { DEFAULT: '#FF6B5A', deep: '#B83A2E' },
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],

@@ -13,6 +13,29 @@
   --muted: #5b5b55;
   --card: #ffffff;
   --line: rgba(13, 13, 13, 0.1);
+
+  /* Safe areas (notch, home indicator). Non-zero only on notched phones, thanks to viewport-fit=cover. */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  /* Horizontal page gutter, never thinner than the notch in landscape. */
+  --gutter: 1rem;
+  --gutter-l: max(var(--gutter), var(--safe-l));
+  --gutter-r: max(var(--gutter), var(--safe-r));
+  /* Height the cookie banner takes at the bottom while it is open (set by <Analytics />). */
+  --consent-h: 0px;
+  /* What floating widgets and page ends must clear: the home indicator or the cookie banner. */
+  --float-base: max(var(--safe-b), var(--consent-h));
+  /* Phones keep room for the sticky CTA bar below the chat button and toast. */
+  --sticky-space: 4.5rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 1.5rem;
+    --sticky-space: 0.5rem;
+  }
 }
 
 /* Dark tokens: follow the OS unless a host forces light, and honour an explicit dark choice. */
@@ -39,12 +62,16 @@
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   background: var(--page-bg);
   color: var(--page-fg);
   -webkit-font-smoothing: antialiased;
+  /* A long word or URL wraps instead of pushing the layout sideways. */
+  overflow-wrap: break-word;
 }
 
 /* Gold focus ring everywhere, visible on both themes. */
@@ -75,9 +102,32 @@ body {
   }
 }
 
+@layer base {
+  /* Long German/French words in headings hyphenate (lang is set on <html>) or, failing that, break. */
+  h1,
+  h2,
+  h3,
+  h4,
+  legend {
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    hyphenate-limit-chars: 8 4 3;
+    text-wrap: balance;
+  }
+  /* iOS zooms the page when a focused field is smaller than 16px. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 @layer components {
   .section {
-    @apply mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20;
+    @apply mx-auto w-full max-w-5xl py-16 sm:py-20;
+    padding-left: var(--gutter-l);
+    padding-right: var(--gutter-r);
     scroll-snap-align: start;
   }
   .card {
@@ -115,5 +165,85 @@ body {
   }
   .glow:hover::before {
     opacity: 1;
+  }
+
+  /* Full-screen layouts (quiz, analyzing, upsells): fill the screen above the cookie banner, clear notch and home indicator. */
+  .screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: var(--safe-t);
+    padding-bottom: var(--float-base);
+  }
+
+  /*
+   * Floating widgets stack bottom-up and never overlap:
+   * home indicator / cookie banner → sticky CTA bar (phones) → chat button + toast → chat panel.
+   */
+  .sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--consent-h);
+    padding: 0.75rem max(0.75rem, var(--safe-r)) calc(0.75rem + max(0px, var(--safe-b) - var(--consent-h))) max(0.75rem, var(--safe-l));
+    background: var(--page-bg);
+    background: color-mix(in srgb, var(--page-bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .float-chat-button {
+    position: fixed;
+    right: max(1rem, var(--safe-r));
+    bottom: calc(var(--float-base) + var(--sticky-space) + 1rem);
+    transition: bottom 0.2s ease;
+  }
+  .float-chat-panel {
+    position: fixed;
+    right: max(1rem, var(--safe-r));
+    bottom: calc(var(--float-base) + var(--sticky-space) + 5rem);
+    width: min(380px, calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r))));
+    height: min(520px, calc(100vh - var(--float-base) - var(--sticky-space) - 6rem - var(--safe-t)));
+    height: min(520px, calc(100dvh - var(--float-base) - var(--sticky-space) - 6rem - var(--safe-t)));
+  }
+  .float-toast {
+    position: fixed;
+    left: max(1rem, var(--safe-l));
+    bottom: calc(var(--float-base) + var(--sticky-space) + 1rem);
+    /* Leaves room for the chat button on the right (3.5rem + 1rem gap). */
+    max-width: calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r)) - 4.5rem);
+  }
+  @media (min-width: 640px) {
+    .float-toast {
+      max-width: 24rem;
+    }
+  }
+  .consent-banner {
+    position: fixed;
+    left: max(0.75rem, var(--safe-l));
+    right: max(0.75rem, var(--safe-r));
+    bottom: calc(0.75rem + var(--safe-b));
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: max(1rem, var(--safe-t)) max(1rem, var(--safe-r)) max(1rem, var(--safe-b)) max(1rem, var(--safe-l));
+  }
+}
+
+@layer utilities {
+  .px-gutter {
+    padding-left: var(--gutter-l);
+    padding-right: var(--gutter-r);
+  }
+  /* Lets a horizontal scroller bleed to the screen edges inside a gutter-padded section. */
+  .-mx-gutter {
+    margin-left: calc(-1 * var(--gutter-l));
+    margin-right: calc(-1 * var(--gutter-r));
+  }
+  .scroll-px-gutter {
+    scroll-padding-left: var(--gutter-l);
+    scroll-padding-right: var(--gutter-r);
   }
 }

@@ -4,7 +4,8 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['out/**', 'release/**', 'node_modules/**', 'test-results/**', 'playwright-report/**'] },
+  // projetos/** são apps independentes (cada um com o próprio lint).
+  { ignores: ['out/**', 'release/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', 'projetos/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

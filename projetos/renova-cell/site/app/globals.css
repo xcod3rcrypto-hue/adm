@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #d4af37;
+  --cream: #faf7f2;
+  --green: #0e5c4a;
+  --black: #0d0d0d;
+  --coral: #ff6b5a;
+  --page-bg: var(--cream);
+  --page-fg: #1a1a1a;
+  --muted: #5b5b55;
+  --card: #ffffff;
+  --line: rgba(13, 13, 13, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0d0d0d;
+    --page-fg: #f3efe7;
+    --muted: #b5b0a5;
+    --card: #151816;
+    --line: rgba(250, 247, 242, 0.12);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--page-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Gold focus ring everywhere, visible on both themes. */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Hide the native cursor only on fine pointers when the custom cursor is active. */
+@media (pointer: fine) {
+  html.has-gold-cursor,
+  html.has-gold-cursor * {
+    cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .section {
+    @apply mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20;
+    scroll-snap-align: start;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    @apply rounded-2xl;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .h2 {
+    @apply font-display text-3xl leading-tight sm:text-4xl;
+  }
+  .gold-text {
+    background: linear-gradient(90deg, #a8862a, #e9d489, #d4af37, #a8862a);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Button glow follows the pointer via --x / --y set in GlowButton. */
+  .glow {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(160px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.45), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .glow:hover::before {
+    opacity: 1;
+  }
+}

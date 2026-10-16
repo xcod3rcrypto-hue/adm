@@ -1,0 +1,42 @@
+{
+  "name": "renova-cell-funnel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RENOVA CELL \u2014 quiz \u2192 oferta personalizada \u2192 checkout Stripe \u2192 upsells.",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "stripe:setup": "node --env-file=.env.local --import tsx scripts/stripe-setup.ts",
+    "vsl:generate": "node --env-file=.env.local --import tsx scripts/heygen-generate.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "framer-motion": "^11.18.2",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
+    "stripe": "^23.0.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

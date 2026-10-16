@@ -1,5 +1,6 @@
 'use client';
 
+import { readCookie } from './browser';
 import { isLocale, localeFromLanguageTag, type Locale } from './i18n';
 
 /**
@@ -12,7 +13,7 @@ import { isLocale, localeFromLanguageTag, type Locale } from './i18n';
 export async function resolveLocale(persisted: { locale: Locale; localeChosen: boolean }): Promise<Locale> {
   if (persisted.localeChosen) return persisted.locale;
 
-  const cookie = document.cookie.match(/(?:^|; )rc_locale=([^;]+)/)?.[1];
+  const cookie = readCookie('rc_locale');
   if (isLocale(cookie)) return cookie;
 
   const fromBrowser = localeFromLanguageTag(navigator.language);

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { readCookie } from '@/lib/browser';
 import { useHydrated, useT } from '@/lib/hooks';
 import { parseAnswers } from '@/lib/quiz';
 import { useFunnel } from '@/lib/store';
@@ -33,7 +34,7 @@ export default function AnalyzingPage() {
 
     // Not cleared on unmount: the effect runs once (ref guard) and the timers are harmless.
     [800, 1900, 3000].forEach((ms, i) => setTimeout(() => setDone(i + 1), ms));
-    const variant = /(?:^|; )rc_ab=B/.test(document.cookie) ? 'B' : 'A';
+    const variant = readCookie('rc_ab') === 'B' ? 'B' : 'A';
     const controller = new AbortController();
     const request = fetch('/api/quiz', {
       method: 'POST',

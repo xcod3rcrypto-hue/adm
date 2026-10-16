@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { track } from '@/lib/analytics';
+import { goTo } from '@/lib/browser';
 import { useT } from '@/lib/hooks';
 import { UPSELL_KIT6, UPSELL_SUBSCRIPTION, money } from '@/lib/products';
 import { GlowButton } from '../ui/GlowButton';
@@ -44,7 +45,7 @@ export function UpsellOffer({ kind }: { kind: Kind }) {
         router.push(data.next ?? next);
       } else if (data.status === 'requires_action' && data.url) {
         setError(d.upsell.action);
-        window.location.assign(data.url);
+        goTo(data.url);
       } else {
         throw new Error();
       }

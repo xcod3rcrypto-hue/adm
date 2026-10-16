@@ -2,7 +2,14 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
-  darkMode: 'media',
+  // `dark:` follows the OS, unless the page is told otherwise via data-theme (e.g. when embedded).
+  darkMode: [
+    'variant',
+    [
+      "@media (prefers-color-scheme: dark) { &:not([data-theme='light'] *, [data-theme='light']) }",
+      "&:is([data-theme='dark'] *, [data-theme='dark'])",
+    ],
+  ],
   theme: {
     extend: {
       colors: {

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { safeStorage } from './browser';
 import { DEFAULT_LOCALE, type Locale } from './i18n';
 import type { PlanId, QuizAnswers } from './quiz';
 
@@ -65,7 +66,7 @@ export const useFunnel = create<FunnelState>()(
     {
       name: 'renova-funnel',
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(safeStorage),
       skipHydration: true,
     },
   ),

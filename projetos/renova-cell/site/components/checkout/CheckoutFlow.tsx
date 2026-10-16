@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { track } from '@/lib/analytics';
+import { goTo } from '@/lib/browser';
 import { useHydrated, useT } from '@/lib/hooks';
 import { ORDER_BUMP, PLANS, money } from '@/lib/products';
 import { parseAnswers, recommendedPlan, type PlanId } from '@/lib/quiz';
@@ -84,7 +85,7 @@ export function CheckoutFlow() {
       });
       const data = (await res.json()) as { url?: string };
       if (!res.ok || !data.url) throw new Error();
-      window.location.assign(data.url);
+      goTo(data.url);
     } catch {
       setError(c.payment.error);
       setPaying(false);

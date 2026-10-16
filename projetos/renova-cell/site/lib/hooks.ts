@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useSyncExternalStore } from 'react';
+import { readCookie } from './browser';
 import { format, getDictionary, type Locale } from './i18n';
 import { useFunnel } from './store';
 
@@ -44,7 +45,7 @@ export function usePrefersReducedMotion(): boolean {
 export function useVariant(): 'A' | 'B' {
   const [variant, setVariant] = useState<'A' | 'B'>('A');
   useEffect(() => {
-    if (/(?:^|; )rc_ab=B/.test(document.cookie)) setVariant('B');
+    if (readCookie('rc_ab') === 'B') setVariant('B');
   }, []);
   return variant;
 }

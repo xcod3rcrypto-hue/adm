@@ -15,14 +15,25 @@
   --line: rgba(13, 13, 13, 0.1);
 }
 
+/* Dark tokens: follow the OS unless a host forces light, and honour an explicit dark choice. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --page-bg: #0d0d0d;
     --page-fg: #f3efe7;
     --muted: #b5b0a5;
     --card: #151816;
     --line: rgba(250, 247, 242, 0.12);
+    color-scheme: dark;
   }
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #0d0d0d;
+  --page-fg: #f3efe7;
+  --muted: #b5b0a5;
+  --card: #151816;
+  --line: rgba(250, 247, 242, 0.12);
+  color-scheme: dark;
 }
 
 html {

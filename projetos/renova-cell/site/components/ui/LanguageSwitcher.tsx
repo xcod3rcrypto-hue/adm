@@ -1,5 +1,6 @@
 'use client';
 
+import { writeCookie } from '@/lib/browser';
 import { LOCALES, LOCALE_NAMES, type Locale } from '@/lib/i18n';
 import { useT } from '@/lib/hooks';
 import { useFunnel } from '@/lib/store';
@@ -16,7 +17,7 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
         onChange={(e) => {
           const next = e.target.value as Locale;
           setLocale(next, true);
-          document.cookie = `rc_locale=${next}; path=/; max-age=31536000; samesite=lax`;
+          writeCookie('rc_locale', next);
           document.documentElement.lang = next;
         }}
         className="rounded-md border border-current/20 bg-transparent px-2 py-1"

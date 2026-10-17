@@ -10,7 +10,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 HERE = Path(__file__).parent
-DOMAIN = 'https://SEU_DOMINIO'
+DOMAIN = 'https://renova-cell.vercel.app'
 URL_PARAMS = 'utm_source=meta&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}'
 FOOTER = ('Individual results vary. These statements have not been evaluated by the Food and Drug Administration. '
           'This product is not intended to diagnose, treat, cure, or prevent any disease.')

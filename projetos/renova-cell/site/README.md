@@ -45,7 +45,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 
 1. **Supabase** — crie um projeto, rode `supabase/schema.sql` no SQL Editor (cria as tabelas, RLS e o bucket público `vsl`). Copie `SUPABASE_URL` e a **service role key**. Todo acesso ao banco acontece no servidor.
 2. **Stripe** — coloque `STRIPE_SECRET_KEY` em `.env.local` e rode `npm run stripe:setup`. O script cria os 6 preços (1 un. $29,90 · Kit 3 $80 · Kit 6 $140/mês · bump $19,90 · upsell Kit 6 $77 · assinatura $56/mês) e o cupom **RENOVA10** (10% na primeira cobrança). Ele imprime as linhas `STRIPE_PRICE_*` para colar no `.env.local`. Rodar duas vezes não duplica nada.
-   - Webhook: aponte para `https://SEU_DOMINIO/api/webhooks/stripe` com os eventos `checkout.session.completed` e `checkout.session.async_payment_succeeded`. Em dev: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
+   - Webhook: aponte para `https://renova-cell.vercel.app/api/webhooks/stripe` com os eventos `checkout.session.completed` e `checkout.session.async_payment_succeeded`. Em dev: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
    - Apple Pay, Google Pay, PayPal e parcelamento (Klarna/Afterpay/Affirm) aparecem sozinhos no Checkout quando ativados no Dashboard (Settings → Payment methods). Para Apple Pay, verifique o domínio no Stripe.
 3. **Claude** — `ANTHROPIC_API_KEY`. Modelo padrão `claude-opus-5-5` (troque com `ANTHROPIC_MODEL`). As chamadas usam `effort: low` e `fallbacks: "default"`, ou seja, se o modelo recusar um pedido a API tenta de novo no modelo reserva recomendado.
 4. **HeyGen** — `HEYGEN_API_KEY`, IDs de avatar e de voz. Depois:

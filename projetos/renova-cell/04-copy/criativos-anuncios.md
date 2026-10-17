@@ -7,7 +7,7 @@
 
 - Tudo o que vai ao ar está em **inglês**, entre aspas ou em bloco de citação. A tradução em português aparece logo abaixo, *em itálico*, só para o cliente acompanhar. **A tradução não vai ao ar.**
 - Direção de cena, rótulos e explicações estão em português.
-- `SEU_DOMINIO` deve ser trocado pelo domínio do funil antes de subir.
+- As URLs usam o endereço grátis da Vercel (`renova-cell.vercel.app`). Ao comprar um domínio, troque em todas.
 - A copy segue a landing (`site/lib/i18n/en.ts`) e os roteiros de VSL (`site/lib/vsl-scripts.ts`). Os ângulos vêm de `03-estrategia/estrategia.md`.
 
 ---
@@ -121,7 +121,7 @@ Cada persona tem 5 criativos e cada ângulo tem 3.
 
 ### UTMs
 
-Padrão: `https://SEU_DOMINIO/quiz?utm_source={meta|tiktok}&utm_medium=paid&utm_campaign={campanha}&utm_content=adNN`
+Padrão: `https://renova-cell.vercel.app/quiz?utm_source={meta|tiktok}&utm_medium=paid&utm_campaign={campanha}&utm_content=adNN`
 
 | utm_campaign | Ângulo / etapa | Criativos |
 |---|---|---|
@@ -223,7 +223,7 @@ Cena: mulher de ~42 anos em plano médio (rosto e ombros, sem zoom), sorrindo pa
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad01`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad01`
 
 **Compliance:** fala da pele de todo mundo, não da de quem assiste; sem antes/depois, sem close em "defeito" e sem promessa ou prazo; a atriz aparece sinalizada como dramatização.
 
@@ -329,7 +329,7 @@ Cena: homem de ~45 anos amarra o tênis na porta de casa, ao amanhecer. Selo fix
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad02`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad02`
 
 **Compliance:** cita dois dos três estudos aprovados exatamente como publicados e com a ressalva de fórmula específica; nada é prometido a quem assiste; ninguém aparece como médico; o ator é sinalizado como dramatização.
 
@@ -424,7 +424,7 @@ Cena: mulher de ~62 anos calça o tênis de caminhada; homem de ~65 abre a porta
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad03`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad03`
 
 **Compliance:** mostra movimento com alegria, sem dor nem articulação "problema"; a idade fica só na segmentação; a queda de colágeno é citada sem número; o aviso de medicação está em terceira pessoa.
 
@@ -525,7 +525,7 @@ Cena: montagem rápida da mesma caneca em manhãs diferentes (muda a roupa, o cl
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad04`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad04`
 
 **Compliance:** a duração do estudo aparece como fato do estudo, não como prazo de resultado; a montagem não mostra mudança no rosto (não é antes/depois); os preços são exatamente os da landing.
 
@@ -597,7 +597,7 @@ Cena: produto na mesa do café da manhã, luz natural. Sem pessoas.
 
 **Botão (CTA):** Shop Now (*Comprar agora*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad05`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad05`
 
 **Compliance:** garantia, preço e cupom idênticos ao checkout e aos termos ("first order"); a recorrência e o cancelamento do Kit 6 ficam claros; sem pessoas, então não há risco de depoimento; sem "risk-free".
 
@@ -679,7 +679,7 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad06`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad06`
 
 **Compliance:** fala do hábito, não do corpo de quem assiste; "weeks, not days" descreve os estudos sem prometer prazo; o ator não dá depoimento e é sinalizado como dramatização.
 
@@ -785,7 +785,7 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad07`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad07`
 
 **Compliance:** usa as mesmas frases dos cards de ciência da landing, com fonte e ressalva; não há pessoa, jaleco nem "especialista"; nenhuma promessa a quem vê.
 
@@ -851,7 +851,7 @@ Casal de ~60 anos caminhando numa trilha arborizada, rindo, em movimento. Produt
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad08`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad08`
 
 **Compliance:** imagem positiva e realista, sem dor, close ou antes/depois; os modelos são sinalizados como pagos; nenhuma alegação de alívio ou tratamento; o preço recorrente e o cancelamento estão claros.
 
@@ -913,7 +913,7 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 **Botão (CTA):** Get Offer (*Obter oferta*). Alternativa para teste: Shop Now.
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad09`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad09`
 
 **Compliance:** o gancho fala do mercado ("collagen has a hype problem"), não de quem vê; garantia e cupom exatamente como nos termos e no checkout; sem pessoas e sem "risk-free".
 
@@ -1023,7 +1023,7 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad10`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad10`
 
 **Compliance:** os três planos aparecem com preço e condição idênticos à landing; a cobrança recorrente e o cancelamento estão explícitos, como pede a lei americana de assinaturas online (ROSCA); sem pessoas e sem alegação de resultado.
 
@@ -1110,7 +1110,7 @@ Texto na tela: "Paid partnership with RENOVA CELL"
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad11`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad11`
 
 **Compliance:** a parceria paga é dita em voz, na tela, no rótulo da plataforma e no texto; a criadora não relata resultado; a pele é tratada como mudança normal de todo mundo; o estudo vem com a ressalva de fórmula específica.
 
@@ -1184,7 +1184,7 @@ Cena: homem de ~45 anos se barbeando no espelho, rindo de algo fora de quadro (a
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad12`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad12`
 
 **Compliance:** frase geral sobre homens e pele, sem atribuir idade ou condição a quem assiste; sem close nem antes/depois; nenhuma alegação de hormônio ou desempenho; ator sinalizado.
 
@@ -1265,7 +1265,7 @@ Cena: apresentadora de ~60 anos, roupa do dia a dia, na cozinha de casa (não em
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad13`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad13`
 
 **Compliance:** a apresentadora aparece como paga e "not a doctor", em cenário doméstico; fala sobre envelhecimento em geral, não sobre quem assiste; estudos citados com ressalva; inclui o aviso de medicação.
 
@@ -1342,7 +1342,7 @@ Cena: basquete de rua no fim de semana, homens de 40 a 50 anos, cortes rápidos 
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad14`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad14`
 
 **Compliance:** ninguém encena dor nem segura articulação; o gancho descreve o colágeno no corpo, não promete desempenho ("jump higher" é proibido); o estudo vem com a ressalva; ator sinalizado.
 
@@ -1413,7 +1413,7 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 **Botão (CTA):** Shop Now (*Comprar agora*)
 
-**URL de destino:** `https://SEU_DOMINIO/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad15`
+**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad15`
 
 **Compliance:** garantia ("first order"), preços e cupom idênticos aos termos e ao checkout; sem rosto, sem depoimento e sem alegação de resultado; a pessoa que aparece (só as mãos) é sinalizada como dramatização.
 
@@ -1425,7 +1425,7 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 ### Checklist antes de subir
 
-1. Trocar `SEU_DOMINIO` em todas as URLs e abrir cada link para conferir que cai no `/quiz`.
+1. Abrir cada link para conferir que cai no `/quiz` (endereço atual: `renova-cell.vercel.app`; trocar se comprar domínio).
 2. Confirmar com o cliente o formato físico do produto, a embalagem e o rótulo (as cenas supõem uma dose misturada na bebida) e se o reembolso cobre o frete.
 3. **Kit 6:** resolvido — é estoque de 6 meses (US$ 140), em compra única ou assinatura que renova a cada 6 meses. AD05, AD08 e AD10 já foram atualizados.
 4. **Pixel do TikTok:** o site só tem GA4, Meta Pixel e PostHog (`components/Analytics.tsx`). Sem instalar o pixel do TikTok (ou a Events API), não dá para medir custo por quiz nem por compra no TikTok. Os criativos AD11–AD15 só entram depois disso.

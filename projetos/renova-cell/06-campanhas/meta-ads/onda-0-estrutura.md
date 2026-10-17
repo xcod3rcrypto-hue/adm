@@ -23,7 +23,7 @@
 
 ## 2. Configuração do site para a Onda 0
 
-**Sem domínio próprio ainda:** publique o site na Vercel (grátis). Importe o repositório, *Root Directory* = `projetos/renova-cell/site`, branch `ccr-9522a17f-ebs30y`. O endereço fica `https://<nome-do-projeto>.vercel.app` e serve para o pixel, a verificação e os anúncios. Antes de ligar verba de verdade, vale comprar um domínio (cerca de US$ 10–15/ano) e apontar para a Vercel: endereço `.vercel.app` em anúncio passa menos confiança. Anúncio **não** pode apontar para `localhost` — nem a Meta nem o cliente conseguem abrir.
+**Sem domínio próprio ainda:** publique o site na Vercel (grátis). Importe o repositório, *Root Directory* = `projetos/renova-cell/site`, branch `ccr-9522a17f-ebs30y`. Dê ao projeto o nome **`renova-cell`**: o endereço fica `https://renova-cell.vercel.app`, que é o usado em todos os anúncios e na planilha (se o nome estiver ocupado, a Vercel sugere outro — aí troque `DOMAIN` em `onda0_build.py` e rode o script de novo) e serve para o pixel, a verificação e os anúncios. Antes de ligar verba de verdade, vale comprar um domínio (cerca de US$ 10–15/ano) e apontar para a Vercel: endereço `.vercel.app` em anúncio passa menos confiança. Anúncio **não** pode apontar para `localhost` — nem a Meta nem o cliente conseguem abrir.
 
 ```
 SHIP_COUNTRIES=US
@@ -65,7 +65,7 @@ Idade, gênero e persona do quiz **não** vão para a Meta (o site já filtra).
 
 **Teste (Gerenciador de Eventos → Testar eventos):**
 1. Preencha `META_TEST_EVENT_CODE` no ambiente e faça o deploy.
-2. Abra `https://SEU_DOMINIO/quiz?utm_source=meta&utm_medium=paid&utm_content=teste`, aceite os cookies, faça o quiz, chegue ao checkout e pague com cartão real (reembolse depois).
+2. Abra `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_content=teste`, aceite os cookies, faça o quiz, chegue ao checkout e pague com cartão real (reembolse depois).
 3. Confira: cada evento aparece; o Purchase aparece **uma vez** com "Navegador" e "Servidor" juntos (deduplicado), valor e moeda corretos.
 4. No Supabase: a linha em `orders` tem `utm.utm_content = "teste"`.
 5. Apague `META_TEST_EVENT_CODE` e faça o deploy de novo.
@@ -152,7 +152,7 @@ rc_us_c3_remarketing   Vendas · Purchase (A) / LPV (B) · ABO · US$ 15/dia · 
 - Estratégia de lance: maior volume (sem limite de custo na Onda 0).
 - Identidade: página e Instagram do RENOVA CELL (no ig10, anúncio de parceria com o criador).
 - Recursos de criativo Advantage+ (melhorias automáticas): **desligar** "adicionar música", "variações de texto" e "imagens geradas" — a IA da Meta pode criar texto que quebra as regras de alegação. Manter só ajustes de recorte/brilho.
-- Destino: site. URL `https://SEU_DOMINIO/quiz` (teste/C0/C2) ou `/offer` (remarketing; quem não fez o quiz cai no quiz). Parâmetros de URL da seção 6.
+- Destino: site. URL `https://renova-cell.vercel.app/quiz` (teste/C0/C2) ou `/offer` (remarketing; quem não fez o quiz cai no quiz). Parâmetros de URL da seção 6.
 
 **Conjuntos do C0, C1 e C2**
 - Local: Estados Unidos (pessoas que moram ou estiveram recentemente).
@@ -196,7 +196,7 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig01b` | "A 30-second morning ritual" | "Free shipping · 2 business days" |
 | `ig01c` | "The supplement that fits in a coffee mug" | "Find your plan in 60 seconds" |
 
-- **Descrição:** "Buy once or subscribe · cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "Buy once or subscribe · cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### IG03 — Unboxing discreto + 2 dias · conjunto `ig03_unboxing`
 
@@ -220,7 +220,7 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig03b` | "Free shipping. 2 business days. Plain box." | "Delivered in up to 2 business days" |
 | `ig03c` | "Ordered Monday. Here Wednesday." | "Plain box. Fast delivery." |
 
-- **Descrição:** "Tracked · discreet · free" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "Tracked · discreet · free" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### IG04 — O quiz é o anúncio · conjunto `ig04_quiz`
 
@@ -242,7 +242,7 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig04b` | "Which plan fits your routine? 60 seconds." | "Get your plan in 60 seconds" |
 | `ig04c` | "Coffee, water or smoothie? Start here." | "8 questions. 1 plan." |
 
-- **Descrição:** "Free shipping · 2 business days" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "Free shipping · 2 business days" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### IG06 — Ritual a dois · conjunto `ig06_a_dois`
 
@@ -266,7 +266,7 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig06b` | "Two mugs. One ritual." | "Free shipping · 2 business days" |
 | `ig06c` | "Self-care is better together." | "Take the 60-second quiz" |
 
-- **Descrição:** "No hormones · no stimulants" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "No hormones · no stimulants" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### IG10 — Criador (anúncio de parceria) · conjunto `ig10_criador`
 
@@ -286,7 +286,7 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig10b` | "[Abertura B do criador]" | "Free shipping · 2 business days" |
 | `ig10c` | "[Abertura C do criador]" | "Find your plan in 60 seconds" |
 
-- **Descrição:** "Paid partnership" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "Paid partnership" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### IG05 — Chega quando acaba (reserva do ig10) · conjunto `ig05_assinatura`
 
@@ -308,16 +308,16 @@ Formatos: vídeo 9:16 1080×1920 (Reels/Stories) com corte 4:5 1080×1350 para o
 | `ig05b` | "1, 3 or 6 months. You choose." | "Same price · cancel anytime" |
 | `ig05c` | "Subscribe or buy once. Same price." | "Free shipping · 2 business days" |
 
-- **Descrição:** "Cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://SEU_DOMINIO/quiz`
+- **Descrição:** "Cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
 
 #### Remarketing · conjuntos `rt1_quiz_oferta_14d` e `rt2_engajou_30d`
 
 | Anúncio | Peça | Formato | Texto na arte | Texto principal (EN) | Título | CTA | URL |
 |---|---|---|---|---|---|---|---|
-| `ig08a` | Garantia de 30 dias | Imagem 4:5 + versão 9:16 (Stories) | Arte: produto + "30-day money-back guarantee · Free shipping · 2 business days" | Still thinking about it? Try RENOVA CELL for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, delivered in up to 2 business days in discreet packaging. | "30-day money-back guarantee" | Comprar agora (Shop now) | `https://SEU_DOMINIO/offer` |
-| `ig12a` | O que vem na caixa | Imagem 4:5 (flat lay) + 9:16 | Arte: "What's in the box" · "Your plan (1, 3 or 6 months)" · "Plain outer box" · "Free shipping" · "30-day guarantee" | Your plan, a plain outer box and free delivery in up to 2 business days. Buy once or subscribe, cancel anytime. 30-day money-back guarantee. | "Free shipping · 2 business days" | Comprar agora (Shop now) | `https://SEU_DOMINIO/offer` |
-| `ig03b` | Unboxing (reaproveitado do teste) | Mesma publicação do C1 (Post ID) | Gancho B do ig03 | (mesmo texto do ig03) | "Delivered in up to 2 business days" | Comprar agora (Shop now) | `https://SEU_DOMINIO/offer` |
-| `ig13a` | Cupom RENOVA10 (quem iniciou o checkout) | Imagem 4:5 + 9:16 | Arte: "10% off your first payment · code RENOVA10" + produto | Your plan is still waiting. Use code RENOVA10 for 10% off your first payment. Free shipping in up to 2 business days, discreet packaging, 30-day money-back guarantee. | "10% off with RENOVA10" | Obter oferta (Get offer) | `https://SEU_DOMINIO/offer` |
+| `ig08a` | Garantia de 30 dias | Imagem 4:5 + versão 9:16 (Stories) | Arte: produto + "30-day money-back guarantee · Free shipping · 2 business days" | Still thinking about it? Try RENOVA CELL for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, delivered in up to 2 business days in discreet packaging. | "30-day money-back guarantee" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
+| `ig12a` | O que vem na caixa | Imagem 4:5 (flat lay) + 9:16 | Arte: "What's in the box" · "Your plan (1, 3 or 6 months)" · "Plain outer box" · "Free shipping" · "30-day guarantee" | Your plan, a plain outer box and free delivery in up to 2 business days. Buy once or subscribe, cancel anytime. 30-day money-back guarantee. | "Free shipping · 2 business days" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
+| `ig03b` | Unboxing (reaproveitado do teste) | Mesma publicação do C1 (Post ID) | Gancho B do ig03 | (mesmo texto do ig03) | "Delivered in up to 2 business days" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
+| `ig13a` | Cupom RENOVA10 (quem iniciou o checkout) | Imagem 4:5 + 9:16 | Arte: "10% off your first payment · code RENOVA10" + produto | Your plan is still waiting. Use code RENOVA10 for 10% off your first payment. Free shipping in up to 2 business days, discreet packaging, 30-day money-back guarantee. | "10% off with RENOVA10" | Obter oferta (Get offer) | `https://renova-cell.vercel.app/offer` |
 
 Todo texto principal de remarketing termina com o mesmo rodapé da FDA.
 <!-- ANUNCIOS:FIM -->

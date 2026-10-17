@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   title: 'RENOVA CELL — Your personalized collagen plan',
   description: 'Take the 60-second quiz and get a daily collagen + peptide plan matched to you.',
   robots: { index: true, follow: true },
+  // Meta domain verification by meta tag: works on a vercel.app address too (no DNS needed).
+  ...(process.env.NEXT_PUBLIC_FB_DOMAIN_VERIFICATION && {
+    verification: { other: { 'facebook-domain-verification': process.env.NEXT_PUBLIC_FB_DOMAIN_VERIFICATION } },
+  }),
 };
 
 export const viewport: Viewport = {

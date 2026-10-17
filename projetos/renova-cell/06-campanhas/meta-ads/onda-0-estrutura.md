@@ -23,6 +23,8 @@
 
 ## 2. Configuração do site para a Onda 0
 
+**Sem domínio próprio ainda:** publique o site na Vercel (grátis). Importe o repositório, *Root Directory* = `projetos/renova-cell/site`, branch `ccr-9522a17f-ebs30y`. O endereço fica `https://<nome-do-projeto>.vercel.app` e serve para o pixel, a verificação e os anúncios. Antes de ligar verba de verdade, vale comprar um domínio (cerca de US$ 10–15/ano) e apontar para a Vercel: endereço `.vercel.app` em anúncio passa menos confiança. Anúncio **não** pode apontar para `localhost` — nem a Meta nem o cliente conseguem abrir.
+
 ```
 SHIP_COUNTRIES=US
 FAST_DELIVERY_COUNTRIES=US
@@ -41,7 +43,7 @@ Também: chaves live da Stripe + `npm run stripe:setup`, e rodar de novo `supaba
 1. **Portfólio empresarial** (business.facebook.com → Configurações): verificar a empresa, 2 administradores com autenticação de dois fatores.
 2. **Página do Facebook + Instagram profissional** do RENOVA CELL conectados ao portfólio. No Instagram: Configurações → Conteúdo de marca → permitir **anúncios de parceria** (para o criador).
 3. **Conta de anúncios** `RC | US | USD`: moeda **USD** e fuso de quem opera. Moeda e fuso não mudam depois. Forma de pagamento principal + uma reserva.
-4. **Domínio verificado:** Segurança da marca → Domínios → registro TXT no DNS.
+4. **Domínio verificado:** Segurança da marca → Domínios → adicionar → método **meta-tag** → copiar só o valor `content` para `NEXT_PUBLIC_FB_DOMAIN_VERIFICATION` e fazer o deploy. Funciona também no endereço grátis da Vercel (`renova-cell.vercel.app`), sem mexer em DNS. Com domínio próprio, pode usar o registro TXT.
 5. **Conjunto de dados (pixel):** Gerenciador de Eventos → conectar o site → copiar o ID para `NEXT_PUBLIC_META_PIXEL_ID`. Em Configurações → API de Conversões → **gerar token** → `META_CAPI_TOKEN`.
 6. **Classificação de saúde e bem-estar:** no Gerenciador de Eventos, veja se há aviso de restrição no conjunto de dados. **Sem restrição = caminho A. Com restrição = caminho B** (seção 5).
 7. **Conta nova cuidada:** não comece com verba alta, não mude a forma de pagamento nos primeiros dias, não suba anúncio que viola política "para testar". Se um anúncio for reprovado, corrija e peça revisão — **nunca** crie contas novas para contornar uma restrição (isso derruba o portfólio inteiro).

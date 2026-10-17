@@ -38,7 +38,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 | `GET /api/order` | Resumo do pedido para upsell/obrigado |
 | `GET /api/social-proof` | Nº **real** de pedidos pagos nas últimas 24 h |
 | `POST /api/webhooks/stripe` | Registra pedidos (`checkout.session.completed`) |
-| `GET /api/cron/followups` | Sequência pós-quiz (Vercel Cron a cada 10 min) |
+| `GET /api/cron/followups` | Sequência pós-quiz (Vercel Cron 1×/dia + cron externo grátis a cada 10 min) |
 | `GET/POST /api/unsubscribe` | Descadastro com link assinado (HMAC) e one-click (RFC 8058) |
 
 ## Configuração passo a passo
@@ -57,7 +57,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
    Os roteiros EN e PT estão em `lib/vsl-scripts.ts`. Os links da HeyGen expiram, por isso o script copia cada vídeo para o Storage.
 5. **E-mail/SMS** — Resend (`RESEND_API_KEY`, `EMAIL_FROM` de domínio verificado) e Twilio. Defina `UNSUBSCRIBE_SECRET`, `CRON_SECRET` e `COMPANY_POSTAL_ADDRESS`. `MAKE_WEBHOOK_URL` é opcional e repassa cada lead ao Make.com.
 6. **Analytics** — GA4, Meta Pixel, PostHog e Hotjar por variáveis `NEXT_PUBLIC_*`. Eles só carregam depois que a pessoa aceita os cookies. Eventos enviados: `quiz_start`, `quiz_complete` (Lead), `view_offer` (ViewContent), `begin_checkout` (InitiateCheckout), `upsell_accepted`, `purchase` (Purchase).
-7. **Deploy na Vercel** — importe o repositório com *Root Directory* = `projetos/renova-cell/site`, cole as variáveis e publique. O `vercel.json` já agenda o cron (o plano Hobby só aceita cron diário; para rodar a cada 10 min é preciso o Pro).
+7. **Deploy na Vercel** — importe o repositório com *Root Directory* = `projetos/renova-cell/site`, cole as variáveis e publique. O `vercel.json` agenda o cron 1×/dia, o que funciona no plano grátis (Hobby). Para a sequência sair no horário (30 min, 2 h…), crie também um cron grátis em cron-job.org: URL `https://renova-cell.vercel.app/api/cron/followups`, a cada 10 minutos, com o cabeçalho `Authorization: Bearer <CRON_SECRET>`. No plano Pro dá para trocar o `vercel.json` para `*/10 * * * *` e dispensar o externo.
 
 ## Mercados, idiomas, moedas, assinatura e frete
 

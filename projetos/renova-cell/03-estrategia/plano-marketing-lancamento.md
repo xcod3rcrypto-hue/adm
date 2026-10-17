@@ -4,6 +4,8 @@
 > **Funil:** anúncio → quiz (8 perguntas) → análise → oferta personalizada → checkout Stripe → upsells → obrigado
 > **Oferta que pode aparecer em anúncio:** 1 unidade, Kit 3 (90 dias), Kit 6 (6 meses); compra única **ou** assinatura que chega de novo quando o estoque acaba; **frete grátis**; **entrega em até 2 dias úteis**; **embalagem discreta**; garantia de 30 dias; cupom RENOVA10 (10% no 1º pagamento).
 >
+> **Onda 0 (validação de 21 dias nos EUA, antes da onda 1):** `06-campanhas/meta-ads/onda-0-estrutura.md` + `onda-0-montagem.xlsx`.
+>
 > Documentos irmãos: criativos do lote 1 (EUA, Meta + TikTok) em `04-copy/criativos-anuncios.md` · modelo financeiro em `03-estrategia/metas-kpi.xlsx` · funil em `site/`.
 
 ---

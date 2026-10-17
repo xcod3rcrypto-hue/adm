@@ -24,6 +24,7 @@ const SHIMS = {
   'next/link': shim('link.tsx'),
   'next/image': shim('image.tsx'),
   'next/script': shim('script.tsx'),
+  'next/headers': shim('headers.ts'),
   '@/lib/browser': shim('browser.ts'),
 };
 

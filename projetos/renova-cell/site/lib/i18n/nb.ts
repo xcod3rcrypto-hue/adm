@@ -229,7 +229,7 @@ export const nb: Dictionary = {
       recurring: "Det trekkes {price} {interval} til du sier opp. Si opp når som helst via kvitteringen i e-posten din.",
       cta: 'Velg denne planen',
     },
-    shipping: { free: 'Gratis frakt', fast: 'Levering innen 2 virkedager', discreet: 'Diskret emballasje' },
+    shipping: { free: 'Gratis frakt', fast: 'Levering innen 2 virkedager', discreet: 'Diskret emballasje', tracked: 'Levering med sporing' },
     bonus: {
       title: 'Inkludert i Kit 3 og Kit 6',
       items: ['E-bok: Kollagenrutinen', 'Måltidsplan for 15 dager', 'VIP-kundegruppe'],
@@ -268,6 +268,7 @@ export const nb: Dictionary = {
         shipping: {
           q: 'Hvordan fungerer frakten?',
           a: 'Frakten er gratis til alle land vi leverer til. Leveringen tar maks 2 virkedager, med sporing, i nøytral, diskret emballasje uten produktnavn utenpå. Sporingslenken sendes på e-post så snart bestillingen er sendt.',
+          aStandard: 'Frakten er gratis til alle land vi leverer til. Bestillinger sendes med sporing, i nøytral, diskret emballasje uten produktnavn utenpå. Forventet leveringstid til landet ditt vises ved betaling, og sporingslenken sendes på e-post så snart bestillingen er sendt.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const nb: Dictionary = {
       copied: 'Kopiert!',
     },
     order: 'Ordresammendrag',
+  },
+  neutral: {
+    intro: 'Svar på 8 raske spørsmål (ca. 60 sekunder) og få planen din for yngre utseende hud og energi i hverdagen.',
+    painLibido: 'Lite vitalitet',
+    heroSub: 'Ditt daglige ritual: en formel med kollagen + peptider for deg som vil ha yngre utseende hud og mer energi, tilpasset svarene dine.',
+    bullet: 'Å ha det godt i kroppen begynner med daglig egenomsorg',
+    pillar: { title: 'Vitalitet og selvtillit', body: 'Å ha det godt i kroppen er en del av å føle selvtillit. Et daglig ritual for egenomsorg for menn og kvinner, uten hormoner og uten sentralstimulerende stoffer.' },
   },
   emails: {
     footer: 'Du får denne e-posten fordi du tok RENOVA CELL-quizen.',

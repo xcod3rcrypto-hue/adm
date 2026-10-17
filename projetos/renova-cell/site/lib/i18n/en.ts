@@ -232,7 +232,7 @@ export const en = {
       recurring: "Billed {price} {interval} until you cancel. Cancel anytime from your email receipt.",
       cta: 'Choose this plan',
     },
-    shipping: { free: 'Free shipping', fast: 'Delivery in up to 2 business days', discreet: 'Discreet packaging' },
+    shipping: { free: 'Free shipping', fast: 'Delivery in up to 2 business days', discreet: 'Discreet packaging', tracked: 'Tracked delivery' },
     bonus: {
       title: 'Included with Kit 3 and Kit 6',
       items: ['E-book: The Collagen Routine', '15-day meal plan', 'VIP customer group'],
@@ -271,6 +271,7 @@ export const en = {
         shipping: {
           q: 'How does shipping work?',
           a: 'Shipping is free to every country we deliver to. Delivery takes up to 2 business days, with tracking, in plain, discreet packaging with no product name on the outside. The tracking link is sent by email as soon as the order ships.',
+          aStandard: 'Shipping is free to every country we deliver to. Orders ship with tracking, in plain, discreet packaging with no product name on the outside. The delivery estimate for your country is shown at checkout, and the tracking link is sent by email as soon as the order ships.',
         },
       },
     },
@@ -368,6 +369,14 @@ export const en = {
       copied: 'Copied!',
     },
     order: 'Order summary',
+  },
+  /** Neutral wording for paid-ad visitors and ad reviewers (no "desire" copy). See lib/market.ts. */
+  neutral: {
+    intro: 'Answer 8 quick questions (about 60 seconds) and get your plan for younger-looking skin and everyday energy.',
+    painLibido: 'Low vitality',
+    heroSub: 'Your daily ritual: a collagen + peptide formula for people who want younger-looking skin and more energy, matched to your answers.',
+    bullet: 'Feeling good in your body starts with daily self-care',
+    pillar: { title: 'Vitality & confidence', body: 'Feeling good in your body is part of feeling confident. A daily self-care ritual for men and women, with no hormones and no stimulants.' },
   },
   emails: {
     footer: 'You are receiving this because you took the RENOVA CELL quiz.',

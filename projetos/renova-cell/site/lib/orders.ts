@@ -1,5 +1,6 @@
 import 'server-only';
 import type Stripe from 'stripe';
+import { utmOf } from './attribution';
 import { stripe } from './stripe';
 import { db } from './supabase';
 
@@ -29,6 +30,7 @@ export async function recordOrder(session: Stripe.Checkout.Session): Promise<voi
       amount_cents: session.amount_total,
       currency: session.currency,
       quiz_id: quizId,
+      utm: utmOf(session.metadata),
       status: 'paid',
     },
     { onConflict: 'stripe_session_id', ignoreDuplicates: false },

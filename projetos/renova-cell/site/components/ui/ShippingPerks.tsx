@@ -1,14 +1,15 @@
 'use client';
 
-import { useT } from '@/lib/hooks';
+import { useMarket, useT } from '@/lib/hooks';
 
-/** Free shipping · fast tracked delivery · discreet packaging. */
+/** Free shipping · up to 2 business days (or tracked delivery outside FAST_DELIVERY_COUNTRIES) · discreet packaging. */
 export function ShippingPerks({ className = '' }: { className?: string }) {
   const { d } = useT();
+  const { fastDelivery } = useMarket();
   const s = d.offer.shipping;
   const perks: [string, string][] = [
     ['🚚', s.free],
-    ['⚡', s.fast],
+    ['⚡', fastDelivery ? s.fast : s.tracked],
     ['📦', s.discreet],
   ];
   return (

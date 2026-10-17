@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { utmOf } from '@/lib/attribution';
 import { generateHeadline } from '@/lib/claude';
 import { offerLink } from '@/lib/followups';
 import { EMAIL_RE, PHONE_RE, badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
@@ -14,6 +15,7 @@ interface Body {
   answers?: unknown;
   locale?: unknown;
   variant?: unknown;
+  utm?: unknown;
   contact?: { name?: string; email?: string; phone?: string; marketingConsent?: boolean; smsConsent?: boolean };
 }
 
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
         sms_consent: smsConsent,
         headline,
         ab_variant: variant,
+        utm: utmOf(body.utm),
         followup_step: 1,
       })
       .select('id')

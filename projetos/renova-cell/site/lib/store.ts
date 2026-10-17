@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import type { Attribution } from './attribution';
 import { safeStorage } from './browser';
 import { DEFAULT_LOCALE, type Locale } from './i18n';
 import type { PlanId, QuizAnswers } from './quiz';
@@ -27,6 +28,8 @@ interface FunnelState {
   /** Buy once (false) or subscribe: the same plan again whenever the supply runs out. */
   subscribe: boolean;
   bump: boolean;
+  /** UTM tags + Meta click id of the ad click that brought the visitor (last paid click wins). */
+  attribution: Attribution | null;
   coupon: string | null;
   setLocale: (locale: Locale, chosen?: boolean) => void;
   setStep: (step: number) => void;
@@ -36,6 +39,7 @@ interface FunnelState {
   setPlan: (plan: PlanId) => void;
   setSubscribe: (subscribe: boolean) => void;
   setBump: (bump: boolean) => void;
+  setAttribution: (attribution: Attribution) => void;
   setCoupon: (coupon: string | null) => void;
   reset: () => void;
 }
@@ -55,6 +59,7 @@ export const useFunnel = create<FunnelState>()(
       plan: null,
       subscribe: false,
       bump: false,
+      attribution: null,
       coupon: null,
       setLocale: (locale, chosen = false) => set((s) => ({ locale, localeChosen: s.localeChosen || chosen })),
       setStep: (step) => set({ step }),
@@ -64,6 +69,7 @@ export const useFunnel = create<FunnelState>()(
       setPlan: (plan) => set({ plan }),
       setSubscribe: (subscribe) => set({ subscribe }),
       setBump: (bump) => set({ bump }),
+      setAttribution: (attribution) => set({ attribution }),
       setCoupon: (coupon) => set({ coupon }),
       reset: () =>
         set({ step: 0, answers: {}, quizId: null, headline: null, plan: null, subscribe: false, bump: false, coupon: null }),

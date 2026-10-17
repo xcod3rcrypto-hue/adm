@@ -39,7 +39,7 @@ export function ThankYou() {
         const key = `rc_tracked_${sessionId}`;
         try {
           if (!sessionStorage.getItem(key)) {
-            track('purchase', { value: (data.amount ?? 0) / 100, currency: (data.currency ?? 'usd').toUpperCase(), plan: data.plan ?? '' });
+            track('purchase', { value: (data.amount ?? 0) / 100, currency: (data.currency ?? 'usd').toUpperCase(), plan: data.plan ?? '' }, sessionId);
             sessionStorage.setItem(key, '1');
           }
         } catch {

@@ -60,7 +60,7 @@ export async function generateHeadline(answers: QuizAnswers, locale: Locale): Pr
 export function chatStream(
   messages: Anthropic.Beta.BetaMessageParam[],
   locale: Locale,
-  context: { persona?: Persona; plan?: string; currency?: Currency },
+  context: { persona?: Persona; plan?: string; currency?: Currency; fastDelivery?: boolean },
 ): ReadableStream<Uint8Array> {
   const ai = anthropic();
   const encoder = new TextEncoder();

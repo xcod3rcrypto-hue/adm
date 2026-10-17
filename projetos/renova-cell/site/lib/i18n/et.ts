@@ -229,7 +229,7 @@ export const et: Dictionary = {
       recurring: 'Võtame {price} {interval}, kuni tühistad. Tühista igal ajal e-postiga saadud kviitungi kaudu.',
       cta: 'Vali see plaan',
     },
-    shipping: { free: 'Tasuta saatmine', fast: 'Tarne kuni 2 tööpäevaga', discreet: 'Diskreetne pakend' },
+    shipping: { free: 'Tasuta saatmine', fast: 'Tarne kuni 2 tööpäevaga', discreet: 'Diskreetne pakend', tracked: 'Jälgitav tarne' },
     bonus: {
       title: 'Kit 3 ja Kit 6 juurde kuulub',
       items: ['E-raamat: kollageenirutiin', '15 päeva toidukava', 'VIP-kliendigrupp'],
@@ -268,6 +268,7 @@ export const et: Dictionary = {
         shipping: {
           q: 'Kuidas saatmine toimib?',
           a: 'Saatmine on tasuta kõikidesse riikidesse, kuhu me tarnime. Tarne võtab kuni 2 tööpäeva, jälgitavalt, neutraalses, diskreetses pakendis, millel pole väljast toote nime. Jälgimislink saadetakse e-postiga kohe, kui tellimus on teele pandud.',
+          aStandard: 'Saatmine on tasuta kõikidesse riikidesse, kuhu me tarnime. Tellimused saadetakse jälgitavalt neutraalses, diskreetses pakendis, millel pole väljast toote nime. Sinu riigi eeldatav tarneaeg on näha maksmisel ja jälgimislink saadetakse e-postiga kohe, kui tellimus on teele pandud.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const et: Dictionary = {
       copied: 'Kopeeritud!',
     },
     order: 'Tellimuse kokkuvõte',
+  },
+  neutral: {
+    intro: 'Vasta 8 lühikesele küsimusele (umbes 60 sekundit) ja saa oma plaan noorema välimusega naha ja igapäevase energia jaoks.',
+    painLibido: 'Vähe elujõudu',
+    heroSub: 'Sinu igapäevane rituaal: kollageeni ja peptiididega koostis neile, kes soovivad noorema välimusega nahka ja rohkem energiat, sinu vastustele kohandatud.',
+    bullet: 'Hea enesetunne oma kehas algab igapäevasest enesehooldusest',
+    pillar: { title: 'Elujõud ja enesekindlus', body: 'Hea enesetunne oma kehas on osa enesekindlusest. Igapäevane enesehoolduse rituaal meestele ja naistele, ilma hormoonide ja stimulantideta.' },
   },
   emails: {
     footer: 'Saad selle kirja, sest täitsid RENOVA CELLi testi.',

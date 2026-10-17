@@ -229,7 +229,7 @@ export const pl: Dictionary = {
       recurring: 'Opłata {price} {interval}, dopóki nie zrezygnujesz. Zrezygnujesz w każdej chwili przez link w e-mailu z potwierdzeniem.',
       cta: 'Wybieram ten plan',
     },
-    shipping: { free: 'Darmowa wysyłka', fast: 'Dostawa w maks. 2 dni robocze', discreet: 'Dyskretne opakowanie' },
+    shipping: { free: 'Darmowa wysyłka', fast: 'Dostawa w maks. 2 dni robocze', discreet: 'Dyskretne opakowanie', tracked: 'Dostawa ze śledzeniem' },
     bonus: {
       title: 'W zestawie z Kit 3 i Kit 6',
       items: ['E-book: Rutyna z kolagenem', '15-dniowy plan posiłków', 'Grupa VIP dla klientów'],
@@ -268,6 +268,7 @@ export const pl: Dictionary = {
         shipping: {
           q: 'Jak wygląda wysyłka?',
           a: 'Wysyłka jest darmowa do wszystkich krajów, do których dostarczamy. Dostawa trwa maksymalnie 2 dni robocze, ze śledzeniem, w zwykłym, dyskretnym opakowaniu bez nazwy produktu na zewnątrz. Link do śledzenia przychodzi e-mailem, gdy tylko zamówienie zostanie wysłane.',
+          aStandard: 'Wysyłka jest darmowa do wszystkich krajów, do których dostarczamy. Zamówienia wysyłamy ze śledzeniem, w zwykłym, dyskretnym opakowaniu bez nazwy produktu na zewnątrz. Szacowany czas dostawy do Twojego kraju widać przy płatności, a link do śledzenia przychodzi e-mailem, gdy tylko zamówienie zostanie wysłane.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const pl: Dictionary = {
       copied: 'Skopiowano!',
     },
     order: 'Podsumowanie zamówienia',
+  },
+  neutral: {
+    intro: 'Odpowiedz na 8 krótkich pytań (około 60 sekund) i otrzymaj swój plan dla młodziej wyglądającej skóry i energii na co dzień.',
+    painLibido: 'Mniejsza witalność',
+    heroSub: 'Twój codzienny rytuał: formuła z kolagenem + peptydami dla osób, które chcą młodziej wyglądającej skóry i więcej energii, dopasowana do Twoich odpowiedzi.',
+    bullet: 'Dobre samopoczucie we własnym ciele zaczyna się od codziennej troski o siebie',
+    pillar: { title: 'Witalność i pewność siebie', body: 'Dobre samopoczucie we własnym ciele to część pewności siebie. Codzienny rytuał dbania o siebie dla kobiet i mężczyzn, bez hormonów i bez stymulantów.' },
   },
   emails: {
     footer: 'Otrzymujesz tę wiadomość, ponieważ wypełniłeś(-aś) quiz RENOVA CELL.',

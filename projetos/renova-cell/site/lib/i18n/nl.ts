@@ -229,7 +229,7 @@ export const nl: Dictionary = {
       recurring: 'Er wordt {price} {interval} afgeschreven tot je opzegt. Opzeggen kan altijd via je ontvangstbewijs per e-mail.',
       cta: 'Kies dit plan',
     },
-    shipping: { free: 'Gratis verzending', fast: 'Levering binnen 2 werkdagen', discreet: 'Discrete verpakking' },
+    shipping: { free: 'Gratis verzending', fast: 'Levering binnen 2 werkdagen', discreet: 'Discrete verpakking', tracked: 'Levering met track & trace' },
     bonus: {
       title: 'Inbegrepen bij Kit 3 en Kit 6',
       items: ['E-book: De collageenroutine', 'Maaltijdplan voor 15 dagen', 'VIP-klantengroep'],
@@ -268,6 +268,7 @@ export const nl: Dictionary = {
         shipping: {
           q: 'Hoe werkt de verzending?',
           a: 'Verzending is gratis naar alle landen waar we leveren. Levering duurt maximaal 2 werkdagen, met track & trace, in een neutrale, discrete verpakking zonder productnaam aan de buitenkant. De trackinglink komt per e-mail zodra de bestelling is verzonden.',
+          aStandard: 'Verzending is gratis naar alle landen waar we leveren. Bestellingen gaan met track & trace de deur uit, in een neutrale, discrete verpakking zonder productnaam aan de buitenkant. De verwachte levertijd voor je land zie je bij het betalen, en de trackinglink komt per e-mail zodra de bestelling is verzonden.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const nl: Dictionary = {
       copied: 'Gekopieerd!',
     },
     order: 'Overzicht van je bestelling',
+  },
+  neutral: {
+    intro: 'Beantwoord 8 korte vragen (ongeveer 60 seconden) en krijg je plan voor een jonger ogende huid en energie in het dagelijks leven.',
+    painLibido: 'Weinig vitaliteit',
+    heroSub: 'Je dagelijkse ritueel: een formule met collageen + peptiden voor wie een jonger ogende huid en meer energie wil, afgestemd op je antwoorden.',
+    bullet: 'Je goed voelen in je lichaam begint met dagelijkse zelfzorg',
+    pillar: { title: 'Vitaliteit en zelfvertrouwen', body: 'Je goed voelen in je lichaam hoort bij zelfvertrouwen. Een dagelijks zelfzorgritueel voor mannen en vrouwen, zonder hormonen en zonder stimulerende middelen.' },
   },
   emails: {
     footer: 'Je ontvangt dit omdat je de RENOVA CELL-quiz hebt ingevuld.',

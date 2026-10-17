@@ -229,7 +229,7 @@ export const hr: Dictionary = {
       recurring: 'Naplaćujemo {price} {interval} dok ne otkažeš. Otkaži bilo kada putem računa u e-pošti.',
       cta: 'Odaberi ovaj plan',
     },
-    shipping: { free: 'Besplatna dostava', fast: 'Dostava u najviše 2 radna dana', discreet: 'Diskretno pakiranje' },
+    shipping: { free: 'Besplatna dostava', fast: 'Dostava u najviše 2 radna dana', discreet: 'Diskretno pakiranje', tracked: 'Dostava s praćenjem' },
     bonus: {
       title: 'Uključeno uz Kit 3 i Kit 6',
       items: ['E-knjiga: Kolagenska rutina', 'Plan prehrane za 15 dana', 'VIP grupa za kupce'],
@@ -268,6 +268,7 @@ export const hr: Dictionary = {
         shipping: {
           q: 'Kako funkcionira dostava?',
           a: 'Dostava je besplatna u sve zemlje u koje dostavljamo. Dostava traje najviše 2 radna dana, s praćenjem, u običnom, diskretnom pakiranju bez naziva proizvoda izvana. Poveznica za praćenje šalje se e-poštom čim narudžba bude poslana.',
+          aStandard: 'Dostava je besplatna u sve zemlje u koje dostavljamo. Narudžbe šaljemo s praćenjem, u običnom, diskretnom pakiranju bez naziva proizvoda izvana. Procijenjeni rok za tvoju zemlju vidi se pri plaćanju, a poveznica za praćenje šalje se e-poštom čim narudžba bude poslana.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const hr: Dictionary = {
       copied: 'Kopirano!',
     },
     order: 'Sažetak narudžbe',
+  },
+  neutral: {
+    intro: 'Odgovori na 8 kratkih pitanja (oko 60 sekundi) i dobij svoj plan za mlađi izgled kože i energiju svaki dan.',
+    painLibido: 'Manje vitalnosti',
+    heroSub: 'Tvoj svakodnevni ritual: formula s kolagenom + peptidima za one koji žele mlađi izgled kože i više energije, prilagođena tvojim odgovorima.',
+    bullet: 'Osjećati se dobro u svom tijelu počinje svakodnevnom brigom o sebi',
+    pillar: { title: 'Vitalnost i samopouzdanje', body: 'Osjećati se dobro u svom tijelu dio je samopouzdanja. Svakodnevni ritual brige o sebi za muškarce i žene, bez hormona i bez stimulansa.' },
   },
   emails: {
     footer: 'Ovu poruku primaš jer si ispunio/la kviz RENOVA CELL.',

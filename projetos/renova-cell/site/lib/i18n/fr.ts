@@ -229,7 +229,7 @@ export const fr: Dictionary = {
       recurring: "Facturé {price} {interval} jusqu’à résiliation. Résiliez à tout moment depuis votre reçu par e-mail.",
       cta: 'Choisir ce plan',
     },
-    shipping: { free: 'Livraison gratuite', fast: 'Livraison en 2 jours ouvrés maximum', discreet: 'Emballage discret' },
+    shipping: { free: 'Livraison gratuite', fast: 'Livraison en 2 jours ouvrés maximum', discreet: 'Emballage discret', tracked: 'Livraison suivie' },
     bonus: {
       title: 'Inclus avec le Kit 3 et le Kit 6',
       items: ['E-book : La routine collagène', 'Plan de repas sur 15 jours', 'Groupe clients VIP'],
@@ -268,6 +268,7 @@ export const fr: Dictionary = {
         shipping: {
           q: 'Comment fonctionne la livraison ?',
           a: 'La livraison est gratuite dans tous les pays que nous desservons. Elle prend 2 jours ouvrés maximum, avec suivi, dans un emballage neutre et discret, sans nom de produit à l’extérieur. Le lien de suivi est envoyé par e-mail dès l’expédition.',
+          aStandard: 'La livraison est gratuite dans tous les pays que nous desservons. Les commandes partent avec suivi, dans un emballage neutre et discret, sans nom de produit à l’extérieur. Le délai estimé pour votre pays s’affiche au paiement, et le lien de suivi est envoyé par e-mail dès l’expédition.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const fr: Dictionary = {
       copied: 'Copié !',
     },
     order: 'Récapitulatif de commande',
+  },
+  neutral: {
+    intro: 'Répondez à 8 questions rapides (environ 60 secondes) et recevez votre plan pour une peau d’aspect plus jeune et de l’énergie au quotidien.',
+    painLibido: 'Peu de vitalité',
+    heroSub: 'Votre rituel quotidien : une formule collagène + peptides pour celles et ceux qui veulent une peau d’aspect plus jeune et plus d’énergie, adaptée à vos réponses.',
+    bullet: 'Se sentir bien dans son corps commence par le soin de soi au quotidien',
+    pillar: { title: 'Vitalité et confiance', body: 'Se sentir bien dans son corps fait partie de la confiance en soi. Un rituel quotidien de soin de soi pour les hommes et les femmes, sans hormones ni stimulants.' },
   },
   emails: {
     footer: 'Vous recevez ce message car vous avez répondu au quiz RENOVA CELL.',

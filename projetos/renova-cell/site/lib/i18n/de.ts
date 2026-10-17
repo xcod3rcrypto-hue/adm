@@ -229,7 +229,7 @@ export const de: Dictionary = {
       recurring: "Abgebucht werden {price} {interval}, bis du kündigst. Jederzeit über den Link in deiner Beleg-E-Mail kündbar.",
       cta: 'Diesen Plan wählen',
     },
-    shipping: { free: 'Kostenloser Versand', fast: 'Lieferung in max. 2 Werktagen', discreet: 'Diskrete Verpackung' },
+    shipping: { free: 'Kostenloser Versand', fast: 'Lieferung in max. 2 Werktagen', discreet: 'Diskrete Verpackung', tracked: 'Lieferung mit Sendungsverfolgung' },
     bonus: {
       title: 'Inklusive bei Kit 3 und Kit 6',
       items: ['E-Book: Die Kollagen-Routine', '15-Tage-Ernährungsplan', 'VIP-Kundengruppe'],
@@ -268,6 +268,7 @@ export const de: Dictionary = {
         shipping: {
           q: 'Wie funktioniert der Versand?',
           a: 'Der Versand ist in alle Länder, die wir beliefern, kostenlos. Die Lieferung dauert maximal 2 Werktage, mit Sendungsverfolgung, in neutraler, diskreter Verpackung ohne Produktnamen außen. Der Tracking-Link kommt per E-Mail, sobald die Bestellung versendet ist.',
+          aStandard: 'Der Versand ist in alle Länder, die wir beliefern, kostenlos. Bestellungen gehen mit Sendungsverfolgung raus, in neutraler, diskreter Verpackung ohne Produktnamen außen. Die voraussichtliche Lieferzeit für dein Land siehst du bei der Zahlung, und der Tracking-Link kommt per E-Mail, sobald die Bestellung versendet ist.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const de: Dictionary = {
       copied: 'Kopiert!',
     },
     order: 'Bestellübersicht',
+  },
+  neutral: {
+    intro: 'Beantworte 8 kurze Fragen (etwa 60 Sekunden) und erhalte deinen Plan für jünger aussehende Haut und Energie im Alltag.',
+    painLibido: 'Wenig Vitalität',
+    heroSub: 'Dein tägliches Ritual: eine Formel aus Kollagen + Peptiden für alle, die jünger aussehende Haut und mehr Energie wollen, abgestimmt auf deine Antworten.',
+    bullet: 'Sich im eigenen Körper wohlzufühlen beginnt mit täglicher Selbstfürsorge',
+    pillar: { title: 'Vitalität und Selbstvertrauen', body: 'Sich im eigenen Körper wohlzufühlen gehört zum Selbstvertrauen dazu. Ein tägliches Selbstfürsorge-Ritual für Männer und Frauen, ohne Hormone und ohne Stimulanzien.' },
   },
   emails: {
     footer: 'Du erhältst diese E-Mail, weil du am RENOVA CELL Quiz teilgenommen hast.',

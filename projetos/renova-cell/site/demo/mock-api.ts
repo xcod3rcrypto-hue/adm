@@ -52,7 +52,7 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
       const discount = String(body.coupon ?? '').toUpperCase() === 'RENOVA10' ? Math.round(base * 0.1) : 0;
       const amount = base - discount + (body.bump ? price('bump', demoCurrency) : 0);
       lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0, currency: demoCurrency, subscribe: Boolean(body.subscribe) };
-      const next = body.subscribe ? '/thank-you' : '/upsell-1';
+      const next = body.subscribe || plan === 'kit6' ? '/thank-you' : '/upsell-1';
       return json({ url: `${next}?session_id=cs_test_demo` });
     }
     case '/api/upsell': {

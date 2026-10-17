@@ -229,7 +229,7 @@ export const lt: Dictionary = {
       recurring: 'Nuskaičiuojame {price} {interval}, kol atšauksite. Atšaukti galite bet kada per kvitą el. laiške.',
       cta: 'Rinktis šį planą',
     },
-    shipping: { free: 'Nemokamas pristatymas', fast: 'Pristatymas per 2 darbo dienas', discreet: 'Diskreti pakuotė' },
+    shipping: { free: 'Nemokamas pristatymas', fast: 'Pristatymas per 2 darbo dienas', discreet: 'Diskreti pakuotė', tracked: 'Pristatymas su sekimu' },
     bonus: {
       title: 'Kartu su Kit 3 ir Kit 6',
       items: ['El. knyga: kolageno rutina', '15 dienų mitybos planas', 'VIP klientų grupė'],
@@ -268,6 +268,7 @@ export const lt: Dictionary = {
         shipping: {
           q: 'Kaip vyksta pristatymas?',
           a: 'Pristatymas nemokamas į visas šalis, į kurias pristatome. Pristatymas trunka ne ilgiau kaip 2 darbo dienas, su sekimu, paprastoje, diskrečioje pakuotėje be produkto pavadinimo išorėje. Sekimo nuoroda išsiunčiama el. paštu, kai tik užsakymas išsiųstas.',
+          aStandard: 'Pristatymas nemokamas į visas šalis, į kurias pristatome. Užsakymai išsiunčiami su sekimu, paprastoje, diskrečioje pakuotėje be produkto pavadinimo išorėje. Numatomas pristatymo laikas į jūsų šalį rodomas apmokant, o sekimo nuoroda išsiunčiama el. paštu, kai tik užsakymas išsiųstas.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const lt: Dictionary = {
       copied: 'Nukopijuota!',
     },
     order: 'Užsakymo suvestinė',
+  },
+  neutral: {
+    intro: 'Atsakykite į 8 trumpus klausimus (apie 60 sekundžių) ir gaukite savo planą jaunesnės išvaizdos odai ir kasdienei energijai.',
+    painLibido: 'Mažiau gyvybingumo',
+    heroSub: 'Jūsų kasdienis ritualas: kolageno + peptidų formulė tiems, kurie nori jaunesnės išvaizdos odos ir daugiau energijos, pritaikyta pagal jūsų atsakymus.',
+    bullet: 'Gera savijauta savo kūne prasideda nuo kasdienio rūpinimosi savimi',
+    pillar: { title: 'Gyvybingumas ir pasitikėjimas', body: 'Gera savijauta savo kūne yra pasitikėjimo savimi dalis. Kasdienis rūpinimosi savimi ritualas vyrams ir moterims, be hormonų ir be stimuliatorių.' },
   },
   emails: {
     footer: 'Gaunate šį laišką, nes atlikote RENOVA CELL testą.',

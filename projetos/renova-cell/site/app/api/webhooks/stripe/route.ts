@@ -1,6 +1,7 @@
 import type Stripe from 'stripe';
 import type { NextRequest } from 'next/server';
 import { json } from '@/lib/http';
+import { sendMetaPurchase } from '@/lib/meta-capi';
 import { recordOrder } from '@/lib/orders';
 import { stripe } from '@/lib/stripe';
 
@@ -25,7 +26,11 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.async_payment_succeeded': {
       const session = event.data.object;
       // Upsell fallback sessions carry `upsell` metadata and are recorded by /api/upsell's flow instead.
-      if (session.payment_status === 'paid' && !session.metadata?.upsell) await recordOrder(session);
+      if (session.payment_status === 'paid' && !session.metadata?.upsell) {
+        await recordOrder(session);
+        // Same event id as the browser Purchase (thank-you page), so Meta counts it once.
+        await sendMetaPurchase(session);
+      }
       break;
     }
     default:

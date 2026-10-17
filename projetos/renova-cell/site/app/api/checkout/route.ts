@@ -1,8 +1,11 @@
 import type Stripe from 'stripe';
 import type { NextRequest } from 'next/server';
+import { clickOf, utmOf } from '@/lib/attribution';
 import { BLOCKED_COUNTRIES, findPromotionCode, shippingCountries } from '@/lib/checkout';
 import { EMAIL_RE, badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
 import { stripeLocale } from '@/lib/i18n';
+import { deliveryMaxDays, isFastDelivery } from '@/lib/market';
+import { capiAllowed, capiMetadata, type Consent } from '@/lib/meta-capi';
 import { ORDER_BUMP, PLANS, currencyForCountry, priceIdFor } from '@/lib/products';
 import type { PlanId } from '@/lib/quiz';
 import { siteUrl } from '@/lib/site';
@@ -20,6 +23,8 @@ interface Body {
   newsletter?: unknown;
   quizId?: unknown;
   locale?: unknown;
+  attribution?: unknown;
+  consent?: unknown;
 }
 
 /**
@@ -45,6 +50,10 @@ export async function POST(req: NextRequest) {
   const quizId = typeof body.quizId === 'string' && /^[0-9a-f-]{36}$/i.test(body.quizId) ? body.quizId : '';
   const bump = body.bump === true;
   const subscribe = body.subscribe === true;
+  const consent: Consent = body.consent === 'granted' || body.consent === 'denied' ? body.consent : null;
+  const maxDays = deliveryMaxDays(country);
+  // Subscribers and Kit 6 buyers skip the 1-click upsells (the first is a Kit 6, the second a subscription).
+  const upsells = !subscribe && plan.id !== 'kit6';
 
   let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
   try {
@@ -66,7 +75,14 @@ export async function POST(req: NextRequest) {
     locale,
     newsletter: String(body.newsletter === true),
     name: typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '',
+    // Which ad brought the order (utm_content = ad id). Also stored on the order row.
+    ...utmOf(body.attribution),
   };
+  // Meta Conversions API: click data only when this visitor's consent allows it (lib/meta-capi.ts).
+  // Kept on the session only, not copied to the payment or subscription.
+  const capi = capiAllowed(consent, country)
+    ? capiMetadata({ cookies: req.cookies, headers: req.headers, ...clickOf(body.attribution) })
+    : {};
 
   const base = siteUrl();
   const params: Stripe.Checkout.SessionCreateParams = {
@@ -81,10 +97,9 @@ export async function POST(req: NextRequest) {
       allowed_countries: shippingCountries() as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
     },
     phone_number_collection: { enabled: true },
-    metadata,
+    metadata: { ...metadata, ...capi },
     ...(promo ? { discounts: [{ promotion_code: promo.id }] } : { allow_promotion_codes: true }),
-    // Subscribers skip the 1-click upsells (those need a one-time payment's saved card).
-    success_url: subscribe
+    success_url: !upsells
       ? `${base}/thank-you?session_id={CHECKOUT_SESSION_ID}`
       : `${base}/upsell-1?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base}/checkout?canceled=1`,
@@ -93,7 +108,13 @@ export async function POST(req: NextRequest) {
   // subscriptions say it on the address step instead (nothing is charged for shipping either way).
   if (subscribe) {
     params.subscription_data = { metadata };
-    params.custom_text = { shipping_address: { message: 'Free shipping · delivery in up to 2 business days · discreet packaging.' } };
+    params.custom_text = {
+      shipping_address: {
+        message: isFastDelivery(country)
+          ? `Free shipping · delivery in up to ${maxDays} business days · discreet packaging.`
+          : 'Free shipping · tracked delivery · discreet packaging.',
+      },
+    };
   } else {
     params.shipping_options = [
       {
@@ -101,12 +122,13 @@ export async function POST(req: NextRequest) {
           type: 'fixed_amount',
           fixed_amount: { amount: 0, currency },
           display_name: 'Free shipping · discreet packaging',
-          delivery_estimate: { minimum: { unit: 'business_day', value: 1 }, maximum: { unit: 'business_day', value: 2 } },
+          delivery_estimate: { minimum: { unit: 'business_day', value: 1 }, maximum: { unit: 'business_day', value: maxDays } },
         },
       },
     ];
     params.customer_creation = 'always';
-    params.payment_intent_data = { setup_future_usage: 'off_session', metadata };
+    // The card is saved only when the 1-click upsells follow (they charge it off-session).
+    params.payment_intent_data = upsells ? { setup_future_usage: 'off_session', metadata } : { metadata };
   }
 
   try {

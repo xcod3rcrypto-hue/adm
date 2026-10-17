@@ -229,7 +229,7 @@ export const hu: Dictionary = {
       recurring: '{price} terhelés {interval}, amíg le nem mondod. Bármikor lemondhatod az e-mailes nyugtán keresztül.',
       cta: 'Ezt választom',
     },
-    shipping: { free: 'Ingyenes szállítás', fast: 'Kiszállítás legfeljebb 2 munkanap alatt', discreet: 'Diszkrét csomagolás' },
+    shipping: { free: 'Ingyenes szállítás', fast: 'Kiszállítás legfeljebb 2 munkanap alatt', discreet: 'Diszkrét csomagolás', tracked: 'Követhető kiszállítás' },
     bonus: {
       title: 'A Kit 3 és a Kit 6 mellé jár',
       items: ['E-könyv: A kollagénrutin', '15 napos étrend', 'VIP vásárlói csoport'],
@@ -268,6 +268,7 @@ export const hu: Dictionary = {
         shipping: {
           q: 'Hogyan működik a szállítás?',
           a: 'A szállítás ingyenes minden országba, ahová szállítunk. A kiszállítás legfeljebb 2 munkanap, nyomkövetéssel, semleges, diszkrét csomagolásban, kívül terméknév nélkül. A nyomkövetési linket e-mailben küldjük, amint a rendelést feladtuk.',
+          aStandard: 'A szállítás ingyenes minden országba, ahová szállítunk. A rendeléseket nyomkövetéssel küldjük, semleges, diszkrét csomagolásban, kívül terméknév nélkül. Az országodra becsült szállítási időt a fizetésnél látod, a nyomkövetési linket pedig e-mailben küldjük, amint a rendelést feladtuk.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const hu: Dictionary = {
       copied: 'Kimásolva!',
     },
     order: 'Rendelés összesítése',
+  },
+  neutral: {
+    intro: 'Válaszolj 8 rövid kérdésre (kb. 60 másodperc), és megkapod a terved a fiatalosabb bőrért és a mindennapi energiáért.',
+    painLibido: 'Kevesebb vitalitás',
+    heroSub: 'A napi rituálé: kollagén + peptid formula azoknak, akik fiatalosabb bőrt és több energiát szeretnének, a válaszaidra szabva.',
+    bullet: 'A jó közérzet a saját testedben a napi öngondoskodással kezdődik',
+    pillar: { title: 'Vitalitás és magabiztosság', body: 'A jó közérzet a saját testedben a magabiztosság része. Napi öngondoskodási rituálé férfiaknak és nőknek, hormonok és serkentők nélkül.' },
   },
   emails: {
     footer: 'Azért kapod ezt az üzenetet, mert kitöltötted a RENOVA CELL kvízt.',

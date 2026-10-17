@@ -1,6 +1,6 @@
 'use client';
 
-import { useT } from '@/lib/hooks';
+import { useMarket, useT } from '@/lib/hooks';
 import { prioritizedFaq } from '@/lib/quiz';
 import { useOffer } from './context';
 
@@ -8,7 +8,8 @@ import { useOffer } from './context';
 export function SmartFAQ() {
   const { d } = useT();
   const { answers } = useOffer();
-  const items = d.offer.faq.items as Record<string, { q: string; a: string }>;
+  const { fastDelivery } = useMarket();
+  const items = d.offer.faq.items as Record<string, { q: string; a: string; aStandard?: string }>;
   return (
     <section className="section">
       <h2 className="h2 mb-8 text-center">{d.offer.faq.title}</h2>
@@ -25,7 +26,7 @@ export function SmartFAQ() {
                   +
                 </span>
               </summary>
-              <p className="muted px-5 pb-5 leading-relaxed">{item.a}</p>
+              <p className="muted px-5 pb-5 leading-relaxed">{key === 'shipping' && !fastDelivery && item.aStandard ? item.aStandard : item.a}</p>
             </details>
           );
         })}

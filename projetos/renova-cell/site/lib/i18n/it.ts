@@ -229,7 +229,7 @@ export const it: Dictionary = {
       recurring: "Addebito di {price} {interval} fino alla disdetta. Puoi disdire quando vuoi dalla ricevuta che ricevi via email.",
       cta: 'Scegli questo piano',
     },
-    shipping: { free: 'Spedizione gratuita', fast: 'Consegna in massimo 2 giorni lavorativi', discreet: 'Confezione discreta' },
+    shipping: { free: 'Spedizione gratuita', fast: 'Consegna in massimo 2 giorni lavorativi', discreet: 'Confezione discreta', tracked: 'Consegna tracciata' },
     bonus: {
       title: 'Incluso con Kit 3 e Kit 6',
       items: ['E-book: La routine del collagene', 'Piano alimentare di 15 giorni', 'Gruppo clienti VIP'],
@@ -268,6 +268,7 @@ export const it: Dictionary = {
         shipping: {
           q: 'Come funziona la spedizione?',
           a: 'La spedizione è gratuita in tutti i paesi in cui consegniamo. La consegna richiede al massimo 2 giorni lavorativi, con tracciamento, in una confezione anonima e discreta, senza il nome del prodotto all’esterno. Il link di tracciamento arriva via email appena l’ordine viene spedito.',
+          aStandard: 'La spedizione è gratuita in tutti i paesi in cui consegniamo. Gli ordini partono con tracciamento, in una confezione anonima e discreta, senza il nome del prodotto all’esterno. I tempi stimati per il tuo paese compaiono al pagamento, e il link di tracciamento arriva via email appena l’ordine viene spedito.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const it: Dictionary = {
       copied: 'Copiato!',
     },
     order: 'Riepilogo ordine',
+  },
+  neutral: {
+    intro: 'Rispondi a 8 domande veloci (circa 60 secondi) e ricevi il tuo piano per una pelle dall’aspetto più giovane ed energia ogni giorno.',
+    painLibido: 'Poca vitalità',
+    heroSub: 'Il tuo rituale quotidiano: una formula di collagene + peptidi per chi vuole una pelle dall’aspetto più giovane e più energia, su misura per le tue risposte.',
+    bullet: 'Sentirsi bene nel proprio corpo inizia dalla cura di sé quotidiana',
+    pillar: { title: 'Vitalità e sicurezza', body: 'Sentirsi bene nel proprio corpo fa parte del sentirsi sicuri di sé. Un rituale quotidiano di cura di sé per uomini e donne, senza ormoni e senza stimolanti.' },
   },
   emails: {
     footer: 'Ricevi questa email perché hai fatto il quiz RENOVA CELL.',

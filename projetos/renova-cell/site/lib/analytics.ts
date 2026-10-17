@@ -21,13 +21,21 @@ const META_EVENTS: Record<string, string> = {
   purchase: 'Purchase',
 };
 
-export function track(event: string, props: Props = {}): void {
+/** eventId: lets Meta merge this browser event with the same server event (Conversions API). */
+/**
+ * Never sent to Meta: quiz answers about the person (age, gender, persona). They can get a
+ * health & wellness pixel restricted and are not needed for ad optimization.
+ */
+const META_BLOCKED = new Set(['age', 'persona_gender', 'persona']);
+
+export function track(event: string, props: Props = {}, eventId?: string): void {
   if (typeof window === 'undefined') return;
   window.gtag?.('event', event, props);
   window.posthog?.capture(event, props);
   const meta = META_EVENTS[event];
-  if (meta) window.fbq?.('track', meta, props);
-  else window.fbq?.('trackCustom', event, props);
+  const metaProps = Object.fromEntries(Object.entries(props).filter(([key]) => !META_BLOCKED.has(key)));
+  if (meta) window.fbq?.('track', meta, metaProps, eventId ? { eventID: eventId } : undefined);
+  else window.fbq?.('trackCustom', event, metaProps);
 }
 
 export const CONSENT_KEY = 'rc_consent';

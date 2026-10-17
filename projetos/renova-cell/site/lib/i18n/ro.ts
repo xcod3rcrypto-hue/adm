@@ -229,7 +229,7 @@ export const ro: Dictionary = {
       recurring: "Se percep {price} {interval} până anulezi. Poți anula oricând din chitanța primită pe e-mail.",
       cta: 'Vreau acest plan',
     },
-    shipping: { free: 'Transport gratuit', fast: 'Livrare în maximum 2 zile lucrătoare', discreet: 'Ambalaj discret' },
+    shipping: { free: 'Transport gratuit', fast: 'Livrare în maximum 2 zile lucrătoare', discreet: 'Ambalaj discret', tracked: 'Livrare cu urmărire' },
     bonus: {
       title: 'Incluse în Kit 3 și Kit 6',
       items: ['E-book: Rutina colagenului', 'Plan alimentar pe 15 zile', 'Grup VIP pentru clienți'],
@@ -268,6 +268,7 @@ export const ro: Dictionary = {
         shipping: {
           q: 'Cum funcționează livrarea?',
           a: 'Transportul este gratuit în toate țările în care livrăm. Livrarea durează maximum 2 zile lucrătoare, cu urmărire, într-un ambalaj simplu și discret, fără numele produsului la exterior. Linkul de urmărire este trimis pe e-mail imediat ce comanda este expediată.',
+          aStandard: 'Transportul este gratuit în toate țările în care livrăm. Comenzile pleacă cu urmărire, într-un ambalaj simplu și discret, fără numele produsului la exterior. Termenul estimat pentru țara ta apare la plată, iar linkul de urmărire este trimis pe e-mail imediat ce comanda este expediată.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const ro: Dictionary = {
       copied: 'Copiat!',
     },
     order: 'Rezumatul comenzii',
+  },
+  neutral: {
+    intro: 'Răspunde la 8 întrebări rapide (aproximativ 60 de secunde) și primește planul tău pentru o piele cu aspect mai tânăr și energie în fiecare zi.',
+    painLibido: 'Vitalitate scăzută',
+    heroSub: 'Ritualul tău zilnic: o formulă cu colagen + peptide pentru cei care vor o piele cu aspect mai tânăr și mai multă energie, adaptată răspunsurilor tale.',
+    bullet: 'Să te simți bine în corpul tău începe cu grija zilnică față de tine',
+    pillar: { title: 'Vitalitate și încredere', body: 'Să te simți bine în corpul tău face parte din încrederea în tine. Un ritual zilnic de grijă față de tine, pentru bărbați și femei, fără hormoni și fără stimulente.' },
   },
   emails: {
     footer: 'Primești acest mesaj pentru că ai completat chestionarul RENOVA CELL.',

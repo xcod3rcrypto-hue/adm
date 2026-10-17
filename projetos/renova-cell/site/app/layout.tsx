@@ -6,6 +6,8 @@ import { Analytics } from '@/components/Analytics';
 import { Providers } from '@/components/Providers';
 import { DEFAULT_LOCALE, htmlLang, isLocale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n/dictionaries';
+import { adSafeDictionary } from '@/lib/i18n/neutral';
+import { adSafeMode, isFastDelivery } from '@/lib/market';
 import { isCurrency } from '@/lib/products';
 import './globals.css';
 
@@ -42,10 +44,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const currencyCookie = cookies().get('rc_currency')?.value;
   const currency = isCurrency(currencyHeader) ? currencyHeader : isCurrency(currencyCookie) ? currencyCookie : 'usd';
 
+  const mode = adSafeMode();
+  const market = {
+    fastDelivery: isFastDelivery(headers().get('x-vercel-ip-country')),
+    adSafe: mode === 'always' || (mode === 'paid' && headers().get('x-rc-paid') === '1'),
+  };
+
   return (
     <html lang={htmlLang(locale)} className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="font-sans">
-        <Providers initialLocale={locale} initialDictionary={getDictionary(locale)} currency={currency}>
+        <Providers initialLocale={locale} initialDictionary={market.adSafe ? adSafeDictionary(getDictionary(locale)) : getDictionary(locale)} currency={currency} market={market}>
           {children}
           <Analytics />
         </Providers>

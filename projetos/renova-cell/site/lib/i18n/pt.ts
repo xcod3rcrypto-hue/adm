@@ -229,7 +229,7 @@ export const pt: Dictionary = {
       recurring: "Cobrança de {price} {interval} até você cancelar. Cancele quando quiser pelo link do recibo.",
       cta: 'Escolher este plano',
     },
-    shipping: { free: 'Frete grátis', fast: 'Entrega em até 2 dias úteis', discreet: 'Embalagem discreta' },
+    shipping: { free: 'Frete grátis', fast: 'Entrega em até 2 dias úteis', discreet: 'Embalagem discreta', tracked: 'Entrega com rastreio' },
     bonus: {
       title: 'Incluído no Kit 3 e no Kit 6',
       items: ['E-book: A Rotina do Colágeno', 'Plano alimentar de 15 dias', 'Grupo VIP de clientes'],
@@ -268,6 +268,7 @@ export const pt: Dictionary = {
         shipping: {
           q: 'Como funciona o envio?',
           a: 'O frete é grátis para todos os países que atendemos. A entrega leva no máximo 2 dias úteis, com rastreio, em embalagem simples e discreta, sem o nome do produto por fora. O link de rastreio é enviado por e-mail assim que o pedido sai.',
+          aStandard: 'O frete é grátis para todos os países que atendemos. Os pedidos são enviados com rastreio, em embalagem simples e discreta, sem o nome do produto por fora. O prazo estimado para o seu país aparece no pagamento, e o link de rastreio é enviado por e-mail assim que o pedido sai.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const pt: Dictionary = {
       copied: 'Copiado!',
     },
     order: 'Resumo do pedido',
+  },
+  neutral: {
+    intro: 'Responda 8 perguntas rápidas (cerca de 60 segundos) e receba seu plano para pele com aparência mais jovem e disposição no dia a dia.',
+    painLibido: 'Pouca vitalidade',
+    heroSub: 'Seu ritual diário: uma fórmula de colágeno + peptídeos para quem quer pele com aparência mais jovem e mais disposição, ajustada às suas respostas.',
+    bullet: 'Sentir-se bem no próprio corpo começa com o autocuidado diário',
+    pillar: { title: 'Vitalidade e confiança', body: 'Sentir-se bem no próprio corpo faz parte de sentir confiança. Um ritual diário de autocuidado para homens e mulheres, sem hormônios e sem estimulantes.' },
   },
   emails: {
     footer: 'Você está recebendo isto porque fez o quiz da RENOVA CELL.',

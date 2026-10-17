@@ -15,7 +15,9 @@ import { Providers } from '../components/Providers';
 import { QuizFlow } from '../components/quiz/QuizFlow';
 import { useT } from '../lib/hooks';
 import { htmlLang, localeFromLanguageList, type Locale } from '../lib/i18n';
+import { isPaidVisit } from '../lib/attribution';
 import { getDictionary } from '../lib/i18n/dictionaries';
+import { adSafeDictionary } from '../lib/i18n/neutral';
 import { CURRENCIES, type Currency } from '../lib/products';
 import { installMockApi, setDemoCurrency } from './mock-api';
 import { useLocation } from './shims/navigation';
@@ -87,6 +89,9 @@ try {
 }
 const locale: Locale = localeFromLanguageList(languages) ?? 'pt';
 document.documentElement.lang = htmlLang(locale);
+// Open the demo with ?utm_medium=paid to see what visitors from an ad (and ad reviewers) see.
+const market = { fastDelivery: true, adSafe: isPaidVisit(new URLSearchParams(window.location.search)) };
+const dictionary = market.adSafe ? adSafeDictionary(getDictionary(locale)) : getDictionary(locale);
 
 function Root() {
   const [currency, setCurrency] = useState<Currency>('usd');
@@ -95,7 +100,7 @@ function Root() {
     setCurrency(c);
   };
   return (
-    <Providers initialLocale={locale} initialDictionary={getDictionary(locale)} currency={currency}>
+    <Providers initialLocale={locale} initialDictionary={dictionary} currency={currency} market={market}>
       <App currency={currency} onCurrency={change} />
     </Providers>
   );

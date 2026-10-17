@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { track } from '@/lib/analytics';
+import { readConsent, track } from '@/lib/analytics';
 import { goTo } from '@/lib/browser';
 import { useHydrated, useT } from '@/lib/hooks';
 import { PLANS, intervalKey, price } from '@/lib/products';
@@ -87,6 +87,8 @@ export function CheckoutFlow() {
           newsletter,
           quizId: state.quizId,
           locale,
+          attribution: state.attribution,
+          consent: readConsent(),
         }),
       });
       const data = (await res.json()) as { url?: string };

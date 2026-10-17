@@ -36,6 +36,21 @@ export function useCurrency(): Currency {
   return useContext(CurrencyContext);
 }
 
+/**
+ * Per-visitor market facts decided on the server (app/layout.tsx):
+ * - fastDelivery: this country gets the "up to 2 business days" promise;
+ * - adSafe: show the neutral wording (no "desire" copy) — paid-ad visitors and ad reviewers.
+ */
+export interface Market {
+  fastDelivery: boolean;
+  adSafe: boolean;
+}
+export const MarketContext = createContext<Market>({ fastDelivery: true, adSafe: false });
+
+export function useMarket(): Market {
+  return useContext(MarketContext);
+}
+
 /** The dictionary for the current locale, kept by <Providers> (loaded on demand per language). */
 export const DictionaryContext = createContext<Dictionary>(en);
 

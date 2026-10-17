@@ -16,6 +16,7 @@ create table if not exists quiz_responses (
   sms_consent boolean not null default false,
   headline text,
   ab_variant text check (ab_variant in ('A', 'B')),
+  utm jsonb,
   followup_step int not null default 1,
   purchased boolean not null default false,
   unsubscribed boolean not null default false,
@@ -39,10 +40,17 @@ create table if not exists orders (
   upsells jsonb not null default '[]'::jsonb,
   status text not null default 'paid',
   quiz_id uuid references quiz_responses(id) on delete set null,
+  utm jsonb,
   created_at timestamptz not null default now()
 );
 
 create index if not exists orders_created_idx on orders (created_at desc);
+
+-- Projects created before the utm columns existed.
+alter table quiz_responses add column if not exists utm jsonb;
+alter table orders add column if not exists utm jsonb;
+create index if not exists quiz_responses_utm_content_idx on quiz_responses ((utm->>'utm_content'));
+create index if not exists orders_utm_content_idx on orders ((utm->>'utm_content'));
 
 create table if not exists vsl_cache (
   id uuid primary key default gen_random_uuid(),

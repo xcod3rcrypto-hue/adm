@@ -229,7 +229,7 @@ export const es: Dictionary = {
       recurring: "Se cobra {price} {interval} hasta que canceles. Cancela cuando quieras desde el recibo por correo.",
       cta: 'Elegir este plan',
     },
-    shipping: { free: 'Envío gratis', fast: 'Entrega en máximo 2 días hábiles', discreet: 'Embalaje discreto' },
+    shipping: { free: 'Envío gratis', fast: 'Entrega en máximo 2 días hábiles', discreet: 'Embalaje discreto', tracked: 'Entrega con seguimiento' },
     bonus: {
       title: 'Incluido con el Kit 3 y el Kit 6',
       items: ['E-book: La rutina del colágeno', 'Plan de comidas de 15 días', 'Grupo VIP de clientes'],
@@ -268,6 +268,7 @@ export const es: Dictionary = {
         shipping: {
           q: '¿Cómo funciona el envío?',
           a: 'El envío es gratis a todos los países a los que enviamos. La entrega tarda como máximo 2 días hábiles, con seguimiento, en un embalaje sencillo y discreto, sin el nombre del producto por fuera. El enlace de seguimiento se envía por email en cuanto sale el pedido.',
+          aStandard: 'El envío es gratis a todos los países a los que enviamos. Los pedidos salen con seguimiento, en un embalaje sencillo y discreto, sin el nombre del producto por fuera. El plazo estimado para tu país aparece en el pago, y el enlace de seguimiento se envía por email en cuanto sale el pedido.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const es: Dictionary = {
       copied: '¡Copiado!',
     },
     order: 'Resumen del pedido',
+  },
+  neutral: {
+    intro: 'Responde 8 preguntas rápidas (unos 60 segundos) y recibe tu plan para una piel de aspecto más joven y energía en tu día a día.',
+    painLibido: 'Poca vitalidad',
+    heroSub: 'Tu ritual diario: una fórmula de colágeno + péptidos para quienes quieren una piel de aspecto más joven y más energía, ajustada a tus respuestas.',
+    bullet: 'Sentirte bien en tu cuerpo empieza con el autocuidado diario',
+    pillar: { title: 'Vitalidad y confianza', body: 'Sentirte bien en tu cuerpo es parte de sentirte seguro. Un ritual diario de autocuidado para hombres y mujeres, sin hormonas y sin estimulantes.' },
   },
   emails: {
     footer: 'Recibes esto porque hiciste el quiz de RENOVA CELL.',

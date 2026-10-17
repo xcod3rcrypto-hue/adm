@@ -229,7 +229,7 @@ export const sq: Dictionary = {
       recurring: 'Tarifojmë {price} {interval} derisa ta anulosh. Anuloje kurdo përmes faturës në email.',
       cta: 'Zgjidh këtë plan',
     },
-    shipping: { free: 'Transport falas', fast: 'Dorëzim brenda 2 ditëve pune', discreet: 'Paketim diskret' },
+    shipping: { free: 'Transport falas', fast: 'Dorëzim brenda 2 ditëve pune', discreet: 'Paketim diskret', tracked: 'Dorëzim me gjurmim' },
     bonus: {
       title: 'Përfshihet me Kit 3 dhe Kit 6',
       items: ['E-libër: Rutina e kolagjenit', 'Plan ushqimor 15-ditor', 'Grup VIP për klientët'],
@@ -268,6 +268,7 @@ export const sq: Dictionary = {
         shipping: {
           q: 'Si funksionon transporti?',
           a: 'Transporti është falas për të gjitha vendet ku dërgojmë. Dorëzimi zgjat jo më shumë se 2 ditë pune, me gjurmim, në paketim të thjeshtë e diskret, pa emrin e produktit nga jashtë. Lidhja e gjurmimit dërgohet me email sapo porosia të niset.',
+          aStandard: 'Transporti është falas për të gjitha vendet ku dërgojmë. Porositë nisen me gjurmim, në paketim të thjeshtë e diskret, pa emrin e produktit nga jashtë. Afati i parashikuar për vendin tënd shfaqet gjatë pagesës, dhe lidhja e gjurmimit dërgohet me email sapo porosia të niset.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const sq: Dictionary = {
       copied: 'U kopjua!',
     },
     order: 'Përmbledhja e porosisë',
+  },
+  neutral: {
+    intro: 'Përgjigju 8 pyetjeve të shkurtra (rreth 60 sekonda) dhe merr planin tënd për lëkurë me pamje më të re dhe energji çdo ditë.',
+    painLibido: 'Më pak vitalitet',
+    heroSub: 'Rituali yt i përditshëm: një formulë me kolagjen + peptide për ata që duan lëkurë me pamje më të re dhe më shumë energji, e përshtatur sipas përgjigjeve të tua.',
+    bullet: 'Të ndihesh mirë në trupin tënd fillon me kujdesin e përditshëm për veten',
+    pillar: { title: 'Vitalitet dhe vetëbesim', body: 'Të ndihesh mirë në trupin tënd është pjesë e vetëbesimit. Një ritual i përditshëm kujdesi për veten për burra dhe gra, pa hormone dhe pa stimulues.' },
   },
   emails: {
     footer: 'E merr këtë mesazh sepse plotësove kuizin RENOVA CELL.',

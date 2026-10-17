@@ -2,6 +2,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 import type { NextRequest } from 'next/server';
 import { chatStream } from '@/lib/claude';
 import { badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
+import { isFastDelivery } from '@/lib/market';
 import { currencyForCountry } from '@/lib/products';
 import type { Persona } from '@/lib/quiz';
 
@@ -33,8 +34,9 @@ export async function POST(req: NextRequest) {
 
   const persona = PERSONAS.includes(body.persona as Persona) ? (body.persona as Persona) : undefined;
   const plan = typeof body.plan === 'string' ? body.plan.slice(0, 20) : undefined;
-  const currency = currencyForCountry(req.headers.get('x-vercel-ip-country'));
-  const stream = chatStream(messages as Anthropic.Beta.BetaMessageParam[], localeOr(body.locale), { persona, plan, currency });
+  const country = req.headers.get('x-vercel-ip-country');
+  const currency = currencyForCountry(country);
+  const stream = chatStream(messages as Anthropic.Beta.BetaMessageParam[], localeOr(body.locale), { persona, plan, currency, fastDelivery: isFastDelivery(country) });
 
   return new Response(stream, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },

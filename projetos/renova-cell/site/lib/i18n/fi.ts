@@ -229,7 +229,7 @@ export const fi: Dictionary = {
       recurring: 'Veloitamme {price} {interval}, kunnes perut. Voit perua milloin tahansa sähköpostikuittisi kautta.',
       cta: 'Valitse tämä',
     },
-    shipping: { free: 'Ilmainen toimitus', fast: 'Toimitus enintään 2 arkipäivässä', discreet: 'Huomaamaton pakkaus' },
+    shipping: { free: 'Ilmainen toimitus', fast: 'Toimitus enintään 2 arkipäivässä', discreet: 'Huomaamaton pakkaus', tracked: 'Seurattava toimitus' },
     bonus: {
       title: 'Sisältyy Kit 3:een ja Kit 6:een',
       items: ['E-kirja: Kollageenirutiini', '15 päivän ateriasuunnitelma', 'VIP-asiakasryhmä'],
@@ -268,6 +268,7 @@ export const fi: Dictionary = {
         shipping: {
           q: 'Miten toimitus toimii?',
           a: 'Toimitus on ilmainen kaikkiin maihin, joihin toimitamme. Toimitus kestää enintään 2 arkipäivää, seurattavana, neutraalissa, huomaamattomassa pakkauksessa ilman tuotteen nimeä ulkopuolella. Seurantalinkki lähetetään sähköpostiin heti, kun tilaus on lähetetty.',
+          aStandard: 'Toimitus on ilmainen kaikkiin maihin, joihin toimitamme. Tilaukset lähetetään seurattavina neutraalissa, huomaamattomassa pakkauksessa ilman tuotteen nimeä ulkopuolella. Arvioitu toimitusaika maahasi näkyy maksuvaiheessa, ja seurantalinkki lähetetään sähköpostiin heti, kun tilaus on lähetetty.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const fi: Dictionary = {
       copied: 'Kopioitu!',
     },
     order: 'Tilauksen yhteenveto',
+  },
+  neutral: {
+    intro: 'Vastaa 8 lyhyeen kysymykseen (noin 60 sekuntia) ja saat suunnitelmasi nuorekkaamman näköiselle iholle ja arjen energiaan.',
+    painLibido: 'Vähän elinvoimaa',
+    heroSub: 'Päivittäinen rituaalisi: kollageeni- ja peptidikoostumus niille, jotka haluavat nuorekkaamman näköisen ihon ja enemmän energiaa, vastaustesi mukaan.',
+    bullet: 'Hyvä olo omassa kehossa alkaa päivittäisestä itsestä huolehtimisesta',
+    pillar: { title: 'Elinvoima ja itsevarmuus', body: 'Hyvä olo omassa kehossa on osa itsevarmuutta. Päivittäinen itsestä huolehtimisen rituaali miehille ja naisille, ilman hormoneja ja piristeitä.' },
   },
   emails: {
     footer: 'Saat tämän viestin, koska teit RENOVA CELL -visan.',

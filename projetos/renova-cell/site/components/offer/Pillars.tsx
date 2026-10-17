@@ -5,7 +5,7 @@ import { useT } from '@/lib/hooks';
 
 const ICONS = ['✨', '❤️', '⚡'];
 
-/** The three goals of the daily ritual: skin, desire & vitality, energy. */
+/** The three goals of the daily ritual: skin, desire & vitality (vitality & confidence when ad-safe), energy. */
 export function Pillars() {
   const { d } = useT();
   const p = d.offer.pillars;

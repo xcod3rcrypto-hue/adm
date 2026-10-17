@@ -229,7 +229,7 @@ export const sl: Dictionary = {
       recurring: 'Zaračunamo {price} {interval}, dokler ne prekličeš. Prekliči kadar koli prek računa v e-pošti.',
       cta: 'Izberi ta načrt',
     },
-    shipping: { free: 'Brezplačna dostava', fast: 'Dostava v največ 2 delovnih dneh', discreet: 'Diskretna embalaža' },
+    shipping: { free: 'Brezplačna dostava', fast: 'Dostava v največ 2 delovnih dneh', discreet: 'Diskretna embalaža', tracked: 'Dostava s sledenjem' },
     bonus: {
       title: 'Vključeno v Kit 3 in Kit 6',
       items: ['E-knjiga: Kolagenska rutina', '15-dnevni jedilnik', 'VIP skupina za stranke'],
@@ -268,6 +268,7 @@ export const sl: Dictionary = {
         shipping: {
           q: 'Kako poteka dostava?',
           a: 'Dostava je brezplačna v vse države, kamor dostavljamo. Dostava traja največ 2 delovna dneva, s sledenjem, v navadni, diskretni embalaži brez imena izdelka na zunanji strani. Povezava za sledenje je poslana po e-pošti takoj, ko je naročilo odposlano.',
+          aStandard: 'Dostava je brezplačna v vse države, kamor dostavljamo. Naročila odpošljemo s sledenjem, v navadni, diskretni embalaži brez imena izdelka na zunanji strani. Predviden čas dostave za tvojo državo je prikazan pri plačilu, povezava za sledenje pa je poslana po e-pošti takoj, ko je naročilo odposlano.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const sl: Dictionary = {
       copied: 'Kopirano!',
     },
     order: 'Povzetek naročila',
+  },
+  neutral: {
+    intro: 'Odgovori na 8 kratkih vprašanj (približno 60 sekund) in dobi svoj načrt za mlajši videz kože in energijo vsak dan.',
+    painLibido: 'Manj vitalnosti',
+    heroSub: 'Tvoj vsakodnevni ritual: formula s kolagenom + peptidi za tiste, ki želijo mlajši videz kože in več energije, prilagojena tvojim odgovorom.',
+    bullet: 'Dobro počutje v svojem telesu se začne z vsakodnevno skrbjo zase',
+    pillar: { title: 'Vitalnost in samozavest', body: 'Dobro počutje v svojem telesu je del samozavesti. Vsakodnevni ritual skrbi zase za moške in ženske, brez hormonov in brez poživil.' },
   },
   emails: {
     footer: 'To sporočilo prejemaš, ker si izpolnil/a kviz RENOVA CELL.',

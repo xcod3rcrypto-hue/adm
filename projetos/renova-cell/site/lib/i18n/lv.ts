@@ -229,7 +229,7 @@ export const lv: Dictionary = {
       recurring: 'Ieturam {price} {interval}, līdz atceļat. Atcelt varat jebkurā laikā, izmantojot e-pasta kvīti.',
       cta: 'Izvēlēties šo plānu',
     },
-    shipping: { free: 'Bezmaksas piegāde', fast: 'Piegāde līdz 2 darba dienām', discreet: 'Diskrēts iepakojums' },
+    shipping: { free: 'Bezmaksas piegāde', fast: 'Piegāde līdz 2 darba dienām', discreet: 'Diskrēts iepakojums', tracked: 'Piegāde ar izsekošanu' },
     bonus: {
       title: 'Iekļauts Kit 3 un Kit 6',
       items: ['E-grāmata: Kolagēna rutīna', '15 dienu ēdienkarte', 'VIP klientu grupa'],
@@ -268,6 +268,7 @@ export const lv: Dictionary = {
         shipping: {
           q: 'Kā notiek piegāde?',
           a: 'Piegāde ir bez maksas uz visām valstīm, kurās piegādājam. Piegāde aizņem ne vairāk kā 2 darba dienas, ar izsekošanu, vienkāršā, diskrētā iepakojumā bez produkta nosaukuma ārpusē. Izsekošanas saite tiek nosūtīta e-pastā, tiklīdz pasūtījums ir nosūtīts.',
+          aStandard: 'Piegāde ir bez maksas uz visām valstīm, kurās piegādājam. Pasūtījumi tiek nosūtīti ar izsekošanu, vienkāršā, diskrētā iepakojumā bez produkta nosaukuma ārpusē. Paredzamais piegādes laiks jūsu valstij redzams maksājot, un izsekošanas saite tiek nosūtīta e-pastā, tiklīdz pasūtījums ir nosūtīts.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const lv: Dictionary = {
       copied: 'Nokopēts!',
     },
     order: 'Pasūtījuma kopsavilkums',
+  },
+  neutral: {
+    intro: 'Atbildiet uz 8 īsiem jautājumiem (apmēram 60 sekundes) un saņemiet savu plānu jaunāka izskata ādai un ikdienas enerģijai.',
+    painLibido: 'Mazāks dzīvesspars',
+    heroSub: 'Jūsu ikdienas rituāls: kolagēna + peptīdu formula tiem, kas vēlas jaunāka izskata ādu un vairāk enerģijas, pielāgota jūsu atbildēm.',
+    bullet: 'Laba pašsajūta savā ķermenī sākas ar ikdienas rūpēm par sevi',
+    pillar: { title: 'Dzīvesspars un pašpārliecība', body: 'Laba pašsajūta savā ķermenī ir daļa no pašpārliecības. Ikdienas rūpju par sevi rituāls vīriešiem un sievietēm, bez hormoniem un bez stimulantiem.' },
   },
   emails: {
     footer: 'Jūs saņemat šo vēstuli, jo aizpildījāt RENOVA CELL testu.',

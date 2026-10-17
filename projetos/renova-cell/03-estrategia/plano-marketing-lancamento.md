@@ -103,11 +103,11 @@ Ucrânia e Rússia já são bloqueadas no código. Visitantes de outros países 
 | 5 | Pixel + **API de Conversões** (servidor) | Gerenciador de Eventos | O pixel só dispara após aceitar cookies → a Meta vê menos compras do que existem. A API de Conversões manda a compra direto do webhook da Stripe |
 | 6 | Conferir a **classificação de saúde e bem-estar** do domínio | Gerenciador de Eventos → Visão geral / aviso no topo | Define caminho A ou B |
 | 7 | Eventos: PageView, Lead (`quiz_complete`), ViewContent (oferta), InitiateCheckout, Purchase (com valor e moeda) | Ferramenta "Testar eventos" | Testar o funil inteiro antes |
-| 8 | Remover idade/gênero dos parâmetros do evento `quiz_complete` se a conta for restrita | `site/lib/analytics.ts` | Parâmetro sensível pode bloquear o evento |
+| 8 | ✅ Idade, gênero e persona já não vão para o pixel da Meta (continuam no GA4/PostHog) | `site/lib/analytics.ts` | Parâmetro sensível pode bloquear o evento |
 | 9 | Catálogo **não** é necessário no início | — | 3 produtos; anúncio dinâmico só depois |
 | 10 | Públicos personalizados criados no dia 0 (ver 4.5) | Públicos | Remarketing começa a acumular |
 
-> **Pendência técnica no site:** a API de Conversões ainda não está implementada (hoje só pixel no navegador, após consentimento). É o item técnico mais valioso antes de investir — posso implementar a partir do webhook da Stripe que já existe.
+> **Já está no site:** API de Conversões a partir do webhook da Stripe (preencha `META_CAPI_TOKEN`), UTMs gravadas no quiz e no pedido, versão neutra para quem vem de anúncio e prazo de entrega por país (`FAST_DELIVERY_COUNTRIES`). Detalhes no README do site.
 
 ### 4.2 Caminho A × caminho B (depende da classificação)
 
@@ -473,13 +473,13 @@ Para os demais idiomas (onda 3), use o mesmo texto que já está nos dicionário
 | 6 | **Reembolso exige devolução? Cobre frete?** | Libera "risk-free" |
 | 7 | **Formato físico** (pó, sachê, cápsula) | Todas as cenas supõem pó misturado na bebida |
 
-## 12. Próximos passos técnicos que posso fazer no site
+## 12. Itens técnicos no site (feitos em 17/10/2026)
 
-1. API de Conversões da Meta a partir do webhook da Stripe (compra chega à Meta mesmo sem cookie).
-2. Salvar `utm_source/campaign/content` junto com o quiz e o pedido (leitura por criativo sem depender do pixel).
-3. Chave para mostrar a versão neutra do pilar "desejo" a quem vem de anúncio.
-4. Prazo de entrega por país (ex.: 2 dias na onda 1, outro prazo na onda 4).
-5. Atualizar a planilha `metas-kpi.xlsx` para o modelo novo (Kit 6 a cada 6 meses, assinatura opcional em todos os planos, frete grátis).
+1. ✅ API de Conversões da Meta a partir do webhook da Stripe (respeita o consentimento: Europa só com aceite).
+2. ✅ UTMs salvas no quiz e no pedido (coluna `utm`), leitura por criativo sem depender do pixel.
+3. ✅ Versão neutra para quem vem de anúncio (`AD_SAFE_MODE`), sem os textos de "desejo" no HTML.
+4. ✅ Prazo por país (`FAST_DELIVERY_COUNTRIES` + `STANDARD_DELIVERY_DAYS`). Na onda 1: `FAST_DELIVERY_COUNTRIES=US,GB,IE,DE,AT,CH,LI`.
+5. ✅ Planilha `metas-kpi.xlsx` no modelo novo (assinatura opcional em todos os planos com a premissa "% que assina", Kit 6 a cada 6 meses, upsell 2 trimestral, frete grátis como custo da empresa).
 
 ---
 

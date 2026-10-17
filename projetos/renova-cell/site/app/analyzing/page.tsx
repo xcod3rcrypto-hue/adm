@@ -25,7 +25,7 @@ export default function AnalyzingPage() {
   useEffect(() => {
     if (!hydrated || started.current) return;
     started.current = true;
-    const { answers, contact, setResult } = useFunnel.getState();
+    const { answers, contact, attribution, setResult } = useFunnel.getState();
     const parsed = parseAnswers(answers);
     if (!parsed) {
       router.replace('/quiz');
@@ -39,7 +39,7 @@ export default function AnalyzingPage() {
     const request = fetch('/api/quiz', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers: parsed, locale, variant, contact }),
+      body: JSON.stringify({ answers: parsed, locale, variant, contact, utm: attribution }),
       signal: controller.signal,
     })
       .then((r) => (r.ok ? r.json() : null))

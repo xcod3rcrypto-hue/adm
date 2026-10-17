@@ -229,7 +229,7 @@ export const cs: Dictionary = {
       recurring: 'Strhneme {price} {interval}, dokud nezrušíte. Zrušit můžete kdykoli přes účtenku v e-mailu.',
       cta: 'Vybrat tento plán',
     },
-    shipping: { free: 'Doprava zdarma', fast: 'Doručení do 2 pracovních dnů', discreet: 'Diskrétní balení' },
+    shipping: { free: 'Doprava zdarma', fast: 'Doručení do 2 pracovních dnů', discreet: 'Diskrétní balení', tracked: 'Doručení se sledováním' },
     bonus: {
       title: 'Součástí Kit 3 a Kit 6',
       items: ['E-kniha: Kolagenová rutina', '15denní jídelníček', 'VIP skupina zákazníků'],
@@ -268,6 +268,7 @@ export const cs: Dictionary = {
         shipping: {
           q: 'Jak funguje doprava?',
           a: 'Doprava je zdarma do všech zemí, kam doručujeme. Doručení trvá nejvýše 2 pracovní dny, se sledováním zásilky, v neutrálním, diskrétním balení bez názvu produktu na obalu. Odkaz na sledování přijde e-mailem, jakmile je objednávka odeslána.',
+          aStandard: 'Doprava je zdarma do všech zemí, kam doručujeme. Objednávky odesíláme se sledováním zásilky, v neutrálním, diskrétním balení bez názvu produktu na obalu. Předpokládaná doba doručení do vaší země se zobrazí při platbě a odkaz na sledování přijde e-mailem, jakmile je objednávka odeslána.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const cs: Dictionary = {
       copied: 'Zkopírováno!',
     },
     order: 'Souhrn objednávky',
+  },
+  neutral: {
+    intro: 'Odpovězte na 8 krátkých otázek (asi 60 sekund) a získejte svůj plán pro mladší vzhled pleti a energii v každodenním životě.',
+    painLibido: 'Menší vitalita',
+    heroSub: 'Váš každodenní rituál: složení s kolagenem + peptidy pro ty, kdo chtějí mladší vzhled pleti a více energie, podle vašich odpovědí.',
+    bullet: 'Cítit se dobře ve svém těle začíná každodenní péčí o sebe',
+    pillar: { title: 'Vitalita a sebevědomí', body: 'Cítit se dobře ve svém těle je součástí sebevědomí. Každodenní rituál péče o sebe pro muže i ženy, bez hormonů a bez stimulantů.' },
   },
   emails: {
     footer: 'Tento e-mail dostáváte, protože jste vyplnil(a) kvíz RENOVA CELL.',

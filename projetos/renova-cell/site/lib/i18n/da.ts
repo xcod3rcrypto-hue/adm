@@ -229,7 +229,7 @@ export const da: Dictionary = {
       recurring: "Der trækkes {price} {interval}, indtil du opsiger. Opsig når som helst via kvitteringen i din e-mail.",
       cta: 'Vælg denne plan',
     },
-    shipping: { free: 'Gratis fragt', fast: 'Levering inden for 2 hverdage', discreet: 'Diskret emballage' },
+    shipping: { free: 'Gratis fragt', fast: 'Levering inden for 2 hverdage', discreet: 'Diskret emballage', tracked: 'Levering med sporing' },
     bonus: {
       title: 'Følger med Kit 3 og Kit 6',
       items: ['E-bog: Kollagenrutinen', 'Madplan for 15 dage', 'VIP-kundegruppe'],
@@ -268,6 +268,7 @@ export const da: Dictionary = {
         shipping: {
           q: 'Hvordan fungerer forsendelsen?',
           a: 'Fragten er gratis til alle lande, vi leverer til. Leveringen tager højst 2 hverdage, med sporing, i neutral, diskret emballage uden produktnavn udenpå. Sporingslinket sendes på e-mail, så snart ordren er afsendt.',
+          aStandard: 'Fragten er gratis til alle lande, vi leverer til. Ordrer sendes med sporing, i neutral, diskret emballage uden produktnavn udenpå. Den forventede leveringstid til dit land vises ved betalingen, og sporingslinket sendes på e-mail, så snart ordren er afsendt.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const da: Dictionary = {
       copied: 'Kopieret!',
     },
     order: 'Ordreoversigt',
+  },
+  neutral: {
+    intro: 'Svar på 8 hurtige spørgsmål (ca. 60 sekunder) og få din plan for yngre udseende hud og energi i hverdagen.',
+    painLibido: 'Lav vitalitet',
+    heroSub: 'Dit daglige ritual: en formel med kollagen + peptider til dig, der vil have yngre udseende hud og mere energi, tilpasset dine svar.',
+    bullet: 'At have det godt i sin krop begynder med daglig egenomsorg',
+    pillar: { title: 'Vitalitet og selvtillid', body: 'At have det godt i sin krop er en del af at føle selvtillid. Et dagligt ritual for egenomsorg for mænd og kvinder, uden hormoner og uden stimulanser.' },
   },
   emails: {
     footer: 'Du modtager denne mail, fordi du har taget RENOVA CELL-quizzen.',

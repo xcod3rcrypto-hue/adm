@@ -67,6 +67,14 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 - **Frete grátis** para todos os países atendidos, com entrega em até 2 dias úteis, rastreada, e embalagem discreta (sem nome do produto por fora). No Stripe aparece como linha "Free shipping" em compra única; na assinatura (o Stripe não aceita tarifa de frete nesse modo) o aviso fica na etapa de endereço.  O prazo aparece no selo, na FAQ, nos termos, no chat e na Stripe (`delivery_estimate` de 1 a 2 dias úteis).
 - **Países atendidos:** toda a Europa, EUA, Canadá, América Latina, Austrália, Nova Zelândia e Golfo (`lib/checkout.ts`, ou `SHIP_COUNTRIES`). **Ucrânia e Rússia ficam sempre de fora**: o checkout recusa visitantes desses países e o endereço de entrega não aceita esses destinos. O idioma ucraniano continua disponível para quem mora em outro país europeu.
 
+## Anúncios: rastreamento, versão neutra e prazo por país
+
+- **API de Conversões da Meta:** quando a Stripe confirma o pagamento (webhook), o servidor envia o `Purchase` para a Meta com e-mail/telefone/nome/endereço em hash, `fbc`/`fbp`, IP e navegador. O navegador manda o mesmo evento com o mesmo `eventID` (id da sessão da Stripe), então a Meta conta uma vez só. Consentimento: na Europa só para quem aceitou cookies; fora dela para todos, menos quem recusou. Configure `META_CAPI_TOKEN` (e `META_TEST_EVENT_CODE` para testar em Eventos de teste).
+- **UTMs gravadas:** as UTMs do link do anúncio ficam na coluna `utm` de `quiz_responses` e de `orders` (e nos metadados da sessão da Stripe). Exemplo: vendas por anúncio = `select utm->>'utm_content', count(*), sum(amount_cents)/100 from orders group by 1`. Rode de novo o `supabase/schema.sql` (ele só adiciona as colunas).
+- **Versão neutra para tráfego pago:** quem chega com `utm_medium=paid` (ou `cpc`, `paid_social`…) ou com `fbclid`/`gclid`/`ttclid` recebe, por 30 dias, a página sem os textos de "desejo" (quiz, hero, bullets e o pilar vira "Vitalidade e confiança"). Os textos nem vão no HTML — é o que o revisor da Meta vê. `AD_SAFE_MODE=always` liga para todo mundo; `never` desliga. No demo: abra o link com `?utm_medium=paid`.
+- **Prazo por país:** `FAST_DELIVERY_COUNTRIES` lista onde vale "até 2 dias úteis" (vazio = todos). Nos demais, o site diz "entrega com rastreio", a FAQ diz que o prazo aparece no pagamento, o chat não promete dias e a Stripe mostra até `STANDARD_DELIVERY_DAYS` dias úteis.
+- Quem assina qualquer plano ou compra o Kit 6 vai direto para o obrigado (sem upsell 1-clique); só nesse caminho o cartão fica salvo.
+
 ## Sequência pós-quiz (quem não comprou)
 
 | Quando | Canal | Condição |

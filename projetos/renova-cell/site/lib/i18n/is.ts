@@ -229,7 +229,7 @@ export const is: Dictionary = {
       recurring: '{price} er gjaldfært {interval} þar til þú segir upp. Segðu upp hvenær sem er í gegnum kvittunina í tölvupósti.',
       cta: 'Velja þessa áætlun',
     },
-    shipping: { free: 'Frí sending', fast: 'Afhending innan 2 virkra daga', discreet: 'Látlausar umbúðir' },
+    shipping: { free: 'Frí sending', fast: 'Afhending innan 2 virkra daga', discreet: 'Látlausar umbúðir', tracked: 'Afhending með rakningu' },
     bonus: {
       title: 'Fylgir Kit 3 og Kit 6',
       items: ['Rafbók: Kollagenrútínan', '15 daga matseðill', 'VIP-hópur viðskiptavina'],
@@ -268,6 +268,7 @@ export const is: Dictionary = {
         shipping: {
           q: 'Hvernig virkar sendingin?',
           a: 'Sendingin er frí til allra landa sem við sendum til. Afhending tekur að hámarki 2 virka daga, með rakningu, í hlutlausum, látlausum umbúðum án vöruheitis að utan. Rakningarhlekkurinn er sendur í tölvupósti um leið og pöntunin fer af stað.',
+          aStandard: 'Sendingin er frí til allra landa sem við sendum til. Pantanir eru sendar með rakningu, í hlutlausum, látlausum umbúðum án vöruheitis að utan. Áætlaður afhendingartími til þíns lands birtist við greiðslu og rakningarhlekkurinn er sendur í tölvupósti um leið og pöntunin fer af stað.',
         },
       },
     },
@@ -365,6 +366,13 @@ export const is: Dictionary = {
       copied: 'Afritað!',
     },
     order: 'Yfirlit pöntunar',
+  },
+  neutral: {
+    intro: 'Svaraðu 8 stuttum spurningum (um 60 sekúndur) og fáðu áætlunina þína fyrir unglegri húð og orku í daglegu lífi.',
+    painLibido: 'Lítill lífsþróttur',
+    heroSub: 'Daglegi siðurinn þinn: blanda af kollageni og peptíðum fyrir þau sem vilja unglegri húð og meiri orku, sniðin að svörum þínum.',
+    bullet: 'Að líða vel í eigin líkama byrjar á daglegri sjálfsumhyggju',
+    pillar: { title: 'Lífsþróttur og sjálfstraust', body: 'Að líða vel í eigin líkama er hluti af sjálfstrausti. Daglegur sjálfsumhyggjusiður fyrir karla og konur, án hormóna og örvandi efna.' },
   },
   emails: {
     footer: 'Þú færð þennan póst af því að þú tókst RENOVA CELL prófið.',

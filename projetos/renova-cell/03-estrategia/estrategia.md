@@ -1,7 +1,9 @@
 # Estratégia — Renova Cell
 
+> Plano completo de marketing e lançamento (países, campanhas, conjuntos, criativos do Instagram, cronograma e regras): [`plano-marketing-lancamento.md`](plano-marketing-lancamento.md).
+
 ## Posicionamento
-_Em uma frase: para quem, o quê, por que nós._
+Para adultos de 35+ que querem se sentir bem no próprio corpo: um ritual diário de colágeno + peptídeos, sem hormônios e sem estimulantes, com frete grátis, entrega em até 2 dias úteis, embalagem discreta e um plano escolhido pelas respostas do quiz.
 
 ## Oferta principal
 - Promessa:

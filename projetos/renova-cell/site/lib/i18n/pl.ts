@@ -229,7 +229,7 @@ export const pl: Dictionary = {
       recurring: 'Opłata {price} {interval}, dopóki nie zrezygnujesz. Zrezygnujesz w każdej chwili przez link w e-mailu z potwierdzeniem.',
       cta: 'Wybieram ten plan',
     },
-    shipping: { free: 'Darmowa wysyłka', fast: 'Szybka dostawa ze śledzeniem', discreet: 'Dyskretne opakowanie' },
+    shipping: { free: 'Darmowa wysyłka', fast: 'Dostawa w maks. 2 dni robocze', discreet: 'Dyskretne opakowanie' },
     bonus: {
       title: 'W zestawie z Kit 3 i Kit 6',
       items: ['E-book: Rutyna z kolagenem', '15-dniowy plan posiłków', 'Grupa VIP dla klientów'],
@@ -267,7 +267,7 @@ export const pl: Dictionary = {
         },
         shipping: {
           q: 'Jak wygląda wysyłka?',
-          a: 'Wysyłka jest darmowa do wszystkich krajów, do których dostarczamy. Zamówienia wysyłamy szybko, ze śledzeniem, w zwykłym, dyskretnym opakowaniu bez nazwy produktu na zewnątrz. Link do śledzenia przychodzi e-mailem, gdy tylko zamówienie zostanie wysłane.',
+          a: 'Wysyłka jest darmowa do wszystkich krajów, do których dostarczamy. Dostawa trwa maksymalnie 2 dni robocze, ze śledzeniem, w zwykłym, dyskretnym opakowaniu bez nazwy produktu na zewnątrz. Link do śledzenia przychodzi e-mailem, gdy tylko zamówienie zostanie wysłane.',
         },
       },
     },

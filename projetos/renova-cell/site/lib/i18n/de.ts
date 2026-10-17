@@ -229,7 +229,7 @@ export const de: Dictionary = {
       recurring: "Abgebucht werden {price} {interval}, bis du kündigst. Jederzeit über den Link in deiner Beleg-E-Mail kündbar.",
       cta: 'Diesen Plan wählen',
     },
-    shipping: { free: 'Kostenloser Versand', fast: 'Schnelle Lieferung mit Tracking', discreet: 'Diskrete Verpackung' },
+    shipping: { free: 'Kostenloser Versand', fast: 'Lieferung in max. 2 Werktagen', discreet: 'Diskrete Verpackung' },
     bonus: {
       title: 'Inklusive bei Kit 3 und Kit 6',
       items: ['E-Book: Die Kollagen-Routine', '15-Tage-Ernährungsplan', 'VIP-Kundengruppe'],
@@ -267,7 +267,7 @@ export const de: Dictionary = {
         },
         shipping: {
           q: 'Wie funktioniert der Versand?',
-          a: 'Der Versand ist in alle Länder, die wir beliefern, kostenlos. Bestellungen gehen schnell raus, mit Sendungsverfolgung, in neutraler, diskreter Verpackung ohne Produktnamen außen. Der Tracking-Link kommt per E-Mail, sobald die Bestellung versendet ist.',
+          a: 'Der Versand ist in alle Länder, die wir beliefern, kostenlos. Die Lieferung dauert maximal 2 Werktage, mit Sendungsverfolgung, in neutraler, diskreter Verpackung ohne Produktnamen außen. Der Tracking-Link kommt per E-Mail, sobald die Bestellung versendet ist.',
         },
       },
     },

@@ -229,7 +229,7 @@ export const ro: Dictionary = {
       recurring: "Se percep {price} {interval} până anulezi. Poți anula oricând din chitanța primită pe e-mail.",
       cta: 'Vreau acest plan',
     },
-    shipping: { free: 'Transport gratuit', fast: 'Livrare rapidă, cu urmărire', discreet: 'Ambalaj discret' },
+    shipping: { free: 'Transport gratuit', fast: 'Livrare în maximum 2 zile lucrătoare', discreet: 'Ambalaj discret' },
     bonus: {
       title: 'Incluse în Kit 3 și Kit 6',
       items: ['E-book: Rutina colagenului', 'Plan alimentar pe 15 zile', 'Grup VIP pentru clienți'],
@@ -267,7 +267,7 @@ export const ro: Dictionary = {
         },
         shipping: {
           q: 'Cum funcționează livrarea?',
-          a: 'Transportul este gratuit în toate țările în care livrăm. Comenzile pleacă rapid, cu urmărire, într-un ambalaj simplu și discret, fără numele produsului la exterior. Linkul de urmărire este trimis pe e-mail imediat ce comanda este expediată.',
+          a: 'Transportul este gratuit în toate țările în care livrăm. Livrarea durează maximum 2 zile lucrătoare, cu urmărire, într-un ambalaj simplu și discret, fără numele produsului la exterior. Linkul de urmărire este trimis pe e-mail imediat ce comanda este expediată.',
         },
       },
     },

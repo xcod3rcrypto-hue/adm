@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
   // subscriptions say it on the address step instead (nothing is charged for shipping either way).
   if (subscribe) {
     params.subscription_data = { metadata };
-    params.custom_text = { shipping_address: { message: 'Free shipping · fast tracked delivery · discreet packaging.' } };
+    params.custom_text = { shipping_address: { message: 'Free shipping · delivery in up to 2 business days · discreet packaging.' } };
   } else {
     params.shipping_options = [
       {
@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
           type: 'fixed_amount',
           fixed_amount: { amount: 0, currency },
           display_name: 'Free shipping · discreet packaging',
+          delivery_estimate: { minimum: { unit: 'business_day', value: 1 }, maximum: { unit: 'business_day', value: 2 } },
         },
       },
     ];

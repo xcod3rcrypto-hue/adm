@@ -232,7 +232,7 @@ export const en = {
       recurring: "Billed {price} {interval} until you cancel. Cancel anytime from your email receipt.",
       cta: 'Choose this plan',
     },
-    shipping: { free: 'Free shipping', fast: 'Fast, tracked delivery', discreet: 'Discreet packaging' },
+    shipping: { free: 'Free shipping', fast: 'Delivery in up to 2 business days', discreet: 'Discreet packaging' },
     bonus: {
       title: 'Included with Kit 3 and Kit 6',
       items: ['E-book: The Collagen Routine', '15-day meal plan', 'VIP customer group'],
@@ -270,7 +270,7 @@ export const en = {
         },
         shipping: {
           q: 'How does shipping work?',
-          a: 'Shipping is free to every country we deliver to. Orders are dispatched fast, with tracking, in plain, discreet packaging with no product name on the outside. The tracking link is sent by email as soon as the order ships.',
+          a: 'Shipping is free to every country we deliver to. Delivery takes up to 2 business days, with tracking, in plain, discreet packaging with no product name on the outside. The tracking link is sent by email as soon as the order ships.',
         },
       },
     },

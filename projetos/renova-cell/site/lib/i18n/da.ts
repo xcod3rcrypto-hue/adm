@@ -229,7 +229,7 @@ export const da: Dictionary = {
       recurring: "Der trækkes {price} {interval}, indtil du opsiger. Opsig når som helst via kvitteringen i din e-mail.",
       cta: 'Vælg denne plan',
     },
-    shipping: { free: 'Gratis fragt', fast: 'Hurtig levering med sporing', discreet: 'Diskret emballage' },
+    shipping: { free: 'Gratis fragt', fast: 'Levering inden for 2 hverdage', discreet: 'Diskret emballage' },
     bonus: {
       title: 'Følger med Kit 3 og Kit 6',
       items: ['E-bog: Kollagenrutinen', 'Madplan for 15 dage', 'VIP-kundegruppe'],
@@ -267,7 +267,7 @@ export const da: Dictionary = {
         },
         shipping: {
           q: 'Hvordan fungerer forsendelsen?',
-          a: 'Fragten er gratis til alle lande, vi leverer til. Ordrer sendes hurtigt, med sporing, i neutral, diskret emballage uden produktnavn udenpå. Sporingslinket sendes på e-mail, så snart ordren er afsendt.',
+          a: 'Fragten er gratis til alle lande, vi leverer til. Leveringen tager højst 2 hverdage, med sporing, i neutral, diskret emballage uden produktnavn udenpå. Sporingslinket sendes på e-mail, så snart ordren er afsendt.',
         },
       },
     },

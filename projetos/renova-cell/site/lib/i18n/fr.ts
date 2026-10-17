@@ -229,7 +229,7 @@ export const fr: Dictionary = {
       recurring: "Facturé {price} {interval} jusqu’à résiliation. Résiliez à tout moment depuis votre reçu par e-mail.",
       cta: 'Choisir ce plan',
     },
-    shipping: { free: 'Livraison gratuite', fast: 'Livraison rapide et suivie', discreet: 'Emballage discret' },
+    shipping: { free: 'Livraison gratuite', fast: 'Livraison en 2 jours ouvrés maximum', discreet: 'Emballage discret' },
     bonus: {
       title: 'Inclus avec le Kit 3 et le Kit 6',
       items: ['E-book : La routine collagène', 'Plan de repas sur 15 jours', 'Groupe clients VIP'],
@@ -267,7 +267,7 @@ export const fr: Dictionary = {
         },
         shipping: {
           q: 'Comment fonctionne la livraison ?',
-          a: 'La livraison est gratuite dans tous les pays que nous desservons. Les commandes partent rapidement, avec suivi, dans un emballage neutre et discret, sans nom de produit à l’extérieur. Le lien de suivi est envoyé par e-mail dès l’expédition.',
+          a: 'La livraison est gratuite dans tous les pays que nous desservons. Elle prend 2 jours ouvrés maximum, avec suivi, dans un emballage neutre et discret, sans nom de produit à l’extérieur. Le lien de suivi est envoyé par e-mail dès l’expédition.',
         },
       },
     },

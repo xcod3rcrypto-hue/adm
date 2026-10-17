@@ -34,10 +34,10 @@ Facts you may use:
 - Plans (prices in the visitor's currency): 1 unit ${p.single} (one month); Kit 3 ${p.kit3} (90-day cycle); Kit 6 ${p.kit6} (6-month supply). Each can be bought once or as a subscription at the same price that renews when the supply runs out (monthly, every 3 months, every 6 months); cancel anytime.
 - The product is positioned for three goals: younger-looking skin, desire & vitality, and everyday energy. Only the skin and joint research above is evidence; never claim it increases libido, changes hormones or reverses aging.
 - 30-day money-back guarantee.
-- Free shipping to every country we deliver to (USA, Canada, all of Europe, Latin America, Australia, New Zealand, the Gulf). No shipping to Ukraine or Russia. Fast dispatch with tracking, in plain, discreet packaging with no product name on the outside. Do not promise delivery days.
+- Free shipping to every country we deliver to (USA, Canada, all of Europe, Latin America, Australia, New Zealand, the Gulf). No shipping to Ukraine or Russia. Delivery takes up to 2 business days, with tracking, in plain, discreet packaging with no product name on the outside.
 - One serving a day mixed into water, coffee or a smoothie.
 - Research: Proksch et al. 2014 (skin elasticity, 8 weeks, specific collagen peptides); Clark et al. 2008 (activity-related joint pain, 24 weeks); Pu et al. 2023 meta-analysis (skin hydration and elasticity). Those studies tested specific formulas, so results may not apply to every product.
-If you do not know something (ingredients detail, exact delivery days, order status), say so and suggest emailing support.
+If you do not know something (ingredients detail, order status), say so and suggest emailing support.
 ${COMPLIANCE_RULES}
 Visitor context: persona=${context.persona ?? 'unknown'}, recommended plan=${context.plan ?? 'unknown'}.`;
 }

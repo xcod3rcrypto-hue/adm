@@ -229,7 +229,7 @@ export const sv: Dictionary = {
       recurring: "Debiteras {price} {interval} tills du säger upp. Säg upp när som helst via kvittot i din e-post.",
       cta: 'Välj den här planen',
     },
-    shipping: { free: 'Fri frakt', fast: 'Snabb leverans med spårning', discreet: 'Diskret förpackning' },
+    shipping: { free: 'Fri frakt', fast: 'Leverans inom 2 arbetsdagar', discreet: 'Diskret förpackning' },
     bonus: {
       title: 'Ingår i Kit 3 och Kit 6',
       items: ['E-bok: Kollagenrutinen', 'Måltidsplan för 15 dagar', 'VIP-grupp för kunder'],
@@ -267,7 +267,7 @@ export const sv: Dictionary = {
         },
         shipping: {
           q: 'Hur fungerar frakten?',
-          a: 'Frakten är gratis till alla länder vi levererar till. Beställningar skickas snabbt, med spårning, i en neutral, diskret förpackning utan produktnamn på utsidan. Spårningslänken skickas via e-post så snart beställningen har skickats.',
+          a: 'Frakten är gratis till alla länder vi levererar till. Leveransen tar högst 2 arbetsdagar, med spårning, i en neutral, diskret förpackning utan produktnamn på utsidan. Spårningslänken skickas via e-post så snart beställningen har skickats.',
         },
       },
     },

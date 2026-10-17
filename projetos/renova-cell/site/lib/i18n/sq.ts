@@ -229,7 +229,7 @@ export const sq: Dictionary = {
       recurring: 'Tarifojmë {price} {interval} derisa ta anulosh. Anuloje kurdo përmes faturës në email.',
       cta: 'Zgjidh këtë plan',
     },
-    shipping: { free: 'Transport falas', fast: 'Dorëzim i shpejtë me gjurmim', discreet: 'Paketim diskret' },
+    shipping: { free: 'Transport falas', fast: 'Dorëzim brenda 2 ditëve pune', discreet: 'Paketim diskret' },
     bonus: {
       title: 'Përfshihet me Kit 3 dhe Kit 6',
       items: ['E-libër: Rutina e kolagjenit', 'Plan ushqimor 15-ditor', 'Grup VIP për klientët'],
@@ -267,7 +267,7 @@ export const sq: Dictionary = {
         },
         shipping: {
           q: 'Si funksionon transporti?',
-          a: 'Transporti është falas për të gjitha vendet ku dërgojmë. Porositë nisen shpejt, me gjurmim, në paketim të thjeshtë e diskret, pa emrin e produktit nga jashtë. Lidhja e gjurmimit dërgohet me email sapo porosia të niset.',
+          a: 'Transporti është falas për të gjitha vendet ku dërgojmë. Dorëzimi zgjat jo më shumë se 2 ditë pune, me gjurmim, në paketim të thjeshtë e diskret, pa emrin e produktit nga jashtë. Lidhja e gjurmimit dërgohet me email sapo porosia të niset.',
         },
       },
     },

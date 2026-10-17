@@ -229,7 +229,7 @@ export const es: Dictionary = {
       recurring: "Se cobra {price} {interval} hasta que canceles. Cancela cuando quieras desde el recibo por correo.",
       cta: 'Elegir este plan',
     },
-    shipping: { free: 'Envío gratis', fast: 'Entrega rápida con seguimiento', discreet: 'Embalaje discreto' },
+    shipping: { free: 'Envío gratis', fast: 'Entrega en máximo 2 días hábiles', discreet: 'Embalaje discreto' },
     bonus: {
       title: 'Incluido con el Kit 3 y el Kit 6',
       items: ['E-book: La rutina del colágeno', 'Plan de comidas de 15 días', 'Grupo VIP de clientes'],
@@ -267,7 +267,7 @@ export const es: Dictionary = {
         },
         shipping: {
           q: '¿Cómo funciona el envío?',
-          a: 'El envío es gratis a todos los países a los que enviamos. Los pedidos salen rápido, con seguimiento, en un embalaje sencillo y discreto, sin el nombre del producto por fuera. El enlace de seguimiento se envía por email en cuanto sale el pedido.',
+          a: 'El envío es gratis a todos los países a los que enviamos. La entrega tarda como máximo 2 días hábiles, con seguimiento, en un embalaje sencillo y discreto, sin el nombre del producto por fuera. El enlace de seguimiento se envía por email en cuanto sale el pedido.',
         },
       },
     },

@@ -229,7 +229,7 @@ export const pt: Dictionary = {
       recurring: "Cobrança de {price} {interval} até você cancelar. Cancele quando quiser pelo link do recibo.",
       cta: 'Escolher este plano',
     },
-    shipping: { free: 'Frete grátis', fast: 'Entrega rápida com rastreio', discreet: 'Embalagem discreta' },
+    shipping: { free: 'Frete grátis', fast: 'Entrega em até 2 dias úteis', discreet: 'Embalagem discreta' },
     bonus: {
       title: 'Incluído no Kit 3 e no Kit 6',
       items: ['E-book: A Rotina do Colágeno', 'Plano alimentar de 15 dias', 'Grupo VIP de clientes'],
@@ -267,7 +267,7 @@ export const pt: Dictionary = {
         },
         shipping: {
           q: 'Como funciona o envio?',
-          a: 'O frete é grátis para todos os países que atendemos. Os pedidos são enviados rápido, com rastreio, em embalagem simples e discreta, sem o nome do produto por fora. O link de rastreio é enviado por e-mail assim que o pedido sai.',
+          a: 'O frete é grátis para todos os países que atendemos. A entrega leva no máximo 2 dias úteis, com rastreio, em embalagem simples e discreta, sem o nome do produto por fora. O link de rastreio é enviado por e-mail assim que o pedido sai.',
         },
       },
     },

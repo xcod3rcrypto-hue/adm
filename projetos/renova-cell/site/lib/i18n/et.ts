@@ -229,7 +229,7 @@ export const et: Dictionary = {
       recurring: 'Võtame {price} {interval}, kuni tühistad. Tühista igal ajal e-postiga saadud kviitungi kaudu.',
       cta: 'Vali see plaan',
     },
-    shipping: { free: 'Tasuta saatmine', fast: 'Kiire jälgitav tarne', discreet: 'Diskreetne pakend' },
+    shipping: { free: 'Tasuta saatmine', fast: 'Tarne kuni 2 tööpäevaga', discreet: 'Diskreetne pakend' },
     bonus: {
       title: 'Kit 3 ja Kit 6 juurde kuulub',
       items: ['E-raamat: kollageenirutiin', '15 päeva toidukava', 'VIP-kliendigrupp'],
@@ -267,7 +267,7 @@ export const et: Dictionary = {
         },
         shipping: {
           q: 'Kuidas saatmine toimib?',
-          a: 'Saatmine on tasuta kõikidesse riikidesse, kuhu me tarnime. Tellimused saadetakse kiiresti ja jälgitavalt neutraalses, diskreetses pakendis, millel pole väljast toote nime. Jälgimislink saadetakse e-postiga kohe, kui tellimus on teele pandud.',
+          a: 'Saatmine on tasuta kõikidesse riikidesse, kuhu me tarnime. Tarne võtab kuni 2 tööpäeva, jälgitavalt, neutraalses, diskreetses pakendis, millel pole väljast toote nime. Jälgimislink saadetakse e-postiga kohe, kui tellimus on teele pandud.',
         },
       },
     },

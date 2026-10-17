@@ -229,7 +229,7 @@ export const cs: Dictionary = {
       recurring: 'Strhneme {price} {interval}, dokud nezrušíte. Zrušit můžete kdykoli přes účtenku v e-mailu.',
       cta: 'Vybrat tento plán',
     },
-    shipping: { free: 'Doprava zdarma', fast: 'Rychlé doručení se sledováním', discreet: 'Diskrétní balení' },
+    shipping: { free: 'Doprava zdarma', fast: 'Doručení do 2 pracovních dnů', discreet: 'Diskrétní balení' },
     bonus: {
       title: 'Součástí Kit 3 a Kit 6',
       items: ['E-kniha: Kolagenová rutina', '15denní jídelníček', 'VIP skupina zákazníků'],
@@ -267,7 +267,7 @@ export const cs: Dictionary = {
         },
         shipping: {
           q: 'Jak funguje doprava?',
-          a: 'Doprava je zdarma do všech zemí, kam doručujeme. Objednávky odesíláme rychle, se sledováním zásilky, v neutrálním, diskrétním balení bez názvu produktu na obalu. Odkaz na sledování přijde e-mailem, jakmile je objednávka odeslána.',
+          a: 'Doprava je zdarma do všech zemí, kam doručujeme. Doručení trvá nejvýše 2 pracovní dny, se sledováním zásilky, v neutrálním, diskrétním balení bez názvu produktu na obalu. Odkaz na sledování přijde e-mailem, jakmile je objednávka odeslána.',
         },
       },
     },

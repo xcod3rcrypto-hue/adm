@@ -229,7 +229,7 @@ export const nl: Dictionary = {
       recurring: 'Er wordt {price} {interval} afgeschreven tot je opzegt. Opzeggen kan altijd via je ontvangstbewijs per e-mail.',
       cta: 'Kies dit plan',
     },
-    shipping: { free: 'Gratis verzending', fast: 'Snelle levering met track & trace', discreet: 'Discrete verpakking' },
+    shipping: { free: 'Gratis verzending', fast: 'Levering binnen 2 werkdagen', discreet: 'Discrete verpakking' },
     bonus: {
       title: 'Inbegrepen bij Kit 3 en Kit 6',
       items: ['E-book: De collageenroutine', 'Maaltijdplan voor 15 dagen', 'VIP-klantengroep'],
@@ -267,7 +267,7 @@ export const nl: Dictionary = {
         },
         shipping: {
           q: 'Hoe werkt de verzending?',
-          a: 'Verzending is gratis naar alle landen waar we leveren. Bestellingen worden snel verzonden, met track & trace, in een neutrale, discrete verpakking zonder productnaam aan de buitenkant. De trackinglink komt per e-mail zodra de bestelling is verzonden.',
+          a: 'Verzending is gratis naar alle landen waar we leveren. Levering duurt maximaal 2 werkdagen, met track & trace, in een neutrale, discrete verpakking zonder productnaam aan de buitenkant. De trackinglink komt per e-mail zodra de bestelling is verzonden.',
         },
       },
     },

@@ -64,7 +64,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 - **Idioma:** escolha manual (cookie `rc_locale_chosen`) > idioma do celular (`Accept-Language`) > país do IP. 28 idiomas em `lib/i18n/` (`npm run i18n:check` confere chaves, placeholders e marcas).
 - **Moeda:** pelo país do IP — USD, EUR, GBP, CHF, SEK, NOK, DKK, ISK, PLN, CZK, HUF, RON (`lib/products.ts`). Os demais países europeus pagam em euro; o resto do mundo em dólar. `npm run stripe:setup` cria os preços com essas moedas.
 - **Compra única ou assinatura:** todo plano tem as duas opções pelo mesmo preço. A assinatura renova quando o estoque acaba: 1 unidade todo mês, Kit 3 a cada 3 meses, Kit 6 a cada 6 meses. Quem assina vai direto para o obrigado (sem upsell 1-clique).
-- **Frete grátis** para todos os países atendidos, com entrega rápida rastreada e embalagem discreta (sem nome do produto por fora). No Stripe aparece como linha "Free shipping" em compra única; na assinatura (o Stripe não aceita tarifa de frete nesse modo) o aviso fica na etapa de endereço. Nenhum prazo em dias é prometido — informe o prazo real para entrar na FAQ.
+- **Frete grátis** para todos os países atendidos, com entrega em até 2 dias úteis, rastreada, e embalagem discreta (sem nome do produto por fora). No Stripe aparece como linha "Free shipping" em compra única; na assinatura (o Stripe não aceita tarifa de frete nesse modo) o aviso fica na etapa de endereço.  O prazo aparece no selo, na FAQ, nos termos, no chat e na Stripe (`delivery_estimate` de 1 a 2 dias úteis).
 - **Países atendidos:** toda a Europa, EUA, Canadá, América Latina, Austrália, Nova Zelândia e Golfo (`lib/checkout.ts`, ou `SHIP_COUNTRIES`). **Ucrânia e Rússia ficam sempre de fora**: o checkout recusa visitantes desses países e o endereço de entrega não aceita esses destinos. O idioma ucraniano continua disponível para quem mora em outro país europeu.
 
 ## Sequência pós-quiz (quem não comprou)
@@ -104,7 +104,7 @@ Algumas partes do briefing original fariam o funil enganar o comprador ou expor 
 ## Antes de colocar no ar
 
 - [ ] Confirmar a fórmula real e ajustar a tabela comparativa (`offer.comparison.rows` nos 28 idiomas).
-- [ ] Garantir com a logística que a embalagem externa é neutra e informar o prazo real de entrega.
+- [ ] Garantir com a logística que a embalagem externa é neutra e que o prazo de até 2 dias úteis vale para **todos** os países atendidos (EUA: regra da FTC de vendas por correio; UE: prazo informado vira obrigação contratual).
 - [ ] Substituir `/privacy` e `/terms` por textos revisados por advogado.
 - [ ] Revisar as traduções geradas da VSL em `scripts/vsl/`.
 - [ ] Criar um banco Upstash Redis (plano grátis serve) e preencher `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`: é o que limita de verdade `/api/chat`, `/api/quiz`, `/api/checkout` etc. Sem elas, o limite fica só na memória de cada instância.

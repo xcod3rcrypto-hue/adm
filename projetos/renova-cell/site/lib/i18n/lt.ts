@@ -229,7 +229,7 @@ export const lt: Dictionary = {
       recurring: 'Nuskaičiuojame {price} {interval}, kol atšauksite. Atšaukti galite bet kada per kvitą el. laiške.',
       cta: 'Rinktis šį planą',
     },
-    shipping: { free: 'Nemokamas pristatymas', fast: 'Greitas pristatymas su sekimu', discreet: 'Diskreti pakuotė' },
+    shipping: { free: 'Nemokamas pristatymas', fast: 'Pristatymas per 2 darbo dienas', discreet: 'Diskreti pakuotė' },
     bonus: {
       title: 'Kartu su Kit 3 ir Kit 6',
       items: ['El. knyga: kolageno rutina', '15 dienų mitybos planas', 'VIP klientų grupė'],
@@ -267,7 +267,7 @@ export const lt: Dictionary = {
         },
         shipping: {
           q: 'Kaip vyksta pristatymas?',
-          a: 'Pristatymas nemokamas į visas šalis, į kurias pristatome. Užsakymai išsiunčiami greitai, su sekimu, paprastoje, diskrečioje pakuotėje be produkto pavadinimo išorėje. Sekimo nuoroda išsiunčiama el. paštu, kai tik užsakymas išsiųstas.',
+          a: 'Pristatymas nemokamas į visas šalis, į kurias pristatome. Pristatymas trunka ne ilgiau kaip 2 darbo dienas, su sekimu, paprastoje, diskrečioje pakuotėje be produkto pavadinimo išorėje. Sekimo nuoroda išsiunčiama el. paštu, kai tik užsakymas išsiųstas.',
         },
       },
     },

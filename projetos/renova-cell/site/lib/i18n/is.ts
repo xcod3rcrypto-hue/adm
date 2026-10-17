@@ -229,7 +229,7 @@ export const is: Dictionary = {
       recurring: '{price} er gjaldfært {interval} þar til þú segir upp. Segðu upp hvenær sem er í gegnum kvittunina í tölvupósti.',
       cta: 'Velja þessa áætlun',
     },
-    shipping: { free: 'Frí sending', fast: 'Hröð afhending með rakningu', discreet: 'Látlausar umbúðir' },
+    shipping: { free: 'Frí sending', fast: 'Afhending innan 2 virkra daga', discreet: 'Látlausar umbúðir' },
     bonus: {
       title: 'Fylgir Kit 3 og Kit 6',
       items: ['Rafbók: Kollagenrútínan', '15 daga matseðill', 'VIP-hópur viðskiptavina'],
@@ -267,7 +267,7 @@ export const is: Dictionary = {
         },
         shipping: {
           q: 'Hvernig virkar sendingin?',
-          a: 'Sendingin er frí til allra landa sem við sendum til. Pantanir eru sendar fljótt, með rakningu, í hlutlausum, látlausum umbúðum án vöruheitis að utan. Rakningarhlekkurinn er sendur í tölvupósti um leið og pöntunin fer af stað.',
+          a: 'Sendingin er frí til allra landa sem við sendum til. Afhending tekur að hámarki 2 virka daga, með rakningu, í hlutlausum, látlausum umbúðum án vöruheitis að utan. Rakningarhlekkurinn er sendur í tölvupósti um leið og pöntunin fer af stað.',
         },
       },
     },

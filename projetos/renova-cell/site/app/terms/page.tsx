@@ -14,7 +14,7 @@ export default function TermsPage() {
           1 unit every month, Kit 3 every 3 months, Kit 6 every 6 months, until cancelled. Cancel anytime via the link in your
           receipt or by contacting support.
         </li>
-        <li>Shipping is free to every country we deliver to. We do not ship to Ukraine or Russia. Orders ship with tracking in plain, discreet packaging.</li>
+        <li>Shipping is free to every country we deliver to. We do not ship to Ukraine or Russia. Delivery takes up to 2 business days, with tracking, in plain, discreet packaging.</li>
         <li>Post-purchase offers charge the card you just used only after you click to accept; the amount is shown above the button.</li>
         <li>30-day money-back guarantee on your first order.</li>
         <li>RENOVA CELL is a food supplement, not a medicine. It is not intended to diagnose, treat, cure or prevent any disease. Individual results vary.</li>

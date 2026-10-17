@@ -229,7 +229,7 @@ export const fi: Dictionary = {
       recurring: 'Veloitamme {price} {interval}, kunnes perut. Voit perua milloin tahansa sähköpostikuittisi kautta.',
       cta: 'Valitse tämä',
     },
-    shipping: { free: 'Ilmainen toimitus', fast: 'Nopea, seurattava toimitus', discreet: 'Huomaamaton pakkaus' },
+    shipping: { free: 'Ilmainen toimitus', fast: 'Toimitus enintään 2 arkipäivässä', discreet: 'Huomaamaton pakkaus' },
     bonus: {
       title: 'Sisältyy Kit 3:een ja Kit 6:een',
       items: ['E-kirja: Kollageenirutiini', '15 päivän ateriasuunnitelma', 'VIP-asiakasryhmä'],
@@ -267,7 +267,7 @@ export const fi: Dictionary = {
         },
         shipping: {
           q: 'Miten toimitus toimii?',
-          a: 'Toimitus on ilmainen kaikkiin maihin, joihin toimitamme. Tilaukset lähetetään nopeasti ja seurattavina neutraalissa, huomaamattomassa pakkauksessa ilman tuotteen nimeä ulkopuolella. Seurantalinkki lähetetään sähköpostiin heti, kun tilaus on lähetetty.',
+          a: 'Toimitus on ilmainen kaikkiin maihin, joihin toimitamme. Toimitus kestää enintään 2 arkipäivää, seurattavana, neutraalissa, huomaamattomassa pakkauksessa ilman tuotteen nimeä ulkopuolella. Seurantalinkki lähetetään sähköpostiin heti, kun tilaus on lähetetty.',
         },
       },
     },

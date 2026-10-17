@@ -229,7 +229,7 @@ export const hu: Dictionary = {
       recurring: '{price} terhelés {interval}, amíg le nem mondod. Bármikor lemondhatod az e-mailes nyugtán keresztül.',
       cta: 'Ezt választom',
     },
-    shipping: { free: 'Ingyenes szállítás', fast: 'Gyors, követhető kiszállítás', discreet: 'Diszkrét csomagolás' },
+    shipping: { free: 'Ingyenes szállítás', fast: 'Kiszállítás legfeljebb 2 munkanap alatt', discreet: 'Diszkrét csomagolás' },
     bonus: {
       title: 'A Kit 3 és a Kit 6 mellé jár',
       items: ['E-könyv: A kollagénrutin', '15 napos étrend', 'VIP vásárlói csoport'],
@@ -267,7 +267,7 @@ export const hu: Dictionary = {
         },
         shipping: {
           q: 'Hogyan működik a szállítás?',
-          a: 'A szállítás ingyenes minden országba, ahová szállítunk. A rendeléseket gyorsan, nyomkövetéssel küldjük, semleges, diszkrét csomagolásban, kívül terméknév nélkül. A nyomkövetési linket e-mailben küldjük, amint a rendelést feladtuk.',
+          a: 'A szállítás ingyenes minden országba, ahová szállítunk. A kiszállítás legfeljebb 2 munkanap, nyomkövetéssel, semleges, diszkrét csomagolásban, kívül terméknév nélkül. A nyomkövetési linket e-mailben küldjük, amint a rendelést feladtuk.',
         },
       },
     },

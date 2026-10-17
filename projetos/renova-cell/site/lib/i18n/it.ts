@@ -229,7 +229,7 @@ export const it: Dictionary = {
       recurring: "Addebito di {price} {interval} fino alla disdetta. Puoi disdire quando vuoi dalla ricevuta che ricevi via email.",
       cta: 'Scegli questo piano',
     },
-    shipping: { free: 'Spedizione gratuita', fast: 'Consegna rapida e tracciata', discreet: 'Confezione discreta' },
+    shipping: { free: 'Spedizione gratuita', fast: 'Consegna in massimo 2 giorni lavorativi', discreet: 'Confezione discreta' },
     bonus: {
       title: 'Incluso con Kit 3 e Kit 6',
       items: ['E-book: La routine del collagene', 'Piano alimentare di 15 giorni', 'Gruppo clienti VIP'],
@@ -267,7 +267,7 @@ export const it: Dictionary = {
         },
         shipping: {
           q: 'Come funziona la spedizione?',
-          a: 'La spedizione è gratuita in tutti i paesi in cui consegniamo. Gli ordini partono rapidamente, con tracciamento, in una confezione anonima e discreta, senza il nome del prodotto all’esterno. Il link di tracciamento arriva via email appena l’ordine viene spedito.',
+          a: 'La spedizione è gratuita in tutti i paesi in cui consegniamo. La consegna richiede al massimo 2 giorni lavorativi, con tracciamento, in una confezione anonima e discreta, senza il nome del prodotto all’esterno. Il link di tracciamento arriva via email appena l’ordine viene spedito.',
         },
       },
     },

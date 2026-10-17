@@ -229,7 +229,7 @@ export const sl: Dictionary = {
       recurring: 'Zaračunamo {price} {interval}, dokler ne prekličeš. Prekliči kadar koli prek računa v e-pošti.',
       cta: 'Izberi ta načrt',
     },
-    shipping: { free: 'Brezplačna dostava', fast: 'Hitra dostava s sledenjem', discreet: 'Diskretna embalaža' },
+    shipping: { free: 'Brezplačna dostava', fast: 'Dostava v največ 2 delovnih dneh', discreet: 'Diskretna embalaža' },
     bonus: {
       title: 'Vključeno v Kit 3 in Kit 6',
       items: ['E-knjiga: Kolagenska rutina', '15-dnevni jedilnik', 'VIP skupina za stranke'],
@@ -267,7 +267,7 @@ export const sl: Dictionary = {
         },
         shipping: {
           q: 'Kako poteka dostava?',
-          a: 'Dostava je brezplačna v vse države, kamor dostavljamo. Naročila odpošljemo hitro, s sledenjem, v navadni, diskretni embalaži brez imena izdelka na zunanji strani. Povezava za sledenje je poslana po e-pošti takoj, ko je naročilo odposlano.',
+          a: 'Dostava je brezplačna v vse države, kamor dostavljamo. Dostava traja največ 2 delovna dneva, s sledenjem, v navadni, diskretni embalaži brez imena izdelka na zunanji strani. Povezava za sledenje je poslana po e-pošti takoj, ko je naročilo odposlano.',
         },
       },
     },

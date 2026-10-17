@@ -229,7 +229,7 @@ export const lv: Dictionary = {
       recurring: 'Ieturam {price} {interval}, līdz atceļat. Atcelt varat jebkurā laikā, izmantojot e-pasta kvīti.',
       cta: 'Izvēlēties šo plānu',
     },
-    shipping: { free: 'Bezmaksas piegāde', fast: 'Ātra piegāde ar izsekošanu', discreet: 'Diskrēts iepakojums' },
+    shipping: { free: 'Bezmaksas piegāde', fast: 'Piegāde līdz 2 darba dienām', discreet: 'Diskrēts iepakojums' },
     bonus: {
       title: 'Iekļauts Kit 3 un Kit 6',
       items: ['E-grāmata: Kolagēna rutīna', '15 dienu ēdienkarte', 'VIP klientu grupa'],
@@ -267,7 +267,7 @@ export const lv: Dictionary = {
         },
         shipping: {
           q: 'Kā notiek piegāde?',
-          a: 'Piegāde ir bez maksas uz visām valstīm, kurās piegādājam. Pasūtījumi tiek nosūtīti ātri, ar izsekošanu, vienkāršā, diskrētā iepakojumā bez produkta nosaukuma ārpusē. Izsekošanas saite tiek nosūtīta e-pastā, tiklīdz pasūtījums ir nosūtīts.',
+          a: 'Piegāde ir bez maksas uz visām valstīm, kurās piegādājam. Piegāde aizņem ne vairāk kā 2 darba dienas, ar izsekošanu, vienkāršā, diskrētā iepakojumā bez produkta nosaukuma ārpusē. Izsekošanas saite tiek nosūtīta e-pastā, tiklīdz pasūtījums ir nosūtīts.',
         },
       },
     },

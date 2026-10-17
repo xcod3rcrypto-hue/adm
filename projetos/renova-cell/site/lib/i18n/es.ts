@@ -22,7 +22,7 @@ export const es: Dictionary = {
   },
   quiz: {
     progress: '{pct}% completado',
-    intro: 'Responde 8 preguntas rápidas (unos 60 segundos) y recibe tu plan personalizado.',
+    intro: "Responde 8 preguntas rápidas (unos 60 segundos) y recibe tu plan para una piel de aspecto más joven, más deseo y energía en tu día a día.",
     questions: {
       gender: {
         title: '¿Cómo te identificas?',
@@ -89,7 +89,7 @@ export const es: Dictionary = {
         man: 'Vuelve a sentirte listo para el día: colágeno diario para articulaciones, piel y energía',
         senior: 'Después de los 50 el cuerpo produce menos colágeno. Tu rutina diaria puede compensarlo',
       },
-      sub: 'Una fórmula diaria de colágeno + péptidos, ajustada a tus respuestas.',
+      sub: "Tu ritual diario de juventud: una fórmula de colágeno + péptidos para quienes quieren una piel de aspecto más joven, más deseo y más energía, ajustada a tus respuestas.",
       cta: 'Ver mi plan recomendado',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const es: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Un ritual diario, tres objetivos",
+      items: [
+        { title: "Piel de aspecto más joven", body: "Los péptidos de colágeno se asociaron con más elasticidad e hidratación de la piel en estudios con placebo." },
+        { title: "Deseo y vitalidad", body: "Sentirte bien en tu cuerpo es parte de sentir deseo. Un ritual diario de autocuidado para hombres y mujeres, sin hormonas y sin estimulantes." },
+        { title: "Energía para tu día", body: "Una dosis diaria rica en proteína que cabe en tu mañana, sin estimulantes y sin bajones." },
+      ],
+      note: "Los resultados varían. RENOVA CELL es un complemento alimenticio, no un medicamento.",
+    },
     science: {
       title: 'Lo que dice la investigación',
       flip: 'Toca para ver la fuente',
@@ -169,7 +178,7 @@ export const es: Dictionary = {
       steps: [
         { day: 'Día 1', title: 'Empieza tu ritual', body: 'Una dosis al día. Lo que cuenta es la constancia.' },
         { day: 'Día 5', title: 'Hazlo automático', body: 'Misma hora, mismo lugar. El hábito se afianza.' },
-        { day: 'Día 15', title: 'Haz balance', body: 'Observa cómo te sientes. Muchas personas notan días más constantes.' },
+        { day: 'Día 15', title: 'Haz balance', body: "Observa cómo te sientes y mantén el hábito." },
         { day: 'Día 30', title: 'Un mes', body: 'Sigue. Los estudios midieron cambios en la piel entre 4 y 12 semanas.' },
         { day: 'Día 90', title: 'Ciclo completo', body: 'El periodo que analizó la mayoría de los estudios. Hora de comparar.' },
       ],
@@ -205,6 +214,9 @@ export const es: Dictionary = {
     },
     pricing: {
       perMonth: '/mes',
+      once: "Compra única",
+      subscribe: "Suscripción: recíbelo de nuevo cuando se acabe",
+      interval: { m1: "cada mes", m3: "cada 3 meses", m6: "cada 6 meses" },
       title: 'Elige tu plan',
       recommended: 'Recomendado para ti',
       perUnit: '{price} por unidad',
@@ -212,11 +224,12 @@ export const es: Dictionary = {
       plans: {
         single: { name: '1 unidad', desc: 'Pruébalo durante un mes' },
         kit3: { name: 'Kit 3', desc: 'El ciclo de 90 días de la mayoría de los estudios' },
-        kit6: { name: 'Kit 6 — mensual', desc: '6 unidades entregadas cada mes' },
+        kit6: { name: "Kit 6", desc: "Para 6 meses" },
       },
-      recurring: 'Se cobra {price} cada mes hasta que canceles. Cancela cuando quieras desde el recibo por correo.',
+      recurring: "Se cobra {price} {interval} hasta que canceles. Cancela cuando quieras desde el recibo por correo.",
       cta: 'Elegir este plan',
     },
+    shipping: { free: 'Envío gratis', fast: 'Entrega rápida con seguimiento', discreet: 'Embalaje discreto' },
     bonus: {
       title: 'Incluido con el Kit 3 y el Kit 6',
       items: ['E-book: La rutina del colágeno', 'Plan de comidas de 15 días', 'Grupo VIP de clientes'],
@@ -249,12 +262,12 @@ export const es: Dictionary = {
           a: 'Una dosis al día, mezclada con agua, café o un batido. Mejor siempre a la misma hora.',
         },
         cancel: {
-          q: '¿Cómo cancelo el plan mensual?',
+          q: "¿Cómo cancelo una suscripción?",
           a: 'Usa el enlace de cualquier recibo por correo o escríbenos. Cancela cuando quieras, sin cargos.',
         },
         shipping: {
-          q: '¿Cuánto tarda el envío?',
-          a: 'Recibirás un enlace de seguimiento por correo en cuanto se envíe tu pedido.',
+          q: '¿Cómo funciona el envío?',
+          a: 'El envío es gratis a todos los países a los que enviamos. Los pedidos salen rápido, con seguimiento, en un embalaje sencillo y discreto, sin el nombre del producto por fuera. El enlace de seguimiento se envía por email en cuanto sale el pedido.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const es: Dictionary = {
       invalid: 'Este código no es válido.',
       total: 'Total',
       discountNote: 'Descuento aplicado al pagar',
+      shipping: 'Envío',
+      free: 'Gratis',
     },
     info: {
       title: 'Tus datos',
@@ -327,10 +342,10 @@ export const es: Dictionary = {
   },
   upsell2: {
     title: 'Que nunca te falte, y paga un 30% menos',
-    body: 'Recibe el Kit 3 cada mes por {price} en lugar de {full}. El descuento dura mientras sigas suscrito.',
-    accept: 'Sí, suscribirme por {price}/mes',
+    body: "Recibe el Kit 3 cada 3 meses por {price} en lugar de {full}. El descuento dura mientras sigas suscrito.",
+    accept: "Sí, suscribirme por {price} cada 3 meses",
     decline: 'No, gracias',
-    charge: 'Se cobrará {price} hoy y cada mes a tu tarjeta guardada hasta que canceles. Cancela cuando quieras.',
+    charge: "Se cobrará {price} hoy y cada 3 meses a tu tarjeta guardada hasta que canceles. Cancela cuando quieras.",
   },
   upsell: {
     processing: 'Procesando…',

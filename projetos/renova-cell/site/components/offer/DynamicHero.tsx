@@ -23,7 +23,7 @@ export function DynamicHero() {
   );
 
   return (
-    <section className="relative isolate overflow-hidden bg-ink px-4 pb-20 pt-16 text-cream sm:pt-24">
+    <section className="relative isolate overflow-hidden bg-ink px-gutter pb-20 pt-16 text-cream sm:pt-24">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(14,92,74,0.7),transparent_60%)]" />
       {!reduced &&
         particles.map((p, i) => (
@@ -38,9 +38,10 @@ export function DynamicHero() {
         ))}
       <div className="mx-auto max-w-3xl text-center">
         <p className="mb-5 font-display tracking-[0.3em] text-gold">{d.common.brand}</p>
+        {/* Transform-only entrance: the headline (LCP) is readable from the first frame. */}
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 16 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.6 }}
           className="font-display text-4xl leading-tight sm:text-6xl sm:leading-[1.1]"
         >

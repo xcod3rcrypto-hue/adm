@@ -40,7 +40,7 @@ const COUNTRY_CURRENCY: Record<string, Currency> = {
   IE: 'eur', IT: 'eur', LV: 'eur', LT: 'eur', LU: 'eur', MT: 'eur', NL: 'eur', PT: 'eur', SK: 'eur', SI: 'eur',
   ES: 'eur', AD: 'eur', MC: 'eur', SM: 'eur', VA: 'eur', ME: 'eur', XK: 'eur', AX: 'eur',
   // European countries whose own currency we do not price in: charged in euros.
-  RS: 'eur', MK: 'eur', AL: 'eur', BA: 'eur', MD: 'eur', UA: 'eur',
+  RS: 'eur', MK: 'eur', AL: 'eur', BA: 'eur', MD: 'eur',
   GB: 'gbp', IM: 'gbp', JE: 'gbp', GG: 'gbp', GI: 'gbp',
   CH: 'chf', LI: 'chf',
   SE: 'sek',
@@ -52,6 +52,9 @@ const COUNTRY_CURRENCY: Record<string, Currency> = {
   HU: 'huf',
   RO: 'ron',
 };
+
+/** Every country that has its own price currency above, i.e. every European market we sell in. */
+export const EUROPE_COUNTRIES = Object.keys(COUNTRY_CURRENCY);
 
 export function currencyForCountry(country: string | null | undefined): Currency {
   return (country && COUNTRY_CURRENCY[country.toUpperCase()]) || 'usd';
@@ -65,27 +68,39 @@ export function price(sku: Sku, currency: Currency = CURRENCY): number {
   return PRICES[currency]?.[sku] ?? PRICES.usd[sku];
 }
 
+/**
+ * Every plan can be bought once or as a subscription. One unit lasts a month, so a
+ * subscription renews when the supply runs out: 1 unit monthly, Kit 3 every 3 months,
+ * Kit 6 every 6 months — same price as buying once.
+ */
 export interface Plan {
   id: PlanId;
   units: number;
+  /** Months the supply lasts = subscription interval. */
+  months: 1 | 3 | 6;
   /** USD amount, kept for code that predates multi-currency; prefer price(plan.id, currency). */
   amount: number;
-  recurring: boolean;
+  /** Kept for older callers: no plan is subscription-only any more (see `subscribe`). */
+  recurring: false;
   priceEnv: string;
+  subPriceEnv: string;
 }
 
 export const PLANS: Record<PlanId, Plan> = {
-  single: { id: 'single', units: 1, amount: PRICES.usd.single, recurring: false, priceEnv: 'STRIPE_PRICE_SINGLE' },
-  kit3: { id: 'kit3', units: 3, amount: PRICES.usd.kit3, recurring: false, priceEnv: 'STRIPE_PRICE_KIT3' },
-  kit6: { id: 'kit6', units: 6, amount: PRICES.usd.kit6, recurring: true, priceEnv: 'STRIPE_PRICE_KIT6_MONTHLY' },
+  single: { id: 'single', units: 1, months: 1, amount: PRICES.usd.single, recurring: false, priceEnv: 'STRIPE_PRICE_SINGLE', subPriceEnv: 'STRIPE_PRICE_SINGLE_SUB' },
+  kit3: { id: 'kit3', units: 3, months: 3, amount: PRICES.usd.kit3, recurring: false, priceEnv: 'STRIPE_PRICE_KIT3', subPriceEnv: 'STRIPE_PRICE_KIT3_SUB' },
+  kit6: { id: 'kit6', units: 6, months: 6, amount: PRICES.usd.kit6, recurring: false, priceEnv: 'STRIPE_PRICE_KIT6', subPriceEnv: 'STRIPE_PRICE_KIT6_SUB' },
 };
+
+/** Dictionary key for a plan's renewal interval (pricing.interval.m1 / m3 / m6). */
+export const intervalKey = (plan: Plan) => `m${plan.months}` as const;
 
 export const ORDER_BUMP = { amount: PRICES.usd.bump, priceEnv: 'STRIPE_PRICE_BUMP' } as const;
 
 /** Upsell 1: one-time Kit 6 at 45% off the Kit 6 price. */
 export const UPSELL_KIT6 = { amount: PRICES.usd.upsellKit6, priceEnv: 'STRIPE_PRICE_UPSELL_KIT6' } as const;
 
-/** Upsell 2: Kit 3 every month at 30% off, for as long as the subscription lasts. */
+/** Upsell 2: Kit 3 every 3 months at 30% off, for as long as the subscription lasts. */
 export const UPSELL_SUBSCRIPTION = { amount: PRICES.usd.upsellSub, full: PRICES.usd.kit3, priceEnv: 'STRIPE_PRICE_UPSELL_SUB' } as const;
 
 /** Stripe price env var for each SKU (one Stripe price per SKU, with currency options). */

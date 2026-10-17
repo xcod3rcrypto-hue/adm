@@ -22,7 +22,7 @@ export const ro: Dictionary = {
   },
   quiz: {
     progress: '{pct}% completat',
-    intro: 'Răspunde la 8 întrebări rapide (cam 60 de secunde) și primești planul tău personalizat.',
+    intro: "Răspunde la 8 întrebări rapide (aproximativ 60 de secunde) și primește planul tău pentru o piele cu aspect mai tânăr, mai multă dorință și energie în fiecare zi.",
     questions: {
       gender: {
         title: 'Cum te identifici?',
@@ -89,7 +89,7 @@ export const ro: Dictionary = {
         man: 'Începe din nou ziua cu chef: colagen zilnic pentru articulații, piele și energie constantă',
         senior: 'După 50 de ani, corpul produce mai puțin colagen. Rutina ta zilnică poate compensa',
       },
-      sub: 'O formulă zilnică de colagen + peptide, adaptată răspunsurilor tale.',
+      sub: "Ritualul tău zilnic de tinerețe: o formulă cu colagen + peptide pentru cei care vor o piele cu aspect mai tânăr, mai multă dorință și mai multă energie, adaptată răspunsurilor tale.",
       cta: 'Vezi planul recomandat',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const ro: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Un ritual zilnic, trei obiective",
+      items: [
+        { title: "Piele cu aspect mai tânăr", body: "Peptidele de colagen au fost asociate cu o elasticitate și o hidratare mai bune ale pielii în studii controlate cu placebo." },
+        { title: "Dorință și vitalitate", body: "Să te simți bine în corpul tău face parte din a simți dorință. Un ritual zilnic de grijă față de tine, pentru bărbați și femei, fără hormoni și fără stimulente." },
+        { title: "Energie pentru ziua ta", body: "O porție zilnică bogată în proteine, care se potrivește dimineții tale, fără stimulente și fără căderi de energie." },
+      ],
+      note: "Rezultatele variază. RENOVA CELL este un supliment alimentar, nu un medicament.",
+    },
     science: {
       title: 'Ce spun cercetările',
       flip: 'Atinge pentru a vedea sursa',
@@ -169,7 +178,7 @@ export const ro: Dictionary = {
       steps: [
         { day: 'Ziua 1', title: 'Începe ritualul', body: 'O porție pe zi. Constanța e cea care contează.' },
         { day: 'Ziua 5', title: 'Transformă-l în obicei', body: 'Aceeași oră, același loc. Obiceiul prinde rădăcini.' },
-        { day: 'Ziua 15', title: 'Fă un bilanț', body: 'Observă cum te simți. Mulți spun că au zile mai constante.' },
+        { day: 'Ziua 15', title: 'Fă un bilanț', body: "Observă cum te simți și păstrează obiceiul." },
         { day: 'Ziua 30', title: 'Prima lună', body: 'Continuă. Studiile au măsurat schimbări ale pielii între 4 și 12 săptămâni.' },
         { day: 'Ziua 90', title: 'Ciclu complet', body: 'Perioada analizată de majoritatea cercetărilor. E momentul să compari.' },
       ],
@@ -205,6 +214,9 @@ export const ro: Dictionary = {
     },
     pricing: {
       perMonth: '/lună',
+      once: "Achiziție unică",
+      subscribe: "Abonament: îl primești din nou când se termină",
+      interval: { m1: "în fiecare lună", m3: "la fiecare 3 luni", m6: "la fiecare 6 luni" },
       title: 'Alege-ți planul',
       recommended: 'Recomandat pentru tine',
       perUnit: '{price} pe bucată',
@@ -212,11 +224,12 @@ export const ro: Dictionary = {
       plans: {
         single: { name: '1 bucată', desc: 'Încearcă-l timp de o lună' },
         kit3: { name: 'Kit 3', desc: 'Ciclul de 90 de zile folosit în majoritatea studiilor' },
-        kit6: { name: 'Kit 6 — lunar', desc: '6 bucăți livrate în fiecare lună' },
+        kit6: { name: "Kit 6", desc: "Rezervă pentru 6 luni" },
       },
-      recurring: 'Se facturează {price} în fiecare lună, până anulezi. Poți anula oricând din e-mailul cu chitanța.',
+      recurring: "Se percep {price} {interval} până anulezi. Poți anula oricând din chitanța primită pe e-mail.",
       cta: 'Vreau acest plan',
     },
+    shipping: { free: 'Transport gratuit', fast: 'Livrare rapidă, cu urmărire', discreet: 'Ambalaj discret' },
     bonus: {
       title: 'Incluse în Kit 3 și Kit 6',
       items: ['E-book: Rutina colagenului', 'Plan alimentar pe 15 zile', 'Grup VIP pentru clienți'],
@@ -249,12 +262,12 @@ export const ro: Dictionary = {
           a: 'O porție pe zi, amestecată în apă, cafea sau smoothie. Ideal este să-l iei la aceeași oră în fiecare zi.',
         },
         cancel: {
-          q: 'Cum anulez abonamentul lunar?',
+          q: "Cum anulez un abonament?",
           a: 'Folosește linkul din oricare e-mail cu chitanța sau scrie-ne. Poți anula oricând, fără taxe.',
         },
         shipping: {
-          q: 'Cât durează livrarea?',
-          a: 'Vei primi pe e-mail un link de urmărire imediat ce comanda ta este expediată.',
+          q: 'Cum funcționează livrarea?',
+          a: 'Transportul este gratuit în toate țările în care livrăm. Comenzile pleacă rapid, cu urmărire, într-un ambalaj simplu și discret, fără numele produsului la exterior. Linkul de urmărire este trimis pe e-mail imediat ce comanda este expediată.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const ro: Dictionary = {
       invalid: 'Acest cod nu este valid.',
       total: 'Total',
       discountNote: 'Reducerea se aplică la plată',
+      shipping: 'Transport',
+      free: 'Gratuit',
     },
     info: {
       title: 'Datele tale',
@@ -327,10 +342,10 @@ export const ro: Dictionary = {
   },
   upsell2: {
     title: 'Nu rămâi niciodată fără — și plătești cu 30% mai puțin',
-    body: 'Primești Kit 3 în fiecare lună la {price} în loc de {full}. Reducerea rămâne valabilă cât timp abonamentul este activ.',
-    accept: 'Da, mă abonez la {price}/lună',
+    body: "Primește Kit 3 la fiecare 3 luni cu {price} în loc de {full}. Reducerea se aplică atât timp cât rămâi abonat.",
+    accept: "Da, mă abonez cu {price} la fiecare 3 luni",
     decline: 'Nu, mulțumesc',
-    charge: 'Cardul tău salvat va fi debitat cu {price} azi și în fiecare lună, până anulezi. Poți anula oricând.',
+    charge: "Cardul tău salvat va fi debitat cu {price} azi și la fiecare 3 luni până anulezi. Poți anula oricând.",
   },
   upsell: {
     processing: 'Se procesează…',

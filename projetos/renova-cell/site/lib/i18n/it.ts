@@ -22,7 +22,7 @@ export const it: Dictionary = {
   },
   quiz: {
     progress: '{pct}% completato',
-    intro: 'Rispondi a 8 domande veloci (circa 60 secondi) e ricevi il tuo piano personalizzato.',
+    intro: "Rispondi a 8 domande veloci (circa 60 secondi) e ricevi il tuo piano per una pelle dall’aspetto più giovane, più desiderio ed energia ogni giorno.",
     questions: {
       gender: {
         title: 'Come ti identifichi?',
@@ -89,7 +89,7 @@ export const it: Dictionary = {
         man: 'Torna a sentirti pronto per la giornata: collagene ogni giorno per articolazioni, pelle ed energia costante',
         senior: 'Dopo i 50 anni il corpo produce meno collagene. La tua routine quotidiana può aiutarti a compensare',
       },
-      sub: 'Una formula quotidiana di collagene + peptidi, su misura per le tue risposte.',
+      sub: "Il tuo rituale quotidiano di giovinezza: una formula di collagene + peptidi per chi vuole una pelle dall’aspetto più giovane, più desiderio e più energia, su misura per le tue risposte.",
       cta: 'Vedi il piano consigliato',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const it: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Un rituale quotidiano, tre obiettivi",
+      items: [
+        { title: "Pelle dall’aspetto più giovane", body: "I peptidi di collagene sono stati associati a una migliore elasticità e idratazione della pelle in studi controllati con placebo." },
+        { title: "Desiderio e vitalità", body: "Sentirsi bene nel proprio corpo fa parte del desiderio. Un rituale quotidiano di cura di sé per uomini e donne, senza ormoni e senza stimolanti." },
+        { title: "Energia per la tua giornata", body: "Una dose quotidiana ricca di proteine che si adatta alla tua mattina, senza stimolanti e senza cali." },
+      ],
+      note: "I risultati variano. RENOVA CELL è un integratore alimentare, non un medicinale.",
+    },
     science: {
       title: 'Cosa dice la ricerca',
       flip: 'Tocca per vedere la fonte',
@@ -169,7 +178,7 @@ export const it: Dictionary = {
       steps: [
         { day: 'Giorno 1', title: 'Inizia il tuo rituale', body: 'Una dose al giorno. Quello che conta è la costanza.' },
         { day: 'Giorno 5', title: 'Rendilo automatico', body: "Stessa ora, stesso posto. L'abitudine prende forma." },
-        { day: 'Giorno 15', title: 'Fai il punto', body: 'Nota come ti senti. Molte persone dicono di sentirsi più costanti.' },
+        { day: 'Giorno 15', title: 'Fai il punto', body: "Nota come ti senti e mantieni l’abitudine." },
         { day: 'Giorno 30', title: 'Il primo mese', body: 'Continua così. Gli studi hanno misurato cambiamenti della pelle tra 4 e 12 settimane.' },
         { day: 'Giorno 90', title: 'Ciclo completo', body: 'Il periodo osservato dalla maggior parte delle ricerche. È il momento di fare un confronto.' },
       ],
@@ -205,6 +214,9 @@ export const it: Dictionary = {
     },
     pricing: {
       perMonth: '/mese',
+      once: "Acquisto singolo",
+      subscribe: "Abbonamento: lo ricevi di nuovo quando finisce",
+      interval: { m1: "ogni mese", m3: "ogni 3 mesi", m6: "ogni 6 mesi" },
       title: 'Scegli il tuo piano',
       recommended: 'Consigliato per te',
       perUnit: '{price} a confezione',
@@ -212,11 +224,12 @@ export const it: Dictionary = {
       plans: {
         single: { name: '1 confezione', desc: 'Provalo per un mese' },
         kit3: { name: 'Kit 3', desc: 'Il ciclo di 90 giorni usato nella maggior parte degli studi' },
-        kit6: { name: 'Kit 6 — mensile', desc: '6 confezioni consegnate ogni mese' },
+        kit6: { name: "Kit 6", desc: "Scorta per 6 mesi" },
       },
-      recurring: 'Addebito di {price} ogni mese fino alla disdetta. Puoi disdire quando vuoi dalla ricevuta che ricevi via email.',
+      recurring: "Addebito di {price} {interval} fino alla disdetta. Puoi disdire quando vuoi dalla ricevuta che ricevi via email.",
       cta: 'Scegli questo piano',
     },
+    shipping: { free: 'Spedizione gratuita', fast: 'Consegna rapida e tracciata', discreet: 'Confezione discreta' },
     bonus: {
       title: 'Incluso con Kit 3 e Kit 6',
       items: ['E-book: La routine del collagene', 'Piano alimentare di 15 giorni', 'Gruppo clienti VIP'],
@@ -249,12 +262,12 @@ export const it: Dictionary = {
           a: 'Una dose al giorno, mescolata in acqua, caffè o in uno smoothie. Meglio sempre alla stessa ora.',
         },
         cancel: {
-          q: 'Come disdico il piano mensile?',
+          q: "Come disdico un abbonamento?",
           a: 'Usa il link presente in qualsiasi email di ricevuta oppure scrivici. Puoi disdire quando vuoi, senza costi.',
         },
         shipping: {
-          q: 'Quanto tempo richiede la spedizione?',
-          a: 'Riceverai via email un link di tracciamento appena il tuo ordine verrà spedito.',
+          q: 'Come funziona la spedizione?',
+          a: 'La spedizione è gratuita in tutti i paesi in cui consegniamo. Gli ordini partono rapidamente, con tracciamento, in una confezione anonima e discreta, senza il nome del prodotto all’esterno. Il link di tracciamento arriva via email appena l’ordine viene spedito.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const it: Dictionary = {
       invalid: 'Questo codice non è valido.',
       total: 'Totale',
       discountNote: 'Sconto applicato al pagamento',
+      shipping: 'Spedizione',
+      free: 'Gratis',
     },
     info: {
       title: 'I tuoi dati',
@@ -327,10 +342,10 @@ export const it: Dictionary = {
   },
   upsell2: {
     title: 'Non restare mai senza, e paga il 30% in meno',
-    body: "Ricevi il Kit 3 ogni mese a {price} invece di {full}. Lo sconto resta valido finché mantieni l'abbonamento.",
-    accept: 'Sì, mi abbono a {price}/mese',
+    body: "Ricevi il Kit 3 ogni 3 mesi a {price} invece di {full}. Lo sconto resta valido finché mantieni l’abbonamento.",
+    accept: "Sì, mi abbono a {price} ogni 3 mesi",
     decline: 'No, grazie',
-    charge: 'Addebiteremo {price} sulla carta salvata oggi e poi ogni mese fino alla disdetta. Puoi disdire quando vuoi.',
+    charge: "Addebiteremo {price} sulla carta salvata oggi e poi ogni 3 mesi fino alla disdetta. Puoi disdire quando vuoi.",
   },
   upsell: {
     processing: 'Elaborazione…',

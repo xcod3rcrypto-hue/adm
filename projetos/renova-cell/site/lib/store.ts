@@ -24,6 +24,8 @@ interface FunnelState {
   quizId: string | null;
   headline: string | null;
   plan: PlanId | null;
+  /** Buy once (false) or subscribe: the same plan again whenever the supply runs out. */
+  subscribe: boolean;
   bump: boolean;
   coupon: string | null;
   setLocale: (locale: Locale, chosen?: boolean) => void;
@@ -32,6 +34,7 @@ interface FunnelState {
   setContact: (contact: Partial<Contact>) => void;
   setResult: (quizId: string | null, headline: string | null) => void;
   setPlan: (plan: PlanId) => void;
+  setSubscribe: (subscribe: boolean) => void;
   setBump: (bump: boolean) => void;
   setCoupon: (coupon: string | null) => void;
   reset: () => void;
@@ -50,6 +53,7 @@ export const useFunnel = create<FunnelState>()(
       quizId: null,
       headline: null,
       plan: null,
+      subscribe: false,
       bump: false,
       coupon: null,
       setLocale: (locale, chosen = false) => set((s) => ({ locale, localeChosen: s.localeChosen || chosen })),
@@ -58,10 +62,11 @@ export const useFunnel = create<FunnelState>()(
       setContact: (contact) => set((s) => ({ contact: { ...s.contact, ...contact } })),
       setResult: (quizId, headline) => set({ quizId, headline }),
       setPlan: (plan) => set({ plan }),
+      setSubscribe: (subscribe) => set({ subscribe }),
       setBump: (bump) => set({ bump }),
       setCoupon: (coupon) => set({ coupon }),
       reset: () =>
-        set({ step: 0, answers: {}, quizId: null, headline: null, plan: null, bump: false, coupon: null }),
+        set({ step: 0, answers: {}, quizId: null, headline: null, plan: null, subscribe: false, bump: false, coupon: null }),
     }),
     {
       name: 'renova-funnel',

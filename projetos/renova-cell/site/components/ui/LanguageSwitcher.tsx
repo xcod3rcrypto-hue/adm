@@ -9,7 +9,7 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
   const { locale, d } = useT();
   const setLocale = useFunnel((s) => s.setLocale);
   return (
-    <label className={`inline-flex items-center gap-2 text-sm ${className}`}>
+    <label className={`inline-flex max-w-full items-center gap-2 text-sm ${className}`}>
       <span className="sr-only">{d.common.language}</span>
       <span aria-hidden>🌐</span>
       <select
@@ -18,9 +18,11 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
           const next = e.target.value as Locale;
           setLocale(next, true);
           writeCookie('rc_locale', next);
+          // Tells the middleware this was a choice, so it wins over the phone's language and the IP.
+          writeCookie('rc_locale_chosen', '1');
           document.documentElement.lang = next;
         }}
-        className="rounded-md border border-current/20 bg-transparent px-2 py-1"
+        className="min-h-[44px] max-w-full rounded-md border border-[color:var(--muted)] bg-transparent px-2 text-base"
       >
         {LOCALES.map((l) => (
           <option key={l} value={l} className="text-ink">

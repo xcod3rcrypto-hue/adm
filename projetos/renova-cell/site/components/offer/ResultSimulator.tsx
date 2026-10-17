@@ -24,27 +24,44 @@ export function ResultSimulator() {
     <section className="section">
       <h2 className="h2 mb-6 text-center">{d.offer.simulator.title}</h2>
       <div className="card mx-auto max-w-3xl p-4 sm:p-8">
-        <label className="mb-6 flex flex-wrap items-center gap-4">
+        <label className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>{d.offer.simulator.label}</span>
-          <input
-            type="range"
-            min={20}
-            max={70}
-            value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
-            className="flex-1 accent-[#0E5C4A]"
-          />
-          <output className="w-12 font-mono text-xl">{age}</output>
+          <span className="flex min-w-[12rem] flex-1 items-center gap-4">
+            {/* h-11: a 44px touch target around the native track. */}
+            <input
+              type="range"
+              min={20}
+              max={70}
+              value={age}
+              onChange={(e) => setAge(Number(e.target.value))}
+              className="h-11 min-w-0 flex-1 cursor-pointer accent-[#0E5C4A] dark:accent-[#D4AF37]"
+            />
+            <output className="w-12 shrink-0 text-right font-mono text-xl">{age}</output>
+          </span>
         </label>
-        <div className="h-64 w-full">
+        <div className="h-64 w-full [--chart-line:#0E5C4A] dark:[--chart-line:#D4AF37]">
           <ResponsiveContainer>
             <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: -10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
               <XAxis dataKey="age" stroke="var(--muted)" fontSize={12} />
               <YAxis domain={[40, 100]} stroke="var(--muted)" fontSize={12} unit="%" />
-              <Tooltip formatter={(v) => [`${v}%`, d.offer.simulator.yAxis]} labelFormatter={(l) => `${d.offer.simulator.label}: ${l}`} />
-              <Line type="monotone" dataKey="collagen" stroke="#0E5C4A" strokeWidth={3} dot={false} isAnimationActive />
-              <ReferenceDot x={Math.round(age / 5) * 5} y={you} r={8} fill="#FF6B5A" stroke="none" label={{ value: d.offer.simulator.you, position: 'top', fill: 'var(--page-fg)' }} />
+              <Tooltip
+                formatter={(v) => [`${v}%`, d.offer.simulator.yAxis]}
+                labelFormatter={(l) => `${d.offer.simulator.label}: ${l}`}
+                contentStyle={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 12, color: 'var(--page-fg)' }}
+                itemStyle={{ color: 'var(--page-fg)' }}
+                labelStyle={{ color: 'var(--muted)' }}
+              />
+              <Line type="monotone" dataKey="collagen" stroke="var(--chart-line)" strokeWidth={3} dot={false} isAnimationActive />
+              <ReferenceDot
+                x={Math.round(age / 5) * 5}
+                y={you}
+                r={8}
+                fill="#FF6B5A"
+                stroke="none"
+                // Beside the dot, on the side away from the edge: above the line, never on it or clipped.
+                label={{ value: d.offer.simulator.you, position: age > 60 ? 'left' : 'right', offset: 12, fill: 'var(--page-fg)', fontSize: 13 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

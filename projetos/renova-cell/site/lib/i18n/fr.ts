@@ -22,7 +22,7 @@ export const fr: Dictionary = {
   },
   quiz: {
     progress: '{pct} % terminé',
-    intro: 'Répondez à 8 questions rapides (environ 60 secondes) pour recevoir votre plan personnalisé.',
+    intro: "Répondez à 8 questions rapides (environ 60 secondes) et recevez votre plan pour une peau d’aspect plus jeune, plus de désir et d’énergie au quotidien.",
     questions: {
       gender: {
         title: 'Comment vous identifiez-vous ?',
@@ -89,7 +89,7 @@ export const fr: Dictionary = {
         man: 'Sentez-vous de nouveau prêt pour la journée : du collagène au quotidien pour les articulations, la peau et l’énergie',
         senior: 'Après 50 ans, le corps fabrique moins de collagène. Votre routine quotidienne peut compenser',
       },
-      sub: 'Une formule quotidienne collagène + peptides, adaptée à vos réponses.',
+      sub: "Votre rituel jeunesse quotidien : une formule collagène + peptides pour celles et ceux qui veulent une peau d’aspect plus jeune, plus de désir et plus d’énergie, adaptée à vos réponses.",
       cta: 'Voir mon plan recommandé',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const fr: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Un rituel quotidien, trois objectifs",
+      items: [
+        { title: "Une peau d’aspect plus jeune", body: "Les peptides de collagène ont été associés à une meilleure élasticité et hydratation de la peau dans des études contre placebo." },
+        { title: "Désir et vitalité", body: "Se sentir bien dans son corps fait partie du désir. Un rituel quotidien de soin de soi pour les hommes et les femmes, sans hormones ni stimulants." },
+        { title: "De l’énergie pour la journée", body: "Une dose quotidienne riche en protéines qui trouve sa place le matin, sans stimulants ni coup de barre." },
+      ],
+      note: "Les résultats varient. RENOVA CELL est un complément alimentaire, pas un médicament.",
+    },
     science: {
       title: 'Ce que dit la recherche',
       flip: 'Touchez pour voir la source',
@@ -169,7 +178,7 @@ export const fr: Dictionary = {
       steps: [
         { day: 'Jour 1', title: 'Commencez votre rituel', body: 'Une dose par jour. La régularité est ce qui compte.' },
         { day: 'Jour 5', title: 'Rendez-le automatique', body: "Même heure, même endroit. L'habitude s'installe." },
-        { day: 'Jour 15', title: 'Faites le point', body: 'Observez comment vous vous sentez. Beaucoup disent avoir des journées plus régulières.' },
+        { day: 'Jour 15', title: 'Faites le point', body: "Observez comment vous vous sentez et gardez l’habitude." },
         { day: 'Jour 30', title: 'Un mois', body: 'Continuez. Les études ont mesuré des changements de la peau entre 4 et 12 semaines.' },
         { day: 'Jour 90', title: 'Cycle complet', body: "La durée étudiée par la plupart des recherches. L'heure de comparer." },
       ],
@@ -205,6 +214,9 @@ export const fr: Dictionary = {
     },
     pricing: {
       perMonth: '/mois',
+      once: "Achat unique",
+      subscribe: "Abonnement : recevez-le à nouveau quand il est fini",
+      interval: { m1: "chaque mois", m3: "tous les 3 mois", m6: "tous les 6 mois" },
       title: 'Choisissez votre plan',
       recommended: 'Recommandé pour vous',
       perUnit: '{price} par unité',
@@ -212,11 +224,12 @@ export const fr: Dictionary = {
       plans: {
         single: { name: '1 unité', desc: 'Essayez pendant un mois' },
         kit3: { name: 'Kit 3', desc: 'Le cycle de 90 jours utilisé par la plupart des études' },
-        kit6: { name: 'Kit 6 — mensuel', desc: '6 unités livrées chaque mois' },
+        kit6: { name: "Kit 6", desc: "Réserve pour 6 mois" },
       },
-      recurring: "Facturé {price} chaque mois jusqu'à résiliation. Résiliez à tout moment depuis votre reçu par e-mail.",
+      recurring: "Facturé {price} {interval} jusqu’à résiliation. Résiliez à tout moment depuis votre reçu par e-mail.",
       cta: 'Choisir ce plan',
     },
+    shipping: { free: 'Livraison gratuite', fast: 'Livraison rapide et suivie', discreet: 'Emballage discret' },
     bonus: {
       title: 'Inclus avec le Kit 3 et le Kit 6',
       items: ['E-book : La routine collagène', 'Plan de repas sur 15 jours', 'Groupe clients VIP'],
@@ -249,12 +262,12 @@ export const fr: Dictionary = {
           a: "Une dose par jour, dans de l'eau, du café ou un smoothie. Idéalement toujours à la même heure.",
         },
         cancel: {
-          q: "Comment résilier l'abonnement mensuel ?",
+          q: "Comment résilier un abonnement ?",
           a: "Utilisez le lien de n'importe quel reçu par e-mail ou écrivez-nous. Résiliez à tout moment, sans frais.",
         },
         shipping: {
-          q: 'Quel est le délai de livraison ?',
-          a: "Vous recevrez un lien de suivi par e-mail dès l'expédition de votre commande.",
+          q: 'Comment fonctionne la livraison ?',
+          a: 'La livraison est gratuite dans tous les pays que nous desservons. Les commandes partent rapidement, avec suivi, dans un emballage neutre et discret, sans nom de produit à l’extérieur. Le lien de suivi est envoyé par e-mail dès l’expédition.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const fr: Dictionary = {
       invalid: "Ce code n'est pas valide.",
       total: 'Total',
       discountNote: 'Réduction appliquée au paiement',
+      shipping: 'Livraison',
+      free: 'Gratuite',
     },
     info: {
       title: 'Vos coordonnées',
@@ -327,10 +342,10 @@ export const fr: Dictionary = {
   },
   upsell2: {
     title: 'Ne soyez jamais à court, et payez 30 % de moins',
-    body: 'Recevez le Kit 3 chaque mois pour {price} au lieu de {full}. La remise dure tant que vous restez abonné(e).',
-    accept: "Oui, m'abonner pour {price}/mois",
+    body: "Recevez le Kit 3 tous les 3 mois pour {price} au lieu de {full}. La remise dure tant que vous restez abonné(e).",
+    accept: "Oui, m’abonner pour {price} tous les 3 mois",
     decline: 'Non merci',
-    charge: "Votre carte enregistrée sera débitée de {price} aujourd'hui puis chaque mois jusqu'à résiliation. Résiliez à tout moment.",
+    charge: "Votre carte enregistrée sera débitée de {price} aujourd’hui puis tous les 3 mois jusqu’à résiliation. Résiliez à tout moment.",
   },
   upsell: {
     processing: 'Traitement…',

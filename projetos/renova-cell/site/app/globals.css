@@ -27,14 +27,13 @@
   --consent-h: 0px;
   /* What floating widgets and page ends must clear: the home indicator or the cookie banner. */
   --float-base: max(var(--safe-b), var(--consent-h));
-  /* Phones keep room for the sticky CTA bar below the chat button and toast. */
-  --sticky-space: 4.5rem;
+  /* Height of the phone sticky CTA bar while it is on screen (set by <StickyCTA />). */
+  --sticky-h: 0px;
 }
 
 @media (min-width: 640px) {
   :root {
     --gutter: 1.5rem;
-    --sticky-space: 0.5rem;
   }
 }
 
@@ -193,28 +192,35 @@ body {
   .float-chat-button {
     position: fixed;
     right: max(1rem, var(--safe-r));
-    bottom: calc(var(--float-base) + var(--sticky-space) + 1rem);
+    bottom: calc(var(--float-base) + var(--sticky-h) + 1rem);
     transition: bottom 0.2s ease;
   }
   .float-chat-panel {
     position: fixed;
     right: max(1rem, var(--safe-r));
-    bottom: calc(var(--float-base) + var(--sticky-space) + 5rem);
+    bottom: calc(var(--float-base) + var(--sticky-h) + 5rem);
     width: min(380px, calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r))));
-    height: min(520px, calc(100vh - var(--float-base) - var(--sticky-space) - 6rem - var(--safe-t)));
-    height: min(520px, calc(100dvh - var(--float-base) - var(--sticky-space) - 6rem - var(--safe-t)));
+    height: min(520px, calc(100vh - var(--float-base) - var(--sticky-h) - 6rem - var(--safe-t)));
+    height: min(520px, calc(100dvh - var(--float-base) - var(--sticky-h) - 6rem - var(--safe-t)));
+    transform-origin: bottom right;
   }
   .float-toast {
     position: fixed;
     left: max(1rem, var(--safe-l));
-    bottom: calc(var(--float-base) + var(--sticky-space) + 1rem);
+    bottom: calc(var(--float-base) + var(--sticky-h) + 1rem);
     /* Leaves room for the chat button on the right (3.5rem + 1rem gap). */
     max-width: calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r)) - 4.5rem);
+    transition: bottom 0.2s ease;
   }
   @media (min-width: 640px) {
     .float-toast {
       max-width: 24rem;
     }
+  }
+  /* While the chat is open it owns the bottom of the screen: no sticky bar, no toast underneath. */
+  html:has(.float-chat-panel) .sticky-cta,
+  html:has(.float-chat-panel) .float-toast {
+    display: none;
   }
   .consent-banner {
     position: fixed;
@@ -222,6 +228,7 @@ body {
     right: max(0.75rem, var(--safe-r));
     bottom: calc(0.75rem + var(--safe-b));
   }
+  /* Full-screen overlay that scrolls when its dialog is taller than the screen (dialog uses m-auto). */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -245,5 +252,23 @@ body {
   .scroll-px-gutter {
     scroll-padding-left: var(--gutter-l);
     scroll-padding-right: var(--gutter-r);
+  }
+  /*
+   * Page ends that clear the notch at the top and the home indicator / cookie banner at the bottom.
+   * The base padding comes from --pt / --pb / --py, e.g. class="py-safe [--py:3.5rem]".
+   */
+  .pt-safe {
+    padding-top: calc(var(--pt, 0px) + var(--safe-t));
+  }
+  .pb-safe {
+    padding-bottom: calc(var(--pb, 0px) + var(--float-base));
+  }
+  .py-safe {
+    padding-top: calc(var(--py, 0px) + var(--safe-t));
+    padding-bottom: calc(var(--py, 0px) + var(--float-base));
+  }
+  /* Bottom of a page with floating widgets: the last line can scroll clear of the chat button. */
+  .pb-floating {
+    padding-bottom: max(calc(var(--pb, 0px) + var(--float-base)), calc(var(--float-base) + var(--sticky-h) + 6rem));
   }
 }

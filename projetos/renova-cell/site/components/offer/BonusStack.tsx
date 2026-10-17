@@ -14,8 +14,8 @@ export function BonusStack() {
         {d.offer.bonus.items.map((item, i) => (
           <motion.div
             key={item}
-            initial={{ opacity: 0, y: -30, rotate: -2 }}
-            whileInView={{ opacity: 1, y: 0, rotate: i % 2 ? 1 : -1 }}
+            initial={{ y: -8, rotate: 0 }}
+            whileInView={{ y: 0, rotate: i % 2 ? 1 : -1 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.15, type: 'spring', stiffness: 160 }}
             className="card -mt-2 flex items-center gap-4 p-5 shadow-lg first:mt-0"

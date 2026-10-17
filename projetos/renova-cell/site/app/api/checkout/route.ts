@@ -1,6 +1,6 @@
 import type Stripe from 'stripe';
 import type { NextRequest } from 'next/server';
-import { findPromotionCode, shippingCountries } from '@/lib/checkout';
+import { BLOCKED_COUNTRIES, findPromotionCode, shippingCountries } from '@/lib/checkout';
 import { EMAIL_RE, badRequest, clientIp, json, localeOr, rateLimited, readJson } from '@/lib/http';
 import { stripeLocale } from '@/lib/i18n';
 import { ORDER_BUMP, PLANS, currencyForCountry, priceIdFor } from '@/lib/products';
@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 interface Body {
   plan?: unknown;
+  subscribe?: unknown;
   bump?: unknown;
   coupon?: unknown;
   email?: unknown;
@@ -38,13 +39,16 @@ export async function POST(req: NextRequest) {
   if (!EMAIL_RE.test(email)) return badRequest('Invalid email');
   const locale = localeOr(body.locale);
   // Charged currency comes from the IP country, never from the request body.
-  const currency = currencyForCountry(req.headers.get('x-vercel-ip-country'));
+  const country = req.headers.get('x-vercel-ip-country')?.toUpperCase() ?? '';
+  if (BLOCKED_COUNTRIES.has(country)) return json({ error: 'not_available' }, 403);
+  const currency = currencyForCountry(country);
   const quizId = typeof body.quizId === 'string' && /^[0-9a-f-]{36}$/i.test(body.quizId) ? body.quizId : '';
   const bump = body.bump === true;
+  const subscribe = body.subscribe === true;
 
   let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[];
   try {
-    lineItems = [{ price: priceIdFor(plan.priceEnv), quantity: 1 }];
+    lineItems = [{ price: priceIdFor(subscribe ? plan.subPriceEnv : plan.priceEnv), quantity: 1 }];
     if (bump) lineItems.push({ price: priceIdFor(ORDER_BUMP.priceEnv), quantity: 1 });
   } catch (error) {
     console.error(error);
@@ -56,6 +60,7 @@ export async function POST(req: NextRequest) {
 
   const metadata = {
     plan: plan.id,
+    subscribe: String(subscribe),
     bump: String(bump),
     quiz_id: quizId,
     locale,
@@ -65,7 +70,8 @@ export async function POST(req: NextRequest) {
 
   const base = siteUrl();
   const params: Stripe.Checkout.SessionCreateParams = {
-    mode: plan.recurring ? 'subscription' : 'payment',
+    // A subscription renews when the supply runs out (every plan.months months).
+    mode: subscribe ? 'subscription' : 'payment',
     line_items: lineItems,
     // Prices carry an EUR currency option (npm run stripe:setup); USD is their default currency.
     currency,
@@ -77,15 +83,27 @@ export async function POST(req: NextRequest) {
     phone_number_collection: { enabled: true },
     metadata,
     ...(promo ? { discounts: [{ promotion_code: promo.id }] } : { allow_promotion_codes: true }),
-    // Recurring plans skip the upsells (they are already on the best plan).
-    success_url: plan.recurring
+    // Subscribers skip the 1-click upsells (those need a one-time payment's saved card).
+    success_url: subscribe
       ? `${base}/thank-you?session_id={CHECKOUT_SESSION_ID}`
       : `${base}/upsell-1?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base}/checkout?canceled=1`,
   };
-  if (plan.recurring) {
+  // Free shipping everywhere we ship. Shipping rates only exist in payment mode, so
+  // subscriptions say it on the address step instead (nothing is charged for shipping either way).
+  if (subscribe) {
     params.subscription_data = { metadata };
+    params.custom_text = { shipping_address: { message: 'Free shipping · fast tracked delivery · discreet packaging.' } };
   } else {
+    params.shipping_options = [
+      {
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: { amount: 0, currency },
+          display_name: 'Free shipping · discreet packaging',
+        },
+      },
+    ];
     params.customer_creation = 'always';
     params.payment_intent_data = { setup_future_usage: 'off_session', metadata };
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CONSENT_KEY, readConsent } from '@/lib/analytics';
 import { useT } from '@/lib/hooks';
 
@@ -16,9 +16,30 @@ const HOTJAR = process.env.NEXT_PUBLIC_HOTJAR_ID;
 export function Analytics() {
   const { d } = useT();
   const [consent, setConsent] = useState<'granted' | 'denied' | null | 'loading'>('loading');
+  const banner = useRef<HTMLDivElement>(null);
   useEffect(() => setConsent(readConsent()), []);
 
   const anyTool = GA || PIXEL || POSTHOG_KEY || HOTJAR;
+  const showBanner = Boolean(anyTool) && consent === null;
+
+  // While the banner is open, publish how much of the bottom of the screen it takes (--consent-h),
+  // so the sticky CTA, chat and toast stack above it and page ends can scroll clear of it.
+  useEffect(() => {
+    const el = banner.current;
+    if (!showBanner || !el) return;
+    const root = document.documentElement;
+    const update = () => root.style.setProperty('--consent-h', `${Math.max(0, Math.ceil(window.innerHeight - el.getBoundingClientRect().top))}px`);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+      root.style.removeProperty('--consent-h');
+    };
+  }, [showBanner]);
+
   if (!anyTool || consent === 'loading') return null;
 
   const choose = (value: 'granted' | 'denied') => {
@@ -33,13 +54,20 @@ export function Analytics() {
   if (consent === null) {
     const c = d.consent;
     return (
-      <div role="dialog" aria-live="polite" className="fixed inset-x-3 bottom-3 z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-2xl bg-ink p-4 text-sm text-cream shadow-2xl sm:flex-row sm:items-center">
+      <div
+        ref={banner}
+        role="dialog"
+        aria-live="polite"
+        aria-label={c.text}
+        // Phones/tablets: centered at the bottom. Desktop: a bottom-left card, clear of the centered hero CTA.
+        className="consent-banner z-[60] mx-auto flex max-w-xl flex-col gap-3 rounded-2xl bg-ink p-4 text-sm text-cream shadow-2xl sm:flex-row sm:items-center lg:right-auto lg:mx-0 lg:max-w-sm lg:flex-col lg:items-stretch"
+      >
         <p className="flex-1">{c.text}</p>
         <div className="flex gap-2">
-          <button onClick={() => choose('denied')} className="rounded-full border border-cream/40 px-4 py-2">
+          <button onClick={() => choose('denied')} className="min-h-[44px] flex-1 rounded-full border border-cream/40 px-5 sm:flex-none lg:flex-1">
             {c.decline}
           </button>
-          <button onClick={() => choose('granted')} className="rounded-full bg-gold px-4 py-2 font-semibold text-ink">
+          <button onClick={() => choose('granted')} className="min-h-[44px] flex-1 rounded-full bg-gold px-5 font-semibold text-ink sm:flex-none lg:flex-1">
             {c.accept}
           </button>
         </div>

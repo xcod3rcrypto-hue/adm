@@ -1,7 +1,7 @@
 # RENOVA CELL — funil (Next.js 14)
 
 Quiz → análise → landing personalizada → checkout Stripe → upsells 1-clique → obrigado.
-Multilíngue (EN/PT/ES/FR/DE) com idioma detectado pelo IP, headline gerada pelo Claude, VSL por persona gerada na HeyGen e follow-up automático por e-mail/SMS.
+Multilíngue (28 idiomas, EUA + toda a Europa) com idioma do celular primeiro e moeda local pelo país, headline gerada pelo Claude, VSL por persona gerada na HeyGen e follow-up automático por e-mail/SMS.
 
 ```bash
 cd projetos/renova-cell/site
@@ -20,7 +20,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 | `/quiz` | 8 perguntas, uma por tela, barra de progresso, voltar sempre visível + passo opcional de contato (nome, e-mail, consentimentos) |
 | `/analyzing` | Salva as respostas e gera a headline **de verdade** enquanto mostra os 3 passos (mín. 3,5 s, máx. 9 s) |
 | `/offer` | Landing com 20 seções personalizadas pelo quiz |
-| `/checkout` | Carrinho (plano + order bump + cupom) → dados → pagamento no Stripe Checkout |
+| `/checkout` | Carrinho (plano + compra única ou assinatura + order bump + cupom + frete grátis) → dados → pagamento no Stripe Checkout |
 | `/upsell-1` | Kit 6 avulso com 45% off, cobrança 1-clique no cartão salvo |
 | `/upsell-2` | Assinatura do Kit 3 com 30% off enquanto durar |
 | `/thank-you` | Resumo, como tomar, grupo VIP, link de indicação |
@@ -59,6 +59,14 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 6. **Analytics** — GA4, Meta Pixel, PostHog e Hotjar por variáveis `NEXT_PUBLIC_*`. Eles só carregam depois que a pessoa aceita os cookies. Eventos enviados: `quiz_start`, `quiz_complete` (Lead), `view_offer` (ViewContent), `begin_checkout` (InitiateCheckout), `upsell_accepted`, `purchase` (Purchase).
 7. **Deploy na Vercel** — importe o repositório com *Root Directory* = `projetos/renova-cell/site`, cole as variáveis e publique. O `vercel.json` já agenda o cron (o plano Hobby só aceita cron diário; para rodar a cada 10 min é preciso o Pro).
 
+## Mercados, idiomas, moedas, assinatura e frete
+
+- **Idioma:** escolha manual (cookie `rc_locale_chosen`) > idioma do celular (`Accept-Language`) > país do IP. 28 idiomas em `lib/i18n/` (`npm run i18n:check` confere chaves, placeholders e marcas).
+- **Moeda:** pelo país do IP — USD, EUR, GBP, CHF, SEK, NOK, DKK, ISK, PLN, CZK, HUF, RON (`lib/products.ts`). Os demais países europeus pagam em euro; o resto do mundo em dólar. `npm run stripe:setup` cria os preços com essas moedas.
+- **Compra única ou assinatura:** todo plano tem as duas opções pelo mesmo preço. A assinatura renova quando o estoque acaba: 1 unidade todo mês, Kit 3 a cada 3 meses, Kit 6 a cada 6 meses. Quem assina vai direto para o obrigado (sem upsell 1-clique).
+- **Frete grátis** para todos os países atendidos, com entrega rápida rastreada e embalagem discreta (sem nome do produto por fora). No Stripe aparece como linha "Free shipping" em compra única; na assinatura (o Stripe não aceita tarifa de frete nesse modo) o aviso fica na etapa de endereço. Nenhum prazo em dias é prometido — informe o prazo real para entrar na FAQ.
+- **Países atendidos:** toda a Europa, EUA, Canadá, América Latina, Austrália, Nova Zelândia e Golfo (`lib/checkout.ts`, ou `SHIP_COUNTRIES`). **Ucrânia e Rússia ficam sempre de fora**: o checkout recusa visitantes desses países e o endereço de entrega não aceita esses destinos. O idioma ucraniano continua disponível para quem mora em outro país europeu.
+
 ## Sequência pós-quiz (quem não comprou)
 
 | Quando | Canal | Condição |
@@ -95,7 +103,8 @@ Algumas partes do briefing original fariam o funil enganar o comprador ou expor 
 
 ## Antes de colocar no ar
 
-- [ ] Confirmar a fórmula real e ajustar a tabela comparativa (`offer.comparison.rows` nos 5 idiomas).
+- [ ] Confirmar a fórmula real e ajustar a tabela comparativa (`offer.comparison.rows` nos 28 idiomas).
+- [ ] Garantir com a logística que a embalagem externa é neutra e informar o prazo real de entrega.
 - [ ] Substituir `/privacy` e `/terms` por textos revisados por advogado.
 - [ ] Revisar as traduções geradas da VSL em `scripts/vsl/`.
 - [ ] Criar um banco Upstash Redis (plano grátis serve) e preencher `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`: é o que limita de verdade `/api/chat`, `/api/quiz`, `/api/checkout` etc. Sem elas, o limite fica só na memória de cada instância.
@@ -111,7 +120,7 @@ Algumas partes do briefing original fariam o funil enganar o comprador ou expor 
 app/            páginas e rotas de API
 components/     quiz/, offer/ (20 seções), checkout/, ui/ (botão com brilho, card 3D, cursor dourado…)
 content/        prova social real (vazio até ter autorização)
-lib/            i18n/ (5 idiomas), claude, prompts, heygen, stripe, supabase, notify, followups, quiz, products, store
+lib/            i18n/ (28 idiomas), claude, prompts, heygen, stripe, supabase, notify, followups, quiz, products, store
 scripts/        stripe-setup.ts, heygen-generate.ts, vsl/ (roteiros traduzidos)
 demo/           build de demonstração (roteador e backend simulados)
 supabase/       schema.sql

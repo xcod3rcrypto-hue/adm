@@ -1,4 +1,5 @@
 import 'server-only';
+import { EUROPE_COUNTRIES } from './products';
 import { stripe } from './stripe';
 
 export interface Promo {
@@ -21,9 +22,16 @@ export async function findPromotionCode(code: string): Promise<Promo | null> {
   }
 }
 
+/** Never shipped to, even if SHIP_COUNTRIES lists them. */
+export const BLOCKED_COUNTRIES = new Set(['UA', 'RU']);
+
+/** All of Europe plus the Americas, Oceania and the Gulf. SHIP_COUNTRIES overrides it. */
+const DEFAULT_SHIP_COUNTRIES = [
+  ...EUROPE_COUNTRIES,
+  'US', 'CA', 'MX', 'BR', 'AR', 'CL', 'CO', 'PE', 'UY', 'AU', 'NZ', 'AE', 'SA', 'QA', 'KW', 'BH', 'OM',
+];
+
 export function shippingCountries(): string[] {
-  return (process.env.SHIP_COUNTRIES ?? 'US,CA,GB,AU,BR,PT,ES,MX,AR,FR,BE,CH,DE,AT')
-    .split(',')
-    .map((c) => c.trim().toUpperCase())
-    .filter(Boolean);
+  const list = process.env.SHIP_COUNTRIES?.trim() ? process.env.SHIP_COUNTRIES.split(',') : DEFAULT_SHIP_COUNTRIES;
+  return [...new Set(list.map((c) => c.trim().toUpperCase()))].filter((c) => c && !BLOCKED_COUNTRIES.has(c));
 }

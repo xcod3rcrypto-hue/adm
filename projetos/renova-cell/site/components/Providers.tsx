@@ -1,5 +1,6 @@
 'use client';
 
+import { MotionConfig } from 'framer-motion';
 import { useEffect, useState, type ReactNode } from 'react';
 import { resolveLocale } from '@/lib/geo';
 import { CurrencyContext, DictionaryContext, InitialLocaleContext, useHydrated } from '@/lib/hooks';
@@ -56,7 +57,10 @@ export function Providers({
   return (
     <InitialLocaleContext.Provider value={initialLocale}>
       <CurrencyContext.Provider value={currency}>
-        <DictionaryContext.Provider value={loaded.d}>{children}</DictionaryContext.Provider>
+        <DictionaryContext.Provider value={loaded.d}>
+          {/* Visitors who ask for reduced motion get every movement (slides, flips, entrances) instantly. */}
+          <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        </DictionaryContext.Provider>
       </CurrencyContext.Provider>
     </InitialLocaleContext.Provider>
   );

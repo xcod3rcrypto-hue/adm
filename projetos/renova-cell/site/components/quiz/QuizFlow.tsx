@@ -57,39 +57,43 @@ export function QuizFlow() {
     router.push('/analyzing');
   };
 
-  if (!hydrated) return <div className="min-h-[100dvh] bg-quiz-gradient" />;
+  if (!hydrated) return <div className="screen bg-quiz-gradient" />;
 
   const pct = Math.round((step / TOTAL) * 100);
   const current = STEPS[step];
   const offset = reduced ? 0 : 60;
 
   return (
-    <main className="flex min-h-[100dvh] flex-col bg-quiz-gradient text-cream">
-      <header className="mx-auto w-full max-w-xl px-4 pt-5">
-        <div className="mb-3 flex items-center justify-between text-sm">
+    <main className="screen flex flex-col bg-quiz-gradient text-cream">
+      <header className="mx-auto w-full max-w-xl px-gutter pt-4">
+        <div className="mb-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
           <button
             onClick={() => go(step - 1)}
             disabled={step === 0}
-            className="min-h-[44px] rounded-full px-3 text-cream/80 hover:text-cream disabled:opacity-30"
+            className="min-h-[44px] justify-self-start whitespace-nowrap rounded-full px-2 text-cream/80 hover:text-cream disabled:opacity-30"
           >
             ← {d.common.back}
           </button>
-          <span className="font-display tracking-[0.2em] text-gold">{d.common.brand}</span>
-          <span className="font-mono text-cream/70">{f(d.quiz.progress, { pct })}</span>
+          <span className="whitespace-nowrap font-display tracking-[0.2em] text-gold-soft">{d.common.brand}</span>
         </div>
-        <div
-          className="h-2 overflow-hidden rounded-full bg-cream/10"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-        >
-          <motion.div className="h-full rounded-full bg-gold" initial={false} animate={{ width: `${pct}%` }} transition={{ duration: 0.4 }} />
+        <div className="flex items-center gap-3">
+          <div
+            className="h-2 flex-1 overflow-hidden rounded-full bg-cream/10"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            aria-valuetext={f(d.quiz.progress, { pct })}
+          >
+            <motion.div className="h-full rounded-full bg-gold" initial={false} animate={{ width: `${pct}%` }} transition={{ duration: 0.4 }} />
+          </div>
+          <span className="shrink-0 font-mono text-xs text-cream/80 sm:text-sm">{f(d.quiz.progress, { pct })}</span>
         </div>
-        {step === 0 && <p className="mt-4 text-center text-sm text-cream/70">{d.quiz.intro}</p>}
+        {step === 0 && <p className="mt-4 text-center text-sm text-cream/80">{d.quiz.intro}</p>}
       </header>
 
-      <section className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-4 py-8">
+      {/* overflow-x-clip: the sliding step stays inside this row instead of scrolling the page sideways. */}
+      <section className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center overflow-x-clip px-gutter py-6 sm:py-8">
         <AnimatePresence mode="wait" custom={direction} initial={false}>
           <motion.div
             key={step}
@@ -100,8 +104,8 @@ export function QuizFlow() {
             transition={{ duration: 0.25 }}
           >
             {current?.kind === 'choice' && (
-              <fieldset>
-                <legend className="mb-6 text-center font-display text-3xl leading-tight sm:text-4xl">
+              <fieldset className="min-w-0">
+                <legend className="mb-6 w-full text-center font-display text-3xl leading-tight sm:text-4xl">
                   {d.quiz.questions[current.key].title}
                 </legend>
                 <div className="grid gap-3">
@@ -116,7 +120,7 @@ export function QuizFlow() {
                           go(step + 1);
                         }}
                         aria-pressed={selected}
-                        className={`flex min-h-[64px] items-center gap-4 rounded-2xl border px-5 text-left text-lg transition ${
+                        className={`flex min-h-[64px] w-full items-center gap-4 rounded-2xl border px-5 py-2 text-left text-lg transition ${
                           selected ? 'border-gold bg-gold/15' : 'border-cream/15 bg-cream/5 hover:border-gold/60 hover:bg-cream/10'
                         }`}
                       >

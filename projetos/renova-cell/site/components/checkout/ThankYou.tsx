@@ -22,7 +22,7 @@ const VIDEO_URL = process.env.NEXT_PUBLIC_THANKYOU_VIDEO_URL;
 export function ThankYou() {
   const params = useSearchParams();
   const sessionId = params.get('session_id');
-  const { d, f, locale } = useT();
+  const { d, f, locale, currency } = useT();
   const [order, setOrder] = useState<Order | null>(null);
   const [copied, setCopied] = useState(false);
   const [referral, setReferral] = useState('');
@@ -54,19 +54,20 @@ export function ThankYou() {
 
   return (
     <>
-      <main className="mx-auto max-w-2xl px-4 py-14 text-center">
+      <main className="mx-auto max-w-2xl px-gutter pb-14 pt-safe text-center [--pt:3.5rem]">
         <p className="text-6xl" aria-hidden>
           🎉
         </p>
-        <h1 className="mt-4 font-display text-4xl">{f(t.title, { name: order?.firstName ? `, ${order.firstName}` : '' })}</h1>
+        <h1 className="mt-4 font-display text-3xl leading-tight sm:text-4xl">{f(t.title, { name: order?.firstName ? `, ${order.firstName}` : '' })}</h1>
         <p className="muted mt-3 text-lg">{t.body}</p>
 
         {order?.amount != null && (
           <div className="card mx-auto mt-8 max-w-sm p-5 text-left">
             <p className="mb-2 font-semibold">{t.order}</p>
-            <p className="flex justify-between">
+            <p className="flex flex-wrap justify-between gap-x-4">
               <span>{order.plan && order.plan in d.offer.pricing.plans ? d.offer.pricing.plans[order.plan as 'kit3'].name : '—'}</span>
-              <span className="font-mono">{money(order.amount, locale)}</span>
+              {/* The currency Stripe actually charged. */}
+              <span className="ml-auto whitespace-nowrap font-mono">{money(order.amount, locale, order.currency ?? currency)}</span>
             </p>
           </div>
         )}
@@ -99,7 +100,7 @@ export function ThankYou() {
           <h2 className="font-display text-2xl">💌 {t.referral.title}</h2>
           <p className="muted mt-2">{t.referral.body}</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <input readOnly value={referral} aria-label={t.referral.title} className="min-h-[52px] flex-1 rounded-xl border border-[var(--line)] bg-transparent px-4 text-sm" />
+            <input readOnly value={referral} aria-label={t.referral.title} className="min-h-[52px] min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-transparent px-4 text-base" />
             <GlowButton
               variant="dark"
               onClick={async () => {

@@ -18,7 +18,7 @@
 |---|---|---|
 | 1 unidade | US$ 29,90 | "1 unit — $29.90" |
 | Kit 3 | US$ 80, pagamento único, ciclo de 90 dias | "Kit 3 — the 90-day cycle, $80 one-time" |
-| Kit 6 | US$ 140 cobrados todo mês, cancela quando quiser | "Kit 6 — $140/month, cancel anytime" |
+| Kit 6 | US$ 140 uma vez, ou assinatura de US$ 140 a cada 6 meses (renova quando o estoque acaba); frete grátis | "Kit 6 — $140, or subscribe every 6 months · free shipping" |
 | Cupom | RENOVA10 = 10% de desconto no primeiro pagamento | "Code RENOVA10: 10% off your first payment" |
 | Garantia | 30 dias, reembolso do primeiro pedido (`/terms`) | "30-day money-back guarantee" (nos anúncios de garantia: "on your first order") |
 
@@ -556,9 +556,9 @@ Cena: produto na mesa do café da manhã, luz natural. Sem pessoas.
 
 **Tela 2 (5–10 s)** — Produto ao lado de um calendário de parede.
 
-- Texto na tela: "Kit 6 · $140/month · delivered monthly · cancel anytime"
+- Texto na tela: "Kit 6 · $140 · one-time or subscribe every 6 months · free shipping"
 
-  *Kit 6 · US$ 140/mês · entregue todo mês · cancele quando quiser*
+  *Kit 6 · US$ 140 · compra única ou assinatura a cada 6 meses · frete grátis · cancele quando quiser*
 
 **Tela 3 (10–15 s)** — Produto em close, seta apontando para o botão.
 
@@ -577,9 +577,9 @@ Cena: produto na mesa do café da manhã, luz natural. Sem pessoas.
 >
 > *Experimente o RENOVA CELL por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
 >
-> "One serving a day of collagen + peptides. Kit 6 is delivered every month for $140/month, and you can cancel anytime."
+> "One serving a day of collagen + peptides. Kit 6 is a 6-month supply for $140 with free shipping; subscribe and it comes again when you run out. Cancel anytime."
 >
-> *Uma dose por dia de colágeno + peptídeos. O Kit 6 é entregue todo mês por US$ 140/mês, e dá para cancelar quando quiser.*
+> *Uma dose por dia de colágeno + peptídeos. O Kit 6 traz 6 meses de estoque por US$ 140, com frete grátis; na assinatura, ele chega de novo quando o estoque acaba, e dá para cancelar quando quiser.*
 >
 > "Code RENOVA10: 10% off your first payment."
 >
@@ -827,9 +827,9 @@ Casal de ~60 anos caminhando numa trilha arborizada, rindo, em movimento. Produt
 >
 > *O colágeno é a proteína que dá estrutura à cartilagem, aos tendões e à pele. O RENOVA CELL é uma fórmula diária de colágeno + peptídeos: uma dose no café, no chá ou na água. Sem estimulantes, sem hormônios.*
 >
-> "Kit 6 is delivered every month ($140/month), so the routine never breaks. Cancel anytime."
+> "Subscribe and Kit 6 ($140) arrives again every 6 months, so the routine never breaks. Free shipping. Cancel anytime."
 >
-> *O Kit 6 é entregue todo mês (US$ 140/mês), para a rotina nunca parar. Cancele quando quiser.*
+> *Na assinatura, o Kit 6 (US$ 140) chega de novo a cada 6 meses, para a rotina nunca parar. Frete grátis. Cancele quando quiser.*
 >
 > "Take the quick quiz to see the plan matched to your answers. 30-day money-back guarantee."
 >
@@ -845,9 +845,9 @@ Casal de ~60 anos caminhando numa trilha arborizada, rindo, em movimento. Produt
 
 *Continue se mexendo. Mantenha o ritual.*
 
-**Descrição:** "Kit 6: $140/month, cancel anytime"
+**Descrição:** "Kit 6: $140 · free shipping · subscribe or buy once"
 
-*Kit 6: US$ 140/mês, cancele quando quiser*
+*Kit 6: US$ 140 · frete grátis · assinatura ou compra única*
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
@@ -974,12 +974,12 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 **Card 4**
 
-- Arte: "Kit 6 · $140/month · 6 units delivered every month · Cancel anytime"
+- Arte: "Kit 6 · $140 · 6 units = 6 months · optional subscription every 6 months · free shipping"
 
-  *Kit 6 · US$ 140/mês · 6 unidades entregues todo mês · Cancele quando quiser*
-- Título do card: "Kit 6 — $140/month"
+  *Kit 6 · US$ 140 · 6 unidades = 6 meses · assinatura opcional a cada 6 meses · frete grátis*
+- Título do card: "Kit 6 — $140 · free shipping"
 
-  *Kit 6 — US$ 140/mês*
+  *Kit 6 — US$ 140 · frete grátis*
 - Descrição do card: "Cancel anytime"
 
   *Cancele quando quiser*
@@ -1003,9 +1003,9 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 >
 > *A parte mais difícil de qualquer rotina de suplemento é manter.*
 >
-> "That's why RENOVA CELL has a monthly plan: Kit 6 is delivered every month for $140/month, and you can cancel anytime from your email receipt."
+> "That's why RENOVA CELL has a subscription: it comes again when your supply runs out (Kit 6, $140, every 6 months), with free shipping, and you can cancel anytime from your email receipt."
 >
-> *Por isso o RENOVA CELL tem um plano mensal: o Kit 6 é entregue todo mês por US$ 140/mês, e dá para cancelar quando quiser pelo recibo que chega no e-mail.*
+> *Por isso o RENOVA CELL tem assinatura: o produto chega de novo quando o estoque acaba (o Kit 6, de US$ 140, a cada 6 meses), com frete grátis, e dá para cancelar quando quiser pelo recibo que chega no e-mail.*
 >
 > "Prefer to pay once? Kit 3 is the 90-day cycle for $80. Or try 1 unit for $29.90."
 >
@@ -1427,7 +1427,7 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 1. Trocar `SEU_DOMINIO` em todas as URLs e abrir cada link para conferir que cai no `/quiz`.
 2. Confirmar com o cliente o formato físico do produto, a embalagem e o rótulo (as cenas supõem uma dose misturada na bebida) e se o reembolso cobre o frete.
-3. **Kit 6:** a landing diz "6 units delivered every month" e a unidade avulsa é "try it for one month". Confirmar com o cliente se são mesmo 6 unidades por mês antes de rodar AD05, AD08 e AD10 (o AD10 cita as 6 unidades).
+3. **Kit 6:** resolvido — é estoque de 6 meses (US$ 140), em compra única ou assinatura que renova a cada 6 meses. AD05, AD08 e AD10 já foram atualizados.
 4. **Pixel do TikTok:** o site só tem GA4, Meta Pixel e PostHog (`components/Analytics.tsx`). Sem instalar o pixel do TikTok (ou a Events API), não dá para medir custo por quiz nem por compra no TikTok. Os criativos AD11–AD15 só entram depois disso.
 5. **UTMs no banco:** hoje o site não grava as UTMs junto com a resposta do quiz. GA4 e PostHog leem a URL, mas só depois do aceite de cookies. Recomendo salvar `utm_content` em `quiz_responses` para ter uma leitura por criativo que não dependa do pixel.
 6. **Consentimento:** o Meta Pixel só carrega depois que a pessoa aceita os cookies, então a Meta vai mostrar menos quizzes e compras do que os reais. Compare o total de Leads da Meta com o total de linhas em `quiz_responses` e de pedidos na Stripe no mesmo período para estimar essa perda (no geral, não por anúncio).

@@ -15,8 +15,8 @@ export function PersonalBullets() {
         {items.map((item, i) => (
           <motion.li
             key={item}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ y: 16 }}
+            whileInView={{ y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
             className="card p-6"

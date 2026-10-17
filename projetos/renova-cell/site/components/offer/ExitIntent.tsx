@@ -46,7 +46,7 @@ export function ExitIntent() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-ink/70 p-4"
+          className="modal-overlay z-[70] bg-ink/70"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -60,13 +60,13 @@ export function ExitIntent() {
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-3xl bg-cream p-8 text-center text-ink"
+            className="m-auto w-full max-w-md rounded-3xl bg-cream p-6 text-center text-ink sm:p-8"
           >
-            <h2 id="exit-title" className="font-display text-3xl">
+            <h2 id="exit-title" className="font-display text-2xl leading-tight sm:text-3xl">
               {d.offer.exit.title}
             </h2>
             <p className="mt-4">{d.offer.exit.body}</p>
-            <p className="my-5 rounded-xl border-2 border-dashed border-gold py-3 font-mono text-2xl tracking-widest">{d.offer.exit.code}</p>
+            <p className="my-5 rounded-xl border-2 border-dashed border-gold px-3 py-3 font-mono text-xl tracking-widest [overflow-wrap:anywhere] sm:text-2xl">{d.offer.exit.code}</p>
             <GlowButton
               className="w-full"
               autoFocus
@@ -78,7 +78,7 @@ export function ExitIntent() {
             >
               {d.offer.exit.cta}
             </GlowButton>
-            <button onClick={() => setOpen(false)} className="mt-3 min-h-[44px] text-sm text-ink/60 underline-offset-4 hover:underline">
+            <button onClick={() => setOpen(false)} className="mt-3 min-h-[44px] px-3 text-sm text-ink/70 underline-offset-4 hover:underline">
               {d.offer.exit.dismiss}
             </button>
           </motion.div>

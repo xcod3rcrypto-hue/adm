@@ -17,7 +17,7 @@ const CHAT_REPLY: Record<string, string> = {
   de: 'Das ist eine Demo. Auf der echten Seite antworte ich (Elena, KI-Assistentin) hier in Echtzeit, ohne medizinische Versprechen.',
 };
 
-let lastOrder: { plan: PlanId; bump: boolean; name: string; amount: number; upsells: number; currency: Currency } | null = null;
+let lastOrder: { plan: PlanId; bump: boolean; name: string; amount: number; upsells: number; currency: Currency; subscribe: boolean } | null = null;
 
 /** In the real app the server picks the currency from the IP country; the demo lets you switch it. */
 let demoCurrency: Currency = 'usd';
@@ -51,8 +51,8 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
       const base = price(plan, demoCurrency);
       const discount = String(body.coupon ?? '').toUpperCase() === 'RENOVA10' ? Math.round(base * 0.1) : 0;
       const amount = base - discount + (body.bump ? price('bump', demoCurrency) : 0);
-      lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0, currency: demoCurrency };
-      const next = PLANS[plan].recurring ? '/thank-you' : '/upsell-1';
+      lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0, currency: demoCurrency, subscribe: Boolean(body.subscribe) };
+      const next = body.subscribe ? '/thank-you' : '/upsell-1';
       return json({ url: `${next}?session_id=cs_test_demo` });
     }
     case '/api/upsell': {
@@ -69,7 +69,7 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
         amount: lastOrder.amount + lastOrder.upsells,
         currency: lastOrder.currency,
         firstName: lastOrder.name.split(' ')[0] ?? '',
-        mode: PLANS[lastOrder.plan].recurring ? 'subscription' : 'payment',
+        mode: lastOrder.subscribe ? 'subscription' : 'payment',
       });
     case '/api/chat': {
       const text = CHAT_REPLY[String(body.locale)] ?? CHAT_REPLY.en!;

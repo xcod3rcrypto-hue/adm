@@ -22,7 +22,7 @@ export const da: Dictionary = {
   },
   quiz: {
     progress: '{pct} % færdig',
-    intro: 'Svar på 8 hurtige spørgsmål (ca. 60 sekunder), og få din personlige plan.',
+    intro: "Svar på 8 hurtige spørgsmål (ca. 60 sekunder) og få din plan for yngre udseende hud, mere lyst og energi i hverdagen.",
     questions: {
       gender: {
         title: 'Hvordan identificerer du dig?',
@@ -89,7 +89,7 @@ export const da: Dictionary = {
         man: 'Føl dig klar til dagen igen: dagligt kollagen til led, hud og stabil energi',
         senior: 'Efter 50 danner kroppen mindre kollagen. Din daglige rutine kan være med til at opveje det',
       },
-      sub: 'En daglig formel med kollagen + peptider, tilpasset dine svar.',
+      sub: "Dit daglige ungdomsritual: en formel med kollagen + peptider til dig, der vil have yngre udseende hud, mere lyst og mere energi, tilpasset dine svar.",
       cta: 'Se min anbefalede plan',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const da: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Ét dagligt ritual, tre mål",
+      items: [
+        { title: "Yngre udseende hud", body: "Kollagenpeptider er blevet forbundet med bedre hudelasticitet og fugt i placebokontrollerede studier." },
+        { title: "Lyst og vitalitet", body: "At have det godt i sin krop er en del af at føle lyst. Et dagligt ritual for egenomsorg for mænd og kvinder, uden hormoner og uden stimulanser." },
+        { title: "Energi til din dag", body: "En proteinrig daglig portion, der passer ind i din morgen, uden stimulanser og uden dyk." },
+      ],
+      note: "Resultaterne varierer. RENOVA CELL er et kosttilskud, ikke et lægemiddel.",
+    },
     science: {
       title: 'Hvad forskningen siger',
       flip: 'Tryk for at se kilden',
@@ -169,7 +178,7 @@ export const da: Dictionary = {
       steps: [
         { day: 'Dag 1', title: 'Start dit ritual', body: 'Én portion om dagen. Det er regelmæssigheden, der tæller.' },
         { day: 'Dag 5', title: 'Gør det til en vane', body: 'Samme tid, samme sted. Vanen sætter sig.' },
-        { day: 'Dag 15', title: 'Mærk efter', body: 'Læg mærke til, hvordan du har det. Mange fortæller om mere stabile dage.' },
+        { day: 'Dag 15', title: 'Mærk efter', body: "Mærk efter, hvordan du har det, og hold fast i vanen." },
         { day: 'Dag 30', title: 'En måned inde', body: 'Bliv ved. Studierne målte ændringer i huden efter 4 til 12 uger.' },
         { day: 'Dag 90', title: 'En hel cyklus', body: 'Den periode, de fleste studier undersøgte. Tid til at sammenligne.' },
       ],
@@ -205,6 +214,9 @@ export const da: Dictionary = {
     },
     pricing: {
       perMonth: '/md.',
+      once: "Engangskøb",
+      subscribe: "Abonnement: få det igen, når det slipper op",
+      interval: { m1: "hver måned", m3: "hver 3. måned", m6: "hver 6. måned" },
       title: 'Vælg din plan',
       recommended: 'Anbefalet til dig',
       perUnit: '{price} pr. pakke',
@@ -212,11 +224,12 @@ export const da: Dictionary = {
       plans: {
         single: { name: '1 pakke', desc: 'Prøv det i en måned' },
         kit3: { name: 'Kit 3', desc: 'Den 90-dages cyklus, de fleste studier brugte' },
-        kit6: { name: 'Kit 6 – månedlig', desc: '6 pakker leveret hver måned' },
+        kit6: { name: "Kit 6", desc: "Forsyning til 6 måneder" },
       },
-      recurring: 'Der trækkes {price} hver måned, indtil du opsiger. Du kan opsige når som helst via kvitteringen i din e-mail.',
+      recurring: "Der trækkes {price} {interval}, indtil du opsiger. Opsig når som helst via kvitteringen i din e-mail.",
       cta: 'Vælg denne plan',
     },
+    shipping: { free: 'Gratis fragt', fast: 'Hurtig levering med sporing', discreet: 'Diskret emballage' },
     bonus: {
       title: 'Følger med Kit 3 og Kit 6',
       items: ['E-bog: Kollagenrutinen', 'Madplan for 15 dage', 'VIP-kundegruppe'],
@@ -249,12 +262,12 @@ export const da: Dictionary = {
           a: 'Én portion om dagen, rørt ud i vand, kaffe eller en smoothie. Samme tidspunkt hver dag fungerer bedst.',
         },
         cancel: {
-          q: 'Hvordan opsiger jeg månedsplanen?',
+          q: "Hvordan opsiger jeg et abonnement?",
           a: 'Brug linket i en af dine kvitteringsmails, eller skriv til os. Du kan opsige når som helst, uden gebyrer.',
         },
         shipping: {
-          q: 'Hvor lang er leveringstiden?',
-          a: 'Du får et sporingslink på e-mail, så snart din ordre er afsendt.',
+          q: 'Hvordan fungerer forsendelsen?',
+          a: 'Fragten er gratis til alle lande, vi leverer til. Ordrer sendes hurtigt, med sporing, i neutral, diskret emballage uden produktnavn udenpå. Sporingslinket sendes på e-mail, så snart ordren er afsendt.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const da: Dictionary = {
       invalid: 'Koden er ikke gyldig.',
       total: 'I alt',
       discountNote: 'Rabatten trækkes ved betalingen',
+      shipping: 'Fragt',
+      free: 'Gratis',
     },
     info: {
       title: 'Dine oplysninger',
@@ -327,10 +342,10 @@ export const da: Dictionary = {
   },
   upsell2: {
     title: 'Løb aldrig tør – og betal 30 % mindre',
-    body: 'Få Kit 3 leveret hver måned for {price} i stedet for {full}. Rabatten gælder, så længe du abonnerer.',
-    accept: 'Ja, abonnér for {price}/md.',
+    body: "Få Kit 3 leveret hver 3. måned for {price} i stedet for {full}. Rabatten gælder, så længe du abonnerer.",
+    accept: "Ja, abonnér for {price} hver 3. måned",
     decline: 'Nej tak',
-    charge: 'Der trækkes {price} på dit gemte kort i dag og derefter hver måned, indtil du opsiger. Du kan opsige når som helst.',
+    charge: "Dit gemte kort trækkes {price} i dag og hver 3. måned, indtil du opsiger. Opsig når som helst.",
   },
   upsell: {
     processing: 'Behandler…',

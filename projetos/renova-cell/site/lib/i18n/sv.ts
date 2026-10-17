@@ -22,7 +22,7 @@ export const sv: Dictionary = {
   },
   quiz: {
     progress: '{pct} % klart',
-    intro: 'Svara på 8 snabba frågor (ungefär 60 sekunder) och få din personliga plan.',
+    intro: "Svara på 8 snabba frågor (ungefär 60 sekunder) och få din plan för yngre utseende hud, mer lust och energi i vardagen.",
     questions: {
       gender: {
         title: 'Hur identifierar du dig?',
@@ -89,7 +89,7 @@ export const sv: Dictionary = {
         man: 'Känn dig redo för dagen igen: dagligt kollagen för leder, hud och jämn energi',
         senior: 'Efter 50 bildar kroppen mindre kollagen. Din dagliga rutin kan väga upp för det',
       },
-      sub: 'En daglig formula med kollagen + peptider, anpassad efter dina svar.',
+      sub: "Din dagliga ungdomsritual: en formula med kollagen + peptider för dig som vill ha yngre utseende hud, mer lust och mer energi, anpassad efter dina svar.",
       cta: 'Se min rekommenderade plan',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const sv: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "En daglig ritual, tre mål",
+      items: [
+        { title: "Yngre utseende hud", body: "Kollagenpeptider har kopplats till bättre hudelasticitet och fuktighet i placebokontrollerade studier." },
+        { title: "Lust och vitalitet", body: "Att må bra i sin kropp är en del av att känna lust. En daglig ritual för egenvård för män och kvinnor, utan hormoner och utan stimulantia." },
+        { title: "Energi för dagen", body: "En proteinrik daglig portion som passar in i din morgon, utan stimulantia och utan dipp." },
+      ],
+      note: "Resultaten varierar. RENOVA CELL är ett kosttillskott, inte ett läkemedel.",
+    },
     science: {
       title: 'Vad forskningen säger',
       flip: 'Tryck för att se källan',
@@ -169,7 +178,7 @@ export const sv: Dictionary = {
       steps: [
         { day: 'Dag 1', title: 'Starta din ritual', body: 'En portion om dagen. Det är regelbundenheten som räknas.' },
         { day: 'Dag 5', title: 'Gör det till en vana', body: 'Samma tid, samma plats. Vanan sätter sig.' },
-        { day: 'Dag 15', title: 'Stäm av', body: 'Känn efter hur du mår. Många säger att dagarna känns jämnare.' },
+        { day: 'Dag 15', title: 'Stäm av', body: "Märk hur du mår och håll fast vid vanan." },
         { day: 'Dag 30', title: 'En månad avklarad', body: 'Fortsätt. Studier mätte hudförändringar efter 4 till 12 veckor.' },
         { day: 'Dag 90', title: 'En hel cykel', body: 'Perioden som de flesta studier undersökte. Dags att jämföra.' },
       ],
@@ -205,6 +214,9 @@ export const sv: Dictionary = {
     },
     pricing: {
       perMonth: '/mån',
+      once: "Engångsköp",
+      subscribe: "Prenumeration: få det igen när det tar slut",
+      interval: { m1: "varje månad", m3: "var 3:e månad", m6: "var 6:e månad" },
       title: 'Välj din plan',
       recommended: 'Rekommenderas för dig',
       perUnit: '{price} per förpackning',
@@ -212,11 +224,12 @@ export const sv: Dictionary = {
       plans: {
         single: { name: '1 förpackning', desc: 'Testa i en månad' },
         kit3: { name: 'Kit 3', desc: 'Den 90-dagarscykel som de flesta studier använde' },
-        kit6: { name: 'Kit 6 – månadsvis', desc: '6 förpackningar levereras varje månad' },
+        kit6: { name: "Kit 6", desc: "Förråd för 6 månader" },
       },
-      recurring: 'Debiteras {price} varje månad tills du säger upp. Säg upp när som helst via kvittot i din e-post.',
+      recurring: "Debiteras {price} {interval} tills du säger upp. Säg upp när som helst via kvittot i din e-post.",
       cta: 'Välj den här planen',
     },
+    shipping: { free: 'Fri frakt', fast: 'Snabb leverans med spårning', discreet: 'Diskret förpackning' },
     bonus: {
       title: 'Ingår i Kit 3 och Kit 6',
       items: ['E-bok: Kollagenrutinen', 'Måltidsplan för 15 dagar', 'VIP-grupp för kunder'],
@@ -249,12 +262,12 @@ export const sv: Dictionary = {
           a: 'En portion om dagen, blandad i vatten, kaffe eller en smoothie. Samma tid varje dag fungerar bäst.',
         },
         cancel: {
-          q: 'Hur säger jag upp månadsplanen?',
+          q: "Hur säger jag upp en prenumeration?",
           a: 'Använd länken i något av dina kvittomejl eller skriv till oss. Du kan säga upp när som helst, utan avgifter.',
         },
         shipping: {
-          q: 'Hur lång är leveranstiden?',
-          a: 'Du får en spårningslänk via e-post så snart din beställning har skickats.',
+          q: 'Hur fungerar frakten?',
+          a: 'Frakten är gratis till alla länder vi levererar till. Beställningar skickas snabbt, med spårning, i en neutral, diskret förpackning utan produktnamn på utsidan. Spårningslänken skickas via e-post så snart beställningen har skickats.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const sv: Dictionary = {
       invalid: 'Koden är inte giltig.',
       total: 'Totalt',
       discountNote: 'Rabatten dras vid betalningen',
+      shipping: 'Frakt',
+      free: 'Gratis',
     },
     info: {
       title: 'Dina uppgifter',
@@ -327,10 +342,10 @@ export const sv: Dictionary = {
   },
   upsell2: {
     title: 'Bli aldrig utan – och betala 30 % mindre',
-    body: 'Få Kit 3 levererat varje månad för {price} i stället för {full}. Rabatten gäller så länge du är prenumerant.',
-    accept: 'Ja, prenumerera för {price}/mån',
+    body: "Få Kit 3 levererat var 3:e månad för {price} i stället för {full}. Rabatten gäller så länge du prenumererar.",
+    accept: "Ja, prenumerera för {price} var 3:e månad",
     decline: 'Nej tack',
-    charge: 'Ditt sparade kort debiteras {price} i dag och sedan varje månad tills du säger upp. Säg upp när som helst.',
+    charge: "Ditt sparade kort debiteras {price} i dag och var 3:e månad tills du säger upp. Säg upp när som helst.",
   },
   upsell: {
     processing: 'Bearbetar…',

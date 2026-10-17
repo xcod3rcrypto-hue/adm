@@ -25,7 +25,7 @@ export const en = {
   },
   quiz: {
     progress: '{pct}% complete',
-    intro: 'Answer 8 quick questions (about 60 seconds) to get your personalized plan.',
+    intro: "Answer 8 quick questions (about 60 seconds) and get your plan for younger-looking skin, desire and everyday energy.",
     questions: {
       gender: {
         title: 'How do you identify?',
@@ -92,7 +92,7 @@ export const en = {
         man: 'Feel ready for the day again: daily collagen for joints, skin and steady energy',
         senior: 'After 50 your body makes less collagen. Your daily routine can make up for it',
       },
-      sub: 'A daily collagen + peptide formula, matched to your answers.',
+      sub: "Your daily youth ritual: a collagen + peptide formula for people who want younger-looking skin, more desire and more energy, matched to your answers.",
       cta: 'See my recommended plan',
     },
     vsl: {
@@ -136,6 +136,15 @@ export const en = {
         ],
       },
     },
+    pillars: {
+      title: "One daily ritual, three goals",
+      items: [
+        { title: "Younger-looking skin", body: "Collagen peptides were linked to better skin elasticity and hydration in placebo-controlled studies." },
+        { title: "Desire & vitality", body: "Feeling good in your body is part of feeling desire. A daily self-care ritual for men and women, with no hormones and no stimulants." },
+        { title: "Energy for your day", body: "A protein-rich daily serving that fits into your morning, with no stimulants and no crash." },
+      ],
+      note: "Results vary. RENOVA CELL is a food supplement, not a medicine.",
+    },
     science: {
       title: 'What research says',
       flip: 'Tap to see the source',
@@ -172,7 +181,7 @@ export const en = {
       steps: [
         { day: 'Day 1', title: 'Start your ritual', body: 'One serving a day. Consistency is what counts.' },
         { day: 'Day 5', title: 'Make it automatic', body: 'Same time, same place. The habit takes hold.' },
-        { day: 'Day 15', title: 'Check in', body: 'Notice how you feel. Many people report feeling more consistent.' },
+        { day: 'Day 15', title: 'Check in', body: "Notice how you feel and keep the habit going." },
         { day: 'Day 30', title: 'One month in', body: 'Keep going. Studies measured skin changes from 4 to 12 weeks.' },
         { day: 'Day 90', title: 'Full cycle', body: 'The period most research looked at. Time to compare.' },
       ],
@@ -208,6 +217,9 @@ export const en = {
     },
     pricing: {
       perMonth: '/mo',
+      once: "One-time purchase",
+      subscribe: "Subscribe: get it again when it runs out",
+      interval: { m1: "every month", m3: "every 3 months", m6: "every 6 months" },
       title: 'Choose your plan',
       recommended: 'Recommended for you',
       perUnit: '{price} per unit',
@@ -215,11 +227,12 @@ export const en = {
       plans: {
         single: { name: '1 unit', desc: 'Try it for one month' },
         kit3: { name: 'Kit 3', desc: 'The 90-day cycle most studies used' },
-        kit6: { name: 'Kit 6 — monthly', desc: '6 units delivered every month' },
+        kit6: { name: "Kit 6", desc: "A 6-month supply" },
       },
-      recurring: 'Billed {price} every month until you cancel. Cancel anytime from your email receipt.',
+      recurring: "Billed {price} {interval} until you cancel. Cancel anytime from your email receipt.",
       cta: 'Choose this plan',
     },
+    shipping: { free: 'Free shipping', fast: 'Fast, tracked delivery', discreet: 'Discreet packaging' },
     bonus: {
       title: 'Included with Kit 3 and Kit 6',
       items: ['E-book: The Collagen Routine', '15-day meal plan', 'VIP customer group'],
@@ -252,12 +265,12 @@ export const en = {
           a: 'One serving a day, mixed into water, coffee or a smoothie. Same time every day works best.',
         },
         cancel: {
-          q: 'How do I cancel the monthly plan?',
+          q: "How do I cancel a subscription?",
           a: 'Use the link in any receipt email or write to us. You can cancel anytime, with no fees.',
         },
         shipping: {
-          q: 'How long does shipping take?',
-          a: 'You will get a tracking link by email as soon as your order ships.',
+          q: 'How does shipping work?',
+          a: 'Shipping is free to every country we deliver to. Orders are dispatched fast, with tracking, in plain, discreet packaging with no product name on the outside. The tracking link is sent by email as soon as the order ships.',
         },
       },
     },
@@ -301,6 +314,8 @@ export const en = {
       invalid: 'This code is not valid.',
       total: 'Total',
       discountNote: 'Discount applied at payment',
+      shipping: 'Shipping',
+      free: 'Free',
     },
     info: {
       title: 'Your details',
@@ -330,10 +345,10 @@ export const en = {
   },
   upsell2: {
     title: 'Never run out — and pay 30% less',
-    body: 'Get Kit 3 delivered every month at {price} instead of {full}. The discount lasts as long as you stay subscribed.',
-    accept: 'Yes, subscribe for {price}/month',
+    body: "Get Kit 3 delivered every 3 months at {price} instead of {full}. The discount lasts as long as you stay subscribed.",
+    accept: "Yes, subscribe for {price} every 3 months",
     decline: 'No thanks',
-    charge: 'Your saved card will be charged {price} today and every month until you cancel. Cancel anytime.',
+    charge: "Your saved card will be charged {price} today and every 3 months until you cancel. Cancel anytime.",
   },
   upsell: {
     processing: 'Processing…',

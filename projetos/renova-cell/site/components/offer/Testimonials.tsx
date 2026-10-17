@@ -17,10 +17,11 @@ export function Testimonials() {
   return (
     <section className="section overflow-hidden">
       <h2 className="h2 mb-8 text-center">{d.offer.testimonials.title}</h2>
-      <div className="group relative">
-        <ul className="flex w-max animate-marquee gap-4 group-hover:[animation-play-state:paused]">
+      {/* Marquee clipped by the section; with reduced motion it becomes a plain swipeable row. */}
+      <div className="group relative motion-reduce:-mx-gutter motion-reduce:overflow-x-auto motion-reduce:px-gutter">
+        <ul className="flex w-max animate-marquee gap-4 group-hover:[animation-play-state:paused] motion-reduce:animate-none">
           {loop.map((t, i) => (
-            <li key={`${t.name}-${i}`} aria-hidden={i >= sorted.length} className="card w-80 shrink-0 p-6">
+            <li key={`${t.name}-${i}`} aria-hidden={i >= sorted.length} className={`card w-[min(20rem,80vw)] shrink-0 p-6 ${i >= sorted.length ? 'motion-reduce:hidden' : ''}`}>
               <p className="mb-4">“{t.quote}”</p>
               <p className="text-sm font-semibold">
                 {t.name} · <span className="muted font-normal">{t.city}</span>

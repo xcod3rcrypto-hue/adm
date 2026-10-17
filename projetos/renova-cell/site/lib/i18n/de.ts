@@ -22,7 +22,7 @@ export const de: Dictionary = {
   },
   quiz: {
     progress: '{pct} % erledigt',
-    intro: 'Beantworte 8 kurze Fragen (etwa 60 Sekunden) und erhalte deinen persönlichen Plan.',
+    intro: "Beantworte 8 kurze Fragen (etwa 60 Sekunden) und erhalte deinen Plan für jünger aussehende Haut, mehr Lust und Energie im Alltag.",
     questions: {
       gender: {
         title: 'Wie identifizierst du dich?',
@@ -89,7 +89,7 @@ export const de: Dictionary = {
         man: 'Fühl dich wieder bereit für den Tag: tägliches Kollagen für Gelenke, Haut und Energie',
         senior: 'Ab 50 bildet der Körper weniger Kollagen. Deine tägliche Routine kann das ausgleichen',
       },
-      sub: 'Eine tägliche Formel aus Kollagen + Peptiden, abgestimmt auf deine Antworten.',
+      sub: "Dein tägliches Jugend-Ritual: eine Formel aus Kollagen + Peptiden für alle, die jünger aussehende Haut, mehr Lust und mehr Energie wollen, abgestimmt auf deine Antworten.",
       cta: 'Meinen empfohlenen Plan ansehen',
     },
     vsl: {
@@ -133,6 +133,15 @@ export const de: Dictionary = {
         ],
       },
     },
+    pillars: {
+      title: "Ein Ritual, drei Ziele",
+      items: [
+        { title: "Jünger aussehende Haut", body: "Kollagenpeptide wurden in placebokontrollierten Studien mit besserer Hautelastizität und -feuchtigkeit in Verbindung gebracht." },
+        { title: "Lust und Vitalität", body: "Sich im eigenen Körper wohlzufühlen gehört zur Lust dazu. Ein tägliches Selbstfürsorge-Ritual für Männer und Frauen, ohne Hormone und ohne Stimulanzien." },
+        { title: "Energie für deinen Tag", body: "Eine proteinreiche tägliche Portion, die in deinen Morgen passt, ohne Stimulanzien und ohne Absturz." },
+      ],
+      note: "Ergebnisse variieren. RENOVA CELL ist ein Nahrungsergänzungsmittel, kein Arzneimittel.",
+    },
     science: {
       title: 'Was die Forschung sagt',
       flip: 'Tippen, um die Quelle zu sehen',
@@ -169,7 +178,7 @@ export const de: Dictionary = {
       steps: [
         { day: 'Tag 1', title: 'Starte dein Ritual', body: 'Eine Portion pro Tag. Entscheidend ist die Regelmäßigkeit.' },
         { day: 'Tag 5', title: 'Mach es automatisch', body: 'Gleiche Zeit, gleicher Ort. Die Gewohnheit setzt sich fest.' },
-        { day: 'Tag 15', title: 'Zwischenbilanz', body: 'Achte darauf, wie du dich fühlst. Viele berichten von gleichmäßigeren Tagen.' },
+        { day: 'Tag 15', title: 'Zwischenbilanz', body: "Achte darauf, wie du dich fühlst, und bleib bei der Gewohnheit." },
         { day: 'Tag 30', title: 'Ein Monat', body: 'Bleib dran. Studien maßen Hautveränderungen nach 4 bis 12 Wochen.' },
         { day: 'Tag 90', title: 'Voller Zyklus', body: 'Der Zeitraum, den die meisten Studien betrachtet haben. Zeit zu vergleichen.' },
       ],
@@ -205,6 +214,9 @@ export const de: Dictionary = {
     },
     pricing: {
       perMonth: '/Monat',
+      once: "Einmalkauf",
+      subscribe: "Abo: automatisch neu, wenn es leer ist",
+      interval: { m1: "jeden Monat", m3: "alle 3 Monate", m6: "alle 6 Monate" },
       title: 'Wähle deinen Plan',
       recommended: 'Für dich empfohlen',
       perUnit: '{price} pro Einheit',
@@ -212,11 +224,12 @@ export const de: Dictionary = {
       plans: {
         single: { name: '1 Einheit', desc: 'Einen Monat lang testen' },
         kit3: { name: 'Kit 3', desc: 'Der 90-Tage-Zyklus der meisten Studien' },
-        kit6: { name: 'Kit 6 – monatlich', desc: '6 Einheiten jeden Monat geliefert' },
+        kit6: { name: "Kit 6", desc: "Vorrat für 6 Monate" },
       },
-      recurring: 'Monatlich {price}, bis du kündigst. Jederzeit über den Link in deiner Beleg-E-Mail kündbar.',
+      recurring: "Abgebucht werden {price} {interval}, bis du kündigst. Jederzeit über den Link in deiner Beleg-E-Mail kündbar.",
       cta: 'Diesen Plan wählen',
     },
+    shipping: { free: 'Kostenloser Versand', fast: 'Schnelle Lieferung mit Tracking', discreet: 'Diskrete Verpackung' },
     bonus: {
       title: 'Inklusive bei Kit 3 und Kit 6',
       items: ['E-Book: Die Kollagen-Routine', '15-Tage-Ernährungsplan', 'VIP-Kundengruppe'],
@@ -249,12 +262,12 @@ export const de: Dictionary = {
           a: 'Eine Portion pro Tag, in Wasser, Kaffee oder einen Smoothie gerührt. Am besten immer zur gleichen Zeit.',
         },
         cancel: {
-          q: 'Wie kündige ich den Monatsplan?',
+          q: "Wie kündige ich ein Abo?",
           a: 'Über den Link in jeder Beleg-E-Mail oder schreib uns. Jederzeit kündbar, ohne Gebühren.',
         },
         shipping: {
-          q: 'Wie lange dauert der Versand?',
-          a: 'Du bekommst einen Tracking-Link per E-Mail, sobald deine Bestellung verschickt ist.',
+          q: 'Wie funktioniert der Versand?',
+          a: 'Der Versand ist in alle Länder, die wir beliefern, kostenlos. Bestellungen gehen schnell raus, mit Sendungsverfolgung, in neutraler, diskreter Verpackung ohne Produktnamen außen. Der Tracking-Link kommt per E-Mail, sobald die Bestellung versendet ist.',
         },
       },
     },
@@ -298,6 +311,8 @@ export const de: Dictionary = {
       invalid: 'Dieser Code ist ungültig.',
       total: 'Gesamt',
       discountNote: 'Rabatt wird bei der Zahlung abgezogen',
+      shipping: 'Versand',
+      free: 'Kostenlos',
     },
     info: {
       title: 'Deine Daten',
@@ -327,10 +342,10 @@ export const de: Dictionary = {
   },
   upsell2: {
     title: 'Nie mehr leer – und 30 % weniger zahlen',
-    body: 'Erhalte Kit 3 jeden Monat für {price} statt {full}. Der Rabatt gilt, solange du Abonnent bist.',
-    accept: 'Ja, für {price}/Monat abonnieren',
+    body: "Erhalte Kit 3 alle 3 Monate für {price} statt {full}. Der Rabatt gilt, solange du Abonnent bist.",
+    accept: "Ja, für {price} alle 3 Monate abonnieren",
     decline: 'Nein danke',
-    charge: 'Deine gespeicherte Karte wird heute und jeden Monat mit {price} belastet, bis du kündigst. Jederzeit kündbar.',
+    charge: "Deine gespeicherte Karte wird heute und alle 3 Monate mit {price} belastet, bis du kündigst. Jederzeit kündbar.",
   },
   upsell: {
     processing: 'Wird verarbeitet…',

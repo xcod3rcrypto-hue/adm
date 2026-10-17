@@ -17,14 +17,15 @@ export function SmartFAQ() {
           const item = items[key];
           if (!item) return null;
           return (
-            <details key={key} open={i === 0} className="card group p-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+            <details key={key} open={i === 0} className="card group">
+              {/* The whole row is the tap target (≥ 44px), not just the question text. */}
+              <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 p-5 font-semibold [&::-webkit-details-marker]:hidden">
                 {item.q}
-                <span aria-hidden className="text-xl text-gold transition group-open:rotate-45">
+                <span aria-hidden className="shrink-0 text-xl text-gold-deep transition group-open:rotate-45 dark:text-gold">
                   +
                 </span>
               </summary>
-              <p className="muted mt-3 leading-relaxed">{item.a}</p>
+              <p className="muted px-5 pb-5 leading-relaxed">{item.a}</p>
             </details>
           );
         })}

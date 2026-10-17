@@ -7,7 +7,7 @@
  * Copy the printed STRIPE_PRICE_* lines into .env.local / Vercel env.
  */
 import Stripe from 'stripe';
-import { CURRENCIES, PRICES, SKU_PRICE_ENV, type Sku } from '../lib/products';
+import { CURRENCIES, PLANS, PRICES, SKU_PRICE_ENV, type Sku } from '../lib/products';
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
@@ -18,18 +18,23 @@ const stripe = new Stripe(key);
 
 interface PriceSpec {
   sku: Sku;
+  env: string;
   lookupKey: string;
   productName: string;
-  recurring: boolean;
+  /** Renewal interval in months for subscription prices. */
+  everyMonths?: number;
 }
 
 const specs: PriceSpec[] = [
-  { sku: 'single', lookupKey: 'rc_single', productName: 'RENOVA CELL — 1 unit', recurring: false },
-  { sku: 'kit3', lookupKey: 'rc_kit3', productName: 'RENOVA CELL — Kit 3', recurring: false },
-  { sku: 'kit6', lookupKey: 'rc_kit6_monthly', productName: 'RENOVA CELL — Kit 6 (monthly)', recurring: true },
-  { sku: 'bump', lookupKey: 'rc_bump_unit', productName: 'RENOVA CELL — Extra unit (order bump)', recurring: false },
-  { sku: 'upsellKit6', lookupKey: 'rc_upsell_kit6', productName: 'RENOVA CELL — Kit 6 (45% off offer)', recurring: false },
-  { sku: 'upsellSub', lookupKey: 'rc_upsell_sub', productName: 'RENOVA CELL — Kit 3 monthly (member price)', recurring: true },
+  { sku: 'single', env: PLANS.single.priceEnv, lookupKey: 'rc_single', productName: 'RENOVA CELL — 1 unit' },
+  { sku: 'kit3', env: PLANS.kit3.priceEnv, lookupKey: 'rc_kit3', productName: 'RENOVA CELL — Kit 3' },
+  { sku: 'kit6', env: PLANS.kit6.priceEnv, lookupKey: 'rc_kit6', productName: 'RENOVA CELL — Kit 6' },
+  { sku: 'single', env: PLANS.single.subPriceEnv, lookupKey: 'rc_single_sub', productName: 'RENOVA CELL — 1 unit (subscription, monthly)', everyMonths: 1 },
+  { sku: 'kit3', env: PLANS.kit3.subPriceEnv, lookupKey: 'rc_kit3_sub', productName: 'RENOVA CELL — Kit 3 (subscription, every 3 months)', everyMonths: 3 },
+  { sku: 'kit6', env: PLANS.kit6.subPriceEnv, lookupKey: 'rc_kit6_sub', productName: 'RENOVA CELL — Kit 6 (subscription, every 6 months)', everyMonths: 6 },
+  { sku: 'bump', env: SKU_PRICE_ENV.bump, lookupKey: 'rc_bump_unit', productName: 'RENOVA CELL — Extra unit (order bump)' },
+  { sku: 'upsellKit6', env: SKU_PRICE_ENV.upsellKit6, lookupKey: 'rc_upsell_kit6', productName: 'RENOVA CELL — Kit 6 (45% off offer)' },
+  { sku: 'upsellSub', env: SKU_PRICE_ENV.upsellSub, lookupKey: 'rc_upsell_sub_3m', productName: 'RENOVA CELL — Kit 3 every 3 months (member price)', everyMonths: 3 },
 ];
 
 /** Every non-USD currency in lib/products.ts as a Stripe currency option for this SKU. */
@@ -60,7 +65,7 @@ async function ensurePrice(spec: PriceSpec): Promise<string> {
     unit_amount: amount,
     lookup_key: spec.lookupKey,
     currency_options: options,
-    ...(spec.recurring ? { recurring: { interval: 'month' as const } } : {}),
+    ...(spec.everyMonths ? { recurring: { interval: 'month' as const, interval_count: spec.everyMonths } } : {}),
   });
   return price.id;
 }
@@ -80,7 +85,7 @@ async function ensurePromotionCode(): Promise<void> {
 
 async function main() {
   const lines: string[] = [];
-  for (const spec of specs) lines.push(`${SKU_PRICE_ENV[spec.sku]}=${await ensurePrice(spec)}`);
+  for (const spec of specs) lines.push(`${spec.env}=${await ensurePrice(spec)}`);
   await ensurePromotionCode();
   console.log('\nStripe is ready. Add these to .env.local:\n');
   console.log(lines.join('\n'));

@@ -30,11 +30,11 @@ export function SliderQuestion({ title, min, max, value, onChange, onNext, nextL
         value={value}
         aria-labelledby="slider-title"
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-3 w-full cursor-pointer accent-[#D4AF37]"
+        className="h-11 w-full cursor-pointer accent-[#D4AF37]"
       />
-      <div className="mt-3 flex justify-between text-sm text-cream/70">
-        <span>{min}</span>
-        <span>{max}</span>
+      <div className="mt-1 flex justify-between gap-4 text-sm text-cream/80">
+        <span className="text-left">{min}</span>
+        <span className="text-right">{max}</span>
       </div>
       <GlowButton className="mt-10 w-full" onClick={onNext}>
         {nextLabel} →

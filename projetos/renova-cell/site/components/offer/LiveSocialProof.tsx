@@ -44,7 +44,7 @@ export function LiveSocialProof() {
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
-          className="fixed bottom-24 left-4 z-30 max-w-[calc(100vw-6rem)] rounded-2xl bg-ink px-4 py-3 text-sm text-cream shadow-xl sm:bottom-6"
+          className="float-toast z-30 rounded-2xl bg-ink px-4 py-3 text-xs text-cream shadow-xl dark:bg-[#1f2421] sm:text-sm"
         >
           <span aria-hidden>🛍️ </span>
           {f(d.offer.social.ordered, { count })}

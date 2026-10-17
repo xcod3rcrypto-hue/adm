@@ -20,6 +20,7 @@ import { DynamicHero } from './DynamicHero';
 import { ExitIntent } from './ExitIntent';
 import { GuaranteeSeal } from './GuaranteeSeal';
 import { LiveSocialProof } from './LiveSocialProof';
+import { Pillars } from './Pillars';
 import { PersonalBullets } from './PersonalBullets';
 import { PricingCards } from './PricingCards';
 import { ResultSimulator } from './ResultSimulator';
@@ -93,6 +94,7 @@ export function OfferPage() {
         </div>
         <VSLPlayer />
         <DiagnosisCard />
+        <Pillars />
         <PersonalBullets />
         <ScienceCards />
         <TimelineScroll />
@@ -105,7 +107,7 @@ export function OfferPage() {
         <GuaranteeSeal />
         <SmartFAQ />
       </main>
-      <Footer />
+      <Footer floating />
       <StickyCTA />
       <ExitIntent />
       <AIChatWidget />

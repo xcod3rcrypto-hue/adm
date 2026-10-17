@@ -54,8 +54,8 @@ export default function AnalyzingPage() {
   }, [hydrated, locale, router]);
 
   return (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-quiz-gradient px-4 text-cream">
-      <div className="w-full max-w-md text-center">
+    <main className="screen flex items-center justify-center bg-quiz-gradient px-gutter text-cream">
+      <div className="w-full max-w-md py-8 text-center">
         <motion.div
           aria-hidden
           className="mx-auto mb-8 h-16 w-16 rounded-full border-4 border-gold/20 border-t-gold"
@@ -65,14 +65,18 @@ export default function AnalyzingPage() {
         <h1 className="mb-8 font-display text-3xl">{d.analyzing.title}</h1>
         <ul className="space-y-4 text-left" aria-live="polite">
           {d.analyzing.steps.map((label, i) => (
+            // Pending steps are dimmed with a readable colour (not opacity), and every step is visible from the first frame.
             <motion.li
               key={label}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: i <= done ? 1 : 0.3, y: 0 }}
+              initial={{ y: 8 }}
+              animate={{ y: 0 }}
               transition={{ delay: i * 0.15 }}
-              className="flex items-center gap-3 text-lg"
+              className={`flex items-center gap-3 text-lg transition-colors ${i <= done ? 'text-cream' : 'text-cream/75'}`}
             >
-              <span className={`flex h-7 w-7 items-center justify-center rounded-full ${i < done ? 'bg-gold text-ink' : 'border border-cream/30'}`}>
+              <span
+                aria-hidden
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${i < done ? 'bg-gold text-ink' : 'border border-cream/40'}`}
+              >
                 {i < done ? '✓' : ''}
               </span>
               {label}

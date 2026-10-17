@@ -55,7 +55,7 @@ const COUNTRY_LOCALE: Record<string, Locale> = {
   IT: 'it', SM: 'it', VA: 'it',
   NL: 'nl', BE: 'nl',
   PL: 'pl', SE: 'sv', AX: 'sv', DK: 'da', FO: 'da', GL: 'da', NO: 'nb', SJ: 'nb',
-  FI: 'fi', EE: 'et', IS: 'is', CZ: 'cs', SK: 'sk', HU: 'hu', RO: 'ro', MD: 'ro', BG: 'bg', UA: 'uk',
+  FI: 'fi', EE: 'et', IS: 'is', CZ: 'cs', SK: 'sk', HU: 'hu', RO: 'ro', MD: 'ro', BG: 'bg',
   GR: 'el', CY: 'el', LT: 'lt', LV: 'lv', HR: 'hr', BA: 'hr', SI: 'sl', RS: 'sr', ME: 'sr',
   AL: 'sq', XK: 'sq', MK: 'mk',
 };

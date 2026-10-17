@@ -18,8 +18,9 @@ function track(e: MouseEvent<HTMLElement>) {
   e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
 }
 
+// max-w-full + text-center: long labels (German, French…) wrap inside the pill instead of widening the page.
 const base =
-  'glow inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-7 py-3 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60';
+  'glow inline-flex min-h-[52px] max-w-full items-center justify-center gap-2 rounded-full px-7 py-3 text-center text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60';
 
 export function GlowButton({ variant = 'gold', className = '', ...props }: ComponentProps<'button'> & { variant?: Variant }) {
   return <button {...props} onMouseMove={track} className={`${base} ${styles[variant]} ${className}`} />;

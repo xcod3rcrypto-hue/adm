@@ -1,0 +1,274 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #d4af37;
+  --cream: #faf7f2;
+  --green: #0e5c4a;
+  --black: #0d0d0d;
+  --coral: #ff6b5a;
+  --page-bg: var(--cream);
+  --page-fg: #1a1a1a;
+  --muted: #5b5b55;
+  --card: #ffffff;
+  --line: rgba(13, 13, 13, 0.1);
+
+  /* Safe areas (notch, home indicator). Non-zero only on notched phones, thanks to viewport-fit=cover. */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  /* Horizontal page gutter, never thinner than the notch in landscape. */
+  --gutter: 1rem;
+  --gutter-l: max(var(--gutter), var(--safe-l));
+  --gutter-r: max(var(--gutter), var(--safe-r));
+  /* Height the cookie banner takes at the bottom while it is open (set by <Analytics />). */
+  --consent-h: 0px;
+  /* What floating widgets and page ends must clear: the home indicator or the cookie banner. */
+  --float-base: max(var(--safe-b), var(--consent-h));
+  /* Height of the phone sticky CTA bar while it is on screen (set by <StickyCTA />). */
+  --sticky-h: 0px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+
+/* Dark tokens: follow the OS unless a host forces light, and honour an explicit dark choice. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --page-bg: #0d0d0d;
+    --page-fg: #f3efe7;
+    --muted: #b5b0a5;
+    --card: #151816;
+    --line: rgba(250, 247, 242, 0.12);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #0d0d0d;
+  --page-fg: #f3efe7;
+  --muted: #b5b0a5;
+  --card: #151816;
+  --line: rgba(250, 247, 242, 0.12);
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--page-fg);
+  -webkit-font-smoothing: antialiased;
+  /* A long word or URL wraps instead of pushing the layout sideways. */
+  overflow-wrap: break-word;
+}
+
+/* Gold focus ring everywhere, visible on both themes. */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Hide the native cursor only on fine pointers when the custom cursor is active. */
+@media (pointer: fine) {
+  html.has-gold-cursor,
+  html.has-gold-cursor * {
+    cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer base {
+  /* Long German/French words in headings hyphenate (lang is set on <html>) or, failing that, break. */
+  h1,
+  h2,
+  h3,
+  h4,
+  legend {
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    hyphenate-limit-chars: 8 4 3;
+    text-wrap: balance;
+  }
+  /* iOS zooms the page when a focused field is smaller than 16px. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+@layer components {
+  .section {
+    @apply mx-auto w-full max-w-5xl py-16 sm:py-20;
+    padding-left: var(--gutter-l);
+    padding-right: var(--gutter-r);
+    scroll-snap-align: start;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    @apply rounded-2xl;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .h2 {
+    @apply font-display text-3xl leading-tight sm:text-4xl;
+  }
+  .gold-text {
+    background: linear-gradient(90deg, #a8862a, #e9d489, #d4af37, #a8862a);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Button glow follows the pointer via --x / --y set in GlowButton. */
+  .glow {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(160px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.45), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .glow:hover::before {
+    opacity: 1;
+  }
+
+  /* Full-screen layouts (quiz, analyzing, upsells): fill the screen above the cookie banner, clear notch and home indicator. */
+  .screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: var(--safe-t);
+    padding-bottom: var(--float-base);
+  }
+
+  /*
+   * Floating widgets stack bottom-up and never overlap:
+   * home indicator / cookie banner → sticky CTA bar (phones) → chat button + toast → chat panel.
+   */
+  .sticky-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--consent-h);
+    padding: 0.75rem max(0.75rem, var(--safe-r)) calc(0.75rem + max(0px, var(--safe-b) - var(--consent-h))) max(0.75rem, var(--safe-l));
+    background: var(--page-bg);
+    background: color-mix(in srgb, var(--page-bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .float-chat-button {
+    position: fixed;
+    right: max(1rem, var(--safe-r));
+    bottom: calc(var(--float-base) + var(--sticky-h) + 1rem);
+    transition: bottom 0.2s ease;
+  }
+  .float-chat-panel {
+    position: fixed;
+    right: max(1rem, var(--safe-r));
+    bottom: calc(var(--float-base) + var(--sticky-h) + 5rem);
+    width: min(380px, calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r))));
+    height: min(520px, calc(100vh - var(--float-base) - var(--sticky-h) - 6rem - var(--safe-t)));
+    height: min(520px, calc(100dvh - var(--float-base) - var(--sticky-h) - 6rem - var(--safe-t)));
+    transform-origin: bottom right;
+  }
+  .float-toast {
+    position: fixed;
+    left: max(1rem, var(--safe-l));
+    bottom: calc(var(--float-base) + var(--sticky-h) + 1rem);
+    /* Leaves room for the chat button on the right (3.5rem + 1rem gap). */
+    max-width: calc(100vw - max(1rem, var(--safe-l)) - max(1rem, var(--safe-r)) - 4.5rem);
+    transition: bottom 0.2s ease;
+  }
+  @media (min-width: 640px) {
+    .float-toast {
+      max-width: 24rem;
+    }
+  }
+  /* While the chat is open it owns the bottom of the screen: no sticky bar, no toast underneath. */
+  html:has(.float-chat-panel) .sticky-cta,
+  html:has(.float-chat-panel) .float-toast {
+    display: none;
+  }
+  .consent-banner {
+    position: fixed;
+    left: max(0.75rem, var(--safe-l));
+    right: max(0.75rem, var(--safe-r));
+    bottom: calc(0.75rem + var(--safe-b));
+  }
+  /* Full-screen overlay that scrolls when its dialog is taller than the screen (dialog uses m-auto). */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: max(1rem, var(--safe-t)) max(1rem, var(--safe-r)) max(1rem, var(--safe-b)) max(1rem, var(--safe-l));
+  }
+}
+
+@layer utilities {
+  .px-gutter {
+    padding-left: var(--gutter-l);
+    padding-right: var(--gutter-r);
+  }
+  /* Lets a horizontal scroller bleed to the screen edges inside a gutter-padded section. */
+  .-mx-gutter {
+    margin-left: calc(-1 * var(--gutter-l));
+    margin-right: calc(-1 * var(--gutter-r));
+  }
+  .scroll-px-gutter {
+    scroll-padding-left: var(--gutter-l);
+    scroll-padding-right: var(--gutter-r);
+  }
+  /*
+   * Page ends that clear the notch at the top and the home indicator / cookie banner at the bottom.
+   * The base padding comes from --pt / --pb / --py, e.g. class="py-safe [--py:3.5rem]".
+   */
+  .pt-safe {
+    padding-top: calc(var(--pt, 0px) + var(--safe-t));
+  }
+  .pb-safe {
+    padding-bottom: calc(var(--pb, 0px) + var(--float-base));
+  }
+  .py-safe {
+    padding-top: calc(var(--py, 0px) + var(--safe-t));
+    padding-bottom: calc(var(--py, 0px) + var(--float-base));
+  }
+  /* Bottom of a page with floating widgets: the last line can scroll clear of the chat button. */
+  .pb-floating {
+    padding-bottom: max(calc(var(--pb, 0px) + var(--float-base)), calc(var(--float-base) + var(--sticky-h) + 6rem));
+  }
+}

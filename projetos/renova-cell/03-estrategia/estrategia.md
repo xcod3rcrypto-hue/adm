@@ -1,4 +1,4 @@
-# Estratégia — Renova Cell
+# Estratégia — VitalRise
 
 > Plano completo de marketing e lançamento (países, campanhas, conjuntos, criativos do Instagram, cronograma e regras): [`plano-marketing-lancamento.md`](plano-marketing-lancamento.md).
 

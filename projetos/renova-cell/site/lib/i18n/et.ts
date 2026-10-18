@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const et: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Tagasi',
     next: 'Edasi',
     continue: 'Jätka',
@@ -140,7 +140,7 @@ export const et: Dictionary = {
         { title: 'Iha ja elujõud', body: 'Hea enesetunne oma kehas on osa ihast. Igapäevane enesehoolduse rituaal meestele ja naistele, ilma hormoonide ja stimulantideta.' },
         { title: 'Energiat päevaks', body: 'Valgurikas igapäevane annus, mis sobib su hommikusse, ilma stimulantide ja langusteta.' },
       ],
-      note: 'Tulemused on erinevad. RENOVA CELL on toidulisand, mitte ravim.',
+      note: 'Tulemused on erinevad. VitalRise on toidulisand, mitte ravim.',
     },
     science: {
       title: 'Mida uuringud ütlevad',
@@ -201,8 +201,8 @@ export const et: Dictionary = {
       note: 'Sageli viidatud ~1% aastase languse illustratsioon pärast 25. eluaastat. See ei ole toote tulemuste prognoos.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. tavaline kollageen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. tavaline kollageen',
+      us: 'VitalRise',
       them: 'Tavaline kollageen',
       rows: [
         { label: 'Hüdrolüüsitud kollageenpeptiidid', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const et: Dictionary = {
     exit: {
       title: 'Oota: 10% soodsamalt enne lahkumist',
       body: 'Kasuta kassas seda koodi:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Kasuta mu 10% soodustust',
       dismiss: 'Ei, aitäh',
     },
     chat: {
       title: 'Küsi Elenalt',
       subtitle: 'Tehisintellekti assistent · mitte arst',
-      greeting: 'Tere! Olen Elena, RENOVA CELLi tehisintellekti assistent. Küsi minult kõike toote või oma plaani kohta.',
+      greeting: 'Tere! Olen Elena, VitalRise\'i tehisintellekti assistent. Küsi minult kõike toote või oma plaani kohta.',
       placeholder: 'Kirjuta oma küsimus…',
       send: 'Saada',
       error: 'Vabandust, midagi läks valesti. Proovi uuesti.',
@@ -307,7 +307,7 @@ export const et: Dictionary = {
       coupon: 'Sooduskood',
       couponPlaceholder: 'Sisesta kood',
       apply: 'Rakenda',
-      hint: 'Psst… proovi RENOVA10',
+      hint: 'Psst… proovi VITAL10',
       valid: 'Kood rakendatud: {pct}% soodsamalt',
       invalid: 'See kood ei kehti.',
       total: 'Kokku',
@@ -361,7 +361,7 @@ export const et: Dictionary = {
     vip: { title: 'VIP-grupp', body: 'Nõuanded, retseptid ja tugi teistelt klientidelt.', cta: 'Liitu grupiga' },
     referral: {
       title: 'Jaga sõbraga',
-      body: 'Saada oma link. Kes seda kasutab, saab koodiga RENOVA10 10% soodustust.',
+      body: 'Saada oma link. Kes seda kasutab, saab koodiga VITAL10 10% soodustust.',
       copy: 'Kopeeri link',
       copied: 'Kopeeritud!',
     },
@@ -375,24 +375,24 @@ export const et: Dictionary = {
     pillar: { title: 'Elujõud ja enesekindlus', body: 'Hea enesetunne oma kehas on osa enesekindlusest. Igapäevane enesehoolduse rituaal meestele ja naistele, ilma hormoonide ja stimulantideta.' },
   },
   emails: {
-    footer: 'Saad selle kirja, sest täitsid RENOVA CELLi testi.',
+    footer: 'Saad selle kirja, sest täitsid VitalRise\'i testi.',
     unsubscribe: 'Loobu tellimusest',
     diagnosis: {
-      subject: '{name}, sinu RENOVA CELLi plaan',
+      subject: '{name}, sinu VitalRise\'i plaan',
       body: 'Siin on sinu tulemus: {diagnosis}\n\nSulle soovitatud plaan on {plan}. Vaata seda siin: {link}',
     },
     vsl: {
       subject: 'Sinu profiilile tehtud 2-minutiline video',
       body: 'Tegime lühikese video sellest, mida su vastused tähendavad. Vaata seda siin: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% soodsamalt sinu plaanist koodiga RENOVA10 → {link} Loobumiseks vasta STOP.' },
+    sms: { body: 'VitalRise: 10% soodsamalt sinu plaanist koodiga VITAL10 → {link} Loobumiseks vasta STOP.' },
     socialProof: {
       subject: 'Miks inimesed jätkavad',
       body: 'Enamik kollageeniuuringuid kestis 8–12 nädalat. Seepärast on 90-päevane Kit 3 meie kõige valitum plaan. Sinu plaan: {link}',
     },
     lastChance: {
       subject: 'Sinu 10% sooduskood ootab endiselt',
-      body: 'Sinu kood RENOVA10 ootab sind endiselt. Kasuta seda siin: {link}',
+      body: 'Sinu kood VITAL10 ootab sind endiselt. Kasuta seda siin: {link}',
     },
     story: {
       subject: 'Väikesed harjumused, suur vahe',

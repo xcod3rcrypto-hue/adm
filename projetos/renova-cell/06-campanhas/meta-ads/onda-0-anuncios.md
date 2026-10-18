@@ -20,7 +20,7 @@
 | `ig01b` | "A 30-second morning ritual" | "Free shipping · 2 business days" |
 | `ig01c` | "The supplement that fits in a coffee mug" | "Find your plan in 60 seconds" |
 
-- **Descrição:** "Buy once or subscribe · cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "Buy once or subscribe · cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### IG03 — Unboxing discreto + 2 dias · conjunto `ig03_unboxing`
 
@@ -28,7 +28,7 @@
 - **Cenas:** Caixa neutra na porta → close da caixa sem marca → abre → produto → mistura na água → cartão final. Gancho C só depois de comprovar a entrega real.
 - **Texto principal (EN, igual nos 3 anúncios):**
 
-  > Some things are nobody else's business. RENOVA CELL ships in a plain box with no product name on the outside.
+  > Some things are nobody else's business. VitalRise ships in a plain box with no product name on the outside.
   >
   > Free shipping, delivered in up to 2 business days with tracking. Buy once, or subscribe and it arrives again when you run out. Cancel anytime.
   >
@@ -36,7 +36,7 @@
   >
   > Individual results vary. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.
 
-  *Tem coisa que não é da conta de ninguém. O RENOVA CELL chega numa caixa neutra, sem o nome do produto por fora. Frete grátis, entrega em até 2 dias úteis com rastreio. Compra única ou assinatura que chega de novo quando acaba. Faça o quiz de 60 segundos. Garantia de 30 dias.*
+  *Tem coisa que não é da conta de ninguém. O VitalRise chega numa caixa neutra, sem o nome do produto por fora. Frete grátis, entrega em até 2 dias úteis com rastreio. Compra única ou assinatura que chega de novo quando acaba. Faça o quiz de 60 segundos. Garantia de 30 dias.*
 
 | Anúncio | Gancho na tela (0–2 s) | Título |
 |---|---|---|
@@ -44,7 +44,7 @@
 | `ig03b` | "Free shipping. 2 business days. Plain box." | "Delivered in up to 2 business days" |
 | `ig03c` | "Ordered Monday. Here Wednesday." | "Plain box. Fast delivery." |
 
-- **Descrição:** "Tracked · discreet · free" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "Tracked · discreet · free" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### IG04 — O quiz é o anúncio · conjunto `ig04_quiz`
 
@@ -66,7 +66,7 @@
 | `ig04b` | "Which plan fits your routine? 60 seconds." | "Get your plan in 60 seconds" |
 | `ig04c` | "Coffee, water or smoothie? Start here." | "8 questions. 1 plan." |
 
-- **Descrição:** "Free shipping · 2 business days" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "Free shipping · 2 business days" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### IG06 — Ritual a dois · conjunto `ig06_a_dois`
 
@@ -90,7 +90,7 @@
 | `ig06b` | "Two mugs. One ritual." | "Free shipping · 2 business days" |
 | `ig06c` | "Self-care is better together." | "Take the 60-second quiz" |
 
-- **Descrição:** "No hormones · no stimulants" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "No hormones · no stimulants" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### IG10 — Criador (anúncio de parceria) · conjunto `ig10_criador`
 
@@ -98,11 +98,11 @@
 - **Cenas:** Rotina real do criador + caixa discreta chegando + preparo no café. Três aberturas gravadas (A/B/C). Rótulo "Paid partnership" + "#ad" + divulgação falada nos primeiros segundos.
 - **Texto principal (EN, igual nos 3 anúncios):**
 
-  > [Legenda do próprio criador, aprovada pela marca — só experiência real, sem resultado.] Example: "I've been adding RENOVA CELL to my morning coffee for 4 weeks. One scoop and done. Free shipping, and it came in a plain box. #ad"
+  > [Legenda do próprio criador, aprovada pela marca — só experiência real, sem resultado.] Example: "I've been adding VitalRise to my morning coffee for 4 weeks. One scoop and done. Free shipping, and it came in a plain box. #ad"
   >
   > Individual results vary. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.
 
-  *[Legenda do criador.] Exemplo: "Faz 4 semanas que coloco RENOVA CELL no meu café da manhã. Uma dose e pronto. Frete grátis, e chegou numa caixa neutra. #publi" — só se for verdade.*
+  *[Legenda do criador.] Exemplo: "Faz 4 semanas que coloco VitalRise no meu café da manhã. Uma dose e pronto. Frete grátis, e chegou numa caixa neutra. #publi" — só se for verdade.*
 
 | Anúncio | Gancho na tela (0–2 s) | Título |
 |---|---|---|
@@ -110,7 +110,7 @@
 | `ig10b` | "[Abertura B do criador]" | "Free shipping · 2 business days" |
 | `ig10c` | "[Abertura C do criador]" | "Find your plan in 60 seconds" |
 
-- **Descrição:** "Paid partnership" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "Paid partnership" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### IG05 — Chega quando acaba (reserva do ig10) · conjunto `ig05_assinatura`
 
@@ -132,15 +132,15 @@
 | `ig05b` | "1, 3 or 6 months. You choose." | "Same price · cancel anytime" |
 | `ig05c` | "Subscribe or buy once. Same price." | "Free shipping · 2 business days" |
 
-- **Descrição:** "Cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://renova-cell.vercel.app/quiz`
+- **Descrição:** "Cancel anytime" · **CTA:** Saiba mais (Learn more) · **URL:** `https://vitalrise.vercel.app/quiz`
 
 #### Remarketing · conjuntos `rt1_quiz_oferta_14d` e `rt2_engajou_30d`
 
 | Anúncio | Peça | Formato | Texto na arte | Texto principal (EN) | Título | CTA | URL |
 |---|---|---|---|---|---|---|---|
-| `ig08a` | Garantia de 30 dias | Imagem 4:5 + versão 9:16 (Stories) | Arte: produto + "30-day money-back guarantee · Free shipping · 2 business days" | Still thinking about it? Try RENOVA CELL for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, delivered in up to 2 business days in discreet packaging. | "30-day money-back guarantee" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
-| `ig12a` | O que vem na caixa | Imagem 4:5 (flat lay) + 9:16 | Arte: "What's in the box" · "Your plan (1, 3 or 6 months)" · "Plain outer box" · "Free shipping" · "30-day guarantee" | Your plan, a plain outer box and free delivery in up to 2 business days. Buy once or subscribe, cancel anytime. 30-day money-back guarantee. | "Free shipping · 2 business days" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
-| `ig03b` | Unboxing (reaproveitado do teste) | Mesma publicação do C1 (Post ID) | Gancho B do ig03 | (mesmo texto do ig03) | "Delivered in up to 2 business days" | Comprar agora (Shop now) | `https://renova-cell.vercel.app/offer` |
-| `ig13a` | Cupom RENOVA10 (quem iniciou o checkout) | Imagem 4:5 + 9:16 | Arte: "10% off your first payment · code RENOVA10" + produto | Your plan is still waiting. Use code RENOVA10 for 10% off your first payment. Free shipping in up to 2 business days, discreet packaging, 30-day money-back guarantee. | "10% off with RENOVA10" | Obter oferta (Get offer) | `https://renova-cell.vercel.app/offer` |
+| `ig08a` | Garantia de 30 dias | Imagem 4:5 + versão 9:16 (Stories) | Arte: produto + "30-day money-back guarantee · Free shipping · 2 business days" | Still thinking about it? Try VitalRise for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, delivered in up to 2 business days in discreet packaging. | "30-day money-back guarantee" | Comprar agora (Shop now) | `https://vitalrise.vercel.app/offer` |
+| `ig12a` | O que vem na caixa | Imagem 4:5 (flat lay) + 9:16 | Arte: "What's in the box" · "Your plan (1, 3 or 6 months)" · "Plain outer box" · "Free shipping" · "30-day guarantee" | Your plan, a plain outer box and free delivery in up to 2 business days. Buy once or subscribe, cancel anytime. 30-day money-back guarantee. | "Free shipping · 2 business days" | Comprar agora (Shop now) | `https://vitalrise.vercel.app/offer` |
+| `ig03b` | Unboxing (reaproveitado do teste) | Mesma publicação do C1 (Post ID) | Gancho B do ig03 | (mesmo texto do ig03) | "Delivered in up to 2 business days" | Comprar agora (Shop now) | `https://vitalrise.vercel.app/offer` |
+| `ig13a` | Cupom VITAL10 (quem iniciou o checkout) | Imagem 4:5 + 9:16 | Arte: "10% off your first payment · code VITAL10" + produto | Your plan is still waiting. Use code VITAL10 for 10% off your first payment. Free shipping in up to 2 business days, discreet packaging, 30-day money-back guarantee. | "10% off with VITAL10" | Obter oferta (Get offer) | `https://vitalrise.vercel.app/offer` |
 
 Todo texto principal de remarketing termina com o mesmo rodapé da FDA.

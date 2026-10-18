@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const sq: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Prapa',
     next: 'Tjetra',
     continue: 'Vazhdo',
@@ -140,7 +140,7 @@ export const sq: Dictionary = {
         { title: 'Dëshirë dhe vitalitet', body: 'Të ndihesh mirë në trupin tënd është pjesë e dëshirës. Një ritual i përditshëm kujdesi për veten për burra dhe gra, pa hormone dhe pa stimulues.' },
         { title: 'Energji për ditën tënde', body: 'Një dozë ditore e pasur me proteina që përshtatet me mëngjesin tënd, pa stimulues dhe pa rënie.' },
       ],
-      note: 'Rezultatet ndryshojnë. RENOVA CELL është shtesë ushqimore, jo ilaç.',
+      note: 'Rezultatet ndryshojnë. VitalRise është shtesë ushqimore, jo ilaç.',
     },
     science: {
       title: 'Çfarë thonë kërkimet',
@@ -201,8 +201,8 @@ export const sq: Dictionary = {
       note: 'Ilustrim i rënies së cituar shpesh prej ~1% në vit pas të 25-ave. Nuk është parashikim i rezultateve të produktit.',
     },
     comparison: {
-      title: 'RENOVA CELL kundrejt një kolagjeni të zakonshëm',
-      us: 'RENOVA CELL',
+      title: 'VitalRise kundrejt një kolagjeni të zakonshëm',
+      us: 'VitalRise',
       them: 'Kolagjen i zakonshëm',
       rows: [
         { label: 'Peptide kolagjeni të hidrolizuara', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const sq: Dictionary = {
     exit: {
       title: 'Prit: 10% zbritje para se të ikësh',
       body: 'Përdor këtë kod gjatë pagesës:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Përdor zbritjen 10%',
       dismiss: 'Jo, faleminderit',
     },
     chat: {
       title: 'Pyet Elenën',
       subtitle: 'Asistente AI · jo mjeke',
-      greeting: 'Përshëndetje! Jam Elena, asistentja AI e RENOVA CELL. Më pyet çdo gjë për produktin ose planin tënd.',
+      greeting: 'Përshëndetje! Jam Elena, asistentja AI e VitalRise. Më pyet çdo gjë për produktin ose planin tënd.',
       placeholder: 'Shkruaj pyetjen tënde…',
       send: 'Dërgo',
       error: 'Na vjen keq, diçka shkoi keq. Provo përsëri.',
@@ -307,7 +307,7 @@ export const sq: Dictionary = {
       coupon: 'Kodi i zbritjes',
       couponPlaceholder: 'Shkruaj kodin',
       apply: 'Apliko',
-      hint: 'Pst… provo RENOVA10',
+      hint: 'Pst… provo VITAL10',
       valid: 'Kodi u aplikua: {pct}% zbritje',
       invalid: 'Ky kod nuk është i vlefshëm.',
       total: 'Totali',
@@ -361,7 +361,7 @@ export const sq: Dictionary = {
     vip: { title: 'Grupi VIP', body: 'Këshilla, receta dhe mbështetje nga klientë të tjerë.', cta: 'Bashkohu me grupin' },
     referral: {
       title: 'Ndaje me një mik',
-      body: 'Dërgo lidhjen tënde. Kush e përdor merr 10% zbritje me kodin RENOVA10.',
+      body: 'Dërgo lidhjen tënde. Kush e përdor merr 10% zbritje me kodin VITAL10.',
       copy: 'Kopjo lidhjen',
       copied: 'U kopjua!',
     },
@@ -375,24 +375,24 @@ export const sq: Dictionary = {
     pillar: { title: 'Vitalitet dhe vetëbesim', body: 'Të ndihesh mirë në trupin tënd është pjesë e vetëbesimit. Një ritual i përditshëm kujdesi për veten për burra dhe gra, pa hormone dhe pa stimulues.' },
   },
   emails: {
-    footer: 'E merr këtë mesazh sepse plotësove kuizin RENOVA CELL.',
+    footer: 'E merr këtë mesazh sepse plotësove kuizin VitalRise.',
     unsubscribe: 'Çregjistrohu',
     diagnosis: {
-      subject: '{name}, plani yt RENOVA CELL',
+      subject: '{name}, plani yt VitalRise',
       body: 'Ky është rezultati yt: {diagnosis}\n\nPlani yt i rekomanduar është {plan}. Shikoje këtu: {link}',
     },
     vsl: {
       subject: 'Videoja 2-minutëshe për profilin tënd',
       body: 'Përgatitëm një video të shkurtër për kuptimin e përgjigjeve të tua. Shikoje këtu: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% zbritje për planin tënd me kodin RENOVA10 → {link} Përgjigju STOP për t’u çregjistruar.' },
+    sms: { body: 'VitalRise: 10% zbritje për planin tënd me kodin VITAL10 → {link} Përgjigju STOP për t’u çregjistruar.' },
     socialProof: {
       subject: 'Pse njerëzit vazhdojnë',
       body: 'Shumica e studimeve për kolagjenin zgjatën 8 deri në 12 javë. Prandaj Kit 3 për 90 ditë është plani ynë më i zgjedhur. Plani yt: {link}',
     },
     lastChance: {
       subject: 'Kodi yt i zbritjes 10% po të pret ende',
-      body: 'Kodi yt RENOVA10 po të pret ende. Përdore këtu: {link}',
+      body: 'Kodi yt VITAL10 po të pret ende. Përdore këtu: {link}',
     },
     story: {
       subject: 'Zakone të vogla, ndryshim i madh',

@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const nb: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Tilbake',
     next: 'Neste',
     continue: 'Fortsett',
@@ -140,7 +140,7 @@ export const nb: Dictionary = {
         { title: "Lyst og vitalitet", body: "Å ha det godt i kroppen er en del av å kjenne lyst. Et daglig ritual for egenomsorg for menn og kvinner, uten hormoner og uten sentralstimulerende stoffer." },
         { title: "Energi til dagen", body: "En proteinrik daglig porsjon som passer inn i morgenen din, uten sentralstimulerende stoffer og uten dupp." },
       ],
-      note: "Resultatene varierer. RENOVA CELL er et kosttilskudd, ikke et legemiddel.",
+      note: "Resultatene varierer. VitalRise er et kosttilskudd, ikke et legemiddel.",
     },
     science: {
       title: 'Hva forskningen sier',
@@ -201,8 +201,8 @@ export const nb: Dictionary = {
       note: 'Illustrasjon av den ofte siterte nedgangen på ~1 %/år etter 25. Ikke en forutsigelse av produktets resultater.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. et vanlig kollagen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. et vanlig kollagen',
+      us: 'VitalRise',
       them: 'Vanlig kollagen',
       rows: [
         { label: 'Hydrolyserte kollagenpeptider', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const nb: Dictionary = {
     exit: {
       title: 'Vent – 10 % rabatt før du går',
       body: 'Bruk denne koden i kassen:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Bruk rabatten på 10 %',
       dismiss: 'Nei takk',
     },
     chat: {
       title: 'Spør Elena',
       subtitle: 'AI-assistent · ikke lege',
-      greeting: 'Hei! Jeg er Elena, AI-assistenten til RENOVA CELL. Spør meg om hva som helst om produktet eller planen din.',
+      greeting: 'Hei! Jeg er Elena, AI-assistenten til VitalRise. Spør meg om hva som helst om produktet eller planen din.',
       placeholder: 'Skriv spørsmålet ditt…',
       send: 'Send',
       error: 'Beklager, noe gikk galt. Prøv igjen.',
@@ -307,7 +307,7 @@ export const nb: Dictionary = {
       coupon: 'Rabattkode',
       couponPlaceholder: 'Skriv inn kode',
       apply: 'Bruk',
-      hint: 'Psst… prøv RENOVA10',
+      hint: 'Psst… prøv VITAL10',
       valid: 'Koden er brukt: {pct} % rabatt',
       invalid: 'Denne koden er ikke gyldig.',
       total: 'Totalt',
@@ -361,7 +361,7 @@ export const nb: Dictionary = {
     vip: { title: 'VIP-gruppe', body: 'Tips, oppskrifter og støtte fra andre kunder.', cta: 'Bli med i gruppen' },
     referral: {
       title: 'Del med en venn',
-      body: 'Send lenken din. Vennen din får 10 % rabatt med koden RENOVA10.',
+      body: 'Send lenken din. Vennen din får 10 % rabatt med koden VITAL10.',
       copy: 'Kopier lenke',
       copied: 'Kopiert!',
     },
@@ -375,24 +375,24 @@ export const nb: Dictionary = {
     pillar: { title: 'Vitalitet og selvtillit', body: 'Å ha det godt i kroppen er en del av å føle selvtillit. Et daglig ritual for egenomsorg for menn og kvinner, uten hormoner og uten sentralstimulerende stoffer.' },
   },
   emails: {
-    footer: 'Du får denne e-posten fordi du tok RENOVA CELL-quizen.',
+    footer: 'Du får denne e-posten fordi du tok VitalRise-quizen.',
     unsubscribe: 'Meld deg av',
     diagnosis: {
-      subject: '{name}, din RENOVA CELL-plan',
+      subject: '{name}, din VitalRise-plan',
       body: 'Her er resultatet ditt: {diagnosis}\n\nDin anbefalte plan er {plan}. Se den her: {link}',
     },
     vsl: {
       subject: 'Videoen på 2 minutter laget for profilen din',
       body: 'Vi har laget en kort video om hva svarene dine betyr. Se den her: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10 % rabatt på planen din med koden RENOVA10 → {link} Svar STOP for å melde deg av.' },
+    sms: { body: 'VitalRise: 10 % rabatt på planen din med koden VITAL10 → {link} Svar STOP for å melde deg av.' },
     socialProof: {
       subject: 'Derfor fortsetter folk',
       body: 'De fleste studier på kollagen varte i 8 til 12 uker. Derfor er 90-dagers Kit 3 vår mest valgte plan. Planen din: {link}',
     },
     lastChance: {
       subject: 'Rabattkoden din på 10 % venter fortsatt',
-      body: 'Koden din RENOVA10 venter fortsatt. Bruk den her: {link}',
+      body: 'Koden din VITAL10 venter fortsatt. Bruk den her: {link}',
     },
     story: {
       subject: 'Små vaner, stor forskjell',

@@ -8,7 +8,7 @@ import { useOffer } from './context';
 
 /**
  * Illustrates the commonly cited ~1%/year collagen decline after 25 and where the visitor sits.
- * Deliberately does NOT draw a "with RENOVA CELL" line — we have no data to support one.
+ * Deliberately does NOT draw a "with VitalRise" line — we have no data to support one.
  */
 export function ResultSimulator() {
   const { d } = useT();

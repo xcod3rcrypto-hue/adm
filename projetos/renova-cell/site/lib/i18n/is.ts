@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const is: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Til baka',
     next: 'Áfram',
     continue: 'Halda áfram',
@@ -140,7 +140,7 @@ export const is: Dictionary = {
         { title: 'Löngun og lífsþróttur', body: 'Að líða vel í eigin líkama er hluti af því að finna löngun. Daglegur sjálfsumhyggjusiður fyrir karla og konur, án hormóna og örvandi efna.' },
         { title: 'Orka fyrir daginn', body: 'Próteinríkur dagskammtur sem passar inn í morguninn, án örvandi efna og án orkufalls.' },
       ],
-      note: 'Árangur er misjafn. RENOVA CELL er fæðubótarefni, ekki lyf.',
+      note: 'Árangur er misjafn. VitalRise er fæðubótarefni, ekki lyf.',
     },
     science: {
       title: 'Hvað rannsóknir segja',
@@ -201,8 +201,8 @@ export const is: Dictionary = {
       note: 'Mynd af oft nefndri ~1% árlegri lækkun eftir 25 ára aldur. Ekki spá um árangur vörunnar.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. venjulegt kollagen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. venjulegt kollagen',
+      us: 'VitalRise',
       them: 'Venjulegt kollagen',
       rows: [
         { label: 'Vatnsrofin kollagenpeptíð', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const is: Dictionary = {
     exit: {
       title: 'Bíddu: 10% afsláttur áður en þú ferð',
       body: 'Notaðu þennan kóða í greiðsluferlinu:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Nota 10% afsláttinn',
       dismiss: 'Nei takk',
     },
     chat: {
       title: 'Spyrðu Elenu',
       subtitle: 'Gervigreindaraðstoð · ekki læknir',
-      greeting: 'Hæ! Ég er Elena, gervigreindaraðstoð RENOVA CELL. Spyrðu mig um vöruna eða áætlunina þína.',
+      greeting: 'Hæ! Ég er Elena, gervigreindaraðstoð VitalRise. Spyrðu mig um vöruna eða áætlunina þína.',
       placeholder: 'Skrifaðu spurninguna þína…',
       send: 'Senda',
       error: 'Því miður fór eitthvað úrskeiðis. Reyndu aftur.',
@@ -307,7 +307,7 @@ export const is: Dictionary = {
       coupon: 'Afsláttarkóði',
       couponPlaceholder: 'Sláðu inn kóða',
       apply: 'Nota',
-      hint: 'Psst… prófaðu RENOVA10',
+      hint: 'Psst… prófaðu VITAL10',
       valid: 'Kóði virkur: {pct}% afsláttur',
       invalid: 'Þessi kóði er ekki gildur.',
       total: 'Samtals',
@@ -361,7 +361,7 @@ export const is: Dictionary = {
     vip: { title: 'VIP-hópur', body: 'Ráð, uppskriftir og stuðningur frá öðrum viðskiptavinum.', cta: 'Ganga í hópinn' },
     referral: {
       title: 'Deildu með vini',
-      body: 'Sendu tengilinn þinn. Sá sem notar hann fær 10% afslátt með kóðanum RENOVA10.',
+      body: 'Sendu tengilinn þinn. Sá sem notar hann fær 10% afslátt með kóðanum VITAL10.',
       copy: 'Afrita tengil',
       copied: 'Afritað!',
     },
@@ -375,24 +375,24 @@ export const is: Dictionary = {
     pillar: { title: 'Lífsþróttur og sjálfstraust', body: 'Að líða vel í eigin líkama er hluti af sjálfstrausti. Daglegur sjálfsumhyggjusiður fyrir karla og konur, án hormóna og örvandi efna.' },
   },
   emails: {
-    footer: 'Þú færð þennan póst af því að þú tókst RENOVA CELL prófið.',
+    footer: 'Þú færð þennan póst af því að þú tókst VitalRise prófið.',
     unsubscribe: 'Afskrá',
     diagnosis: {
-      subject: '{name}, RENOVA CELL áætlunin þín',
+      subject: '{name}, VitalRise áætlunin þín',
       body: 'Hér er niðurstaðan þín: {diagnosis}\n\nRáðlögð áætlun fyrir þig er {plan}. Sjáðu hana hér: {link}',
     },
     vsl: {
       subject: '2 mínútna myndband fyrir þig',
       body: 'Við gerðum stutt myndband um hvað svörin þín þýða. Horfðu á það hér: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% afsláttur af áætluninni með kóðanum RENOVA10 → {link} Svaraðu STOP til að hætta.' },
+    sms: { body: 'VitalRise: 10% afsláttur af áætluninni með kóðanum VITAL10 → {link} Svaraðu STOP til að hætta.' },
     socialProof: {
       subject: 'Af hverju fólk heldur áfram',
       body: 'Flestar rannsóknir á kollageni stóðu í 8 til 12 vikur. Þess vegna er 90 daga Kit 3 vinsælasta áætlunin okkar. Áætlunin þín: {link}',
     },
     lastChance: {
       subject: '10% afsláttarkóðinn þinn bíður enn',
-      body: 'Kóðinn þinn RENOVA10 bíður þín enn. Notaðu hann hér: {link}',
+      body: 'Kóðinn þinn VITAL10 bíður þín enn. Notaðu hann hér: {link}',
     },
     story: {
       subject: 'Litlar venjur, mikill munur',

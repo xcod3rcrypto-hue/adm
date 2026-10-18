@@ -44,12 +44,12 @@ async function handle(path: string, init?: RequestInit): Promise<Response> {
       return json({ count: 0 });
     case '/api/coupon':
       await wait(300);
-      return json(String(body.code).toUpperCase() === 'RENOVA10' ? { valid: true, percentOff: 10, amountOff: null } : { valid: false });
+      return json(String(body.code).toUpperCase() === 'VITAL10' ? { valid: true, percentOff: 10, amountOff: null } : { valid: false });
     case '/api/checkout': {
       await wait(900);
       const plan = (body.plan as PlanId) in PLANS ? (body.plan as PlanId) : 'kit3';
       const base = price(plan, demoCurrency);
-      const discount = String(body.coupon ?? '').toUpperCase() === 'RENOVA10' ? Math.round(base * 0.1) : 0;
+      const discount = String(body.coupon ?? '').toUpperCase() === 'VITAL10' ? Math.round(base * 0.1) : 0;
       const amount = base - discount + (body.bump ? price('bump', demoCurrency) : 0);
       lastOrder = { plan, bump: Boolean(body.bump), name: String(body.name ?? ''), amount, upsells: 0, currency: demoCurrency, subscribe: Boolean(body.subscribe) };
       const next = body.subscribe || plan === 'kit6' ? '/thank-you' : '/upsell-1';

@@ -8,7 +8,7 @@ export interface Promo {
   amountOff: number | null;
 }
 
-/** Looks up an active Stripe promotion code by its customer-facing code (e.g. RENOVA10). */
+/** Looks up an active Stripe promotion code by its customer-facing code (e.g. VITAL10). */
 export async function findPromotionCode(code: string): Promise<Promo | null> {
   try {
     const list = await stripe().promotionCodes.list({ code, active: true, limit: 1, expand: ['data.promotion.coupon'] });

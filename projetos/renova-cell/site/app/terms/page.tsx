@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { isFastDelivery } from '@/lib/market';
 
-export const metadata: Metadata = { title: 'Terms — RENOVA CELL' };
+export const metadata: Metadata = { title: 'Terms — VitalRise' };
 
 /** Key commercial terms enforced by the code. Replace with lawyer-reviewed terms before launch. */
 export default function TermsPage() {
@@ -20,7 +20,7 @@ export default function TermsPage() {
         <li>Shipping is free to every country we deliver to. We do not ship to Ukraine or Russia. {fast ? 'Delivery takes up to 2 business days' : 'The delivery estimate for your country is shown at checkout'}, with tracking, in plain, discreet packaging.</li>
         <li>Post-purchase offers charge the card you just used only after you click to accept; the amount is shown above the button.</li>
         <li>30-day money-back guarantee on your first order.</li>
-        <li>RENOVA CELL is a food supplement, not a medicine. It is not intended to diagnose, treat, cure or prevent any disease. Individual results vary.</li>
+        <li>VitalRise is a food supplement, not a medicine. It is not intended to diagnose, treat, cure or prevent any disease. Individual results vary.</li>
       </ul>
     </main>
   );

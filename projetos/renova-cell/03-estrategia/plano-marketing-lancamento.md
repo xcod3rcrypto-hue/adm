@@ -1,8 +1,8 @@
-# Plano de marketing e lançamento — RENOVA CELL
+# Plano de marketing e lançamento — VitalRise
 
 > **Data:** 17/10/2026 · **Canal principal:** Instagram (Meta Ads) · **Mercados:** EUA, Europa (exceto Ucrânia e Rússia) e, depois, Canadá, Oceania, Golfo e América Latina
 > **Funil:** anúncio → quiz (8 perguntas) → análise → oferta personalizada → checkout Stripe → upsells → obrigado
-> **Oferta que pode aparecer em anúncio:** 1 unidade, Kit 3 (90 dias), Kit 6 (6 meses); compra única **ou** assinatura que chega de novo quando o estoque acaba; **frete grátis**; **entrega em até 2 dias úteis**; **embalagem discreta**; garantia de 30 dias; cupom RENOVA10 (10% no 1º pagamento).
+> **Oferta que pode aparecer em anúncio:** 1 unidade, Kit 3 (90 dias), Kit 6 (6 meses); compra única **ou** assinatura que chega de novo quando o estoque acaba; **frete grátis**; **entrega em até 2 dias úteis**; **embalagem discreta**; garantia de 30 dias; cupom VITAL10 (10% no 1º pagamento).
 >
 > **Onda 0 (validação de 21 dias nos EUA, antes da onda 1):** `06-campanhas/meta-ads/onda-0-estrutura.md` + `onda-0-montagem.xlsx`.
 >
@@ -47,7 +47,7 @@
 
 ## 2. Posicionamento e mensagem
 
-**Frase de posicionamento:** Para adultos de 35+ que querem se sentir bem no próprio corpo, o RENOVA CELL é um ritual diário de colágeno + peptídeos — sem hormônios, sem estimulantes — que chega em até 2 dias, de graça e em embalagem discreta, com um plano escolhido pelas respostas da pessoa.
+**Frase de posicionamento:** Para adultos de 35+ que querem se sentir bem no próprio corpo, o VitalRise é um ritual diário de colágeno + peptídeos — sem hormônios, sem estimulantes — que chega em até 2 dias, de graça e em embalagem discreta, com um plano escolhido pelas respostas da pessoa.
 
 **Três pilares (iguais aos da landing):**
 
@@ -199,7 +199,7 @@ Quem vê o anúncio clica no perfil antes de comprar. Perfil vazio = conversão 
 
 **Perfil**
 
-- Nome: `RENOVA CELL · Collagen ritual` · @ igual em todos os países (um perfil global em inglês; os anúncios saem traduzidos).
+- Nome: `VitalRise · Collagen ritual` · @ igual em todos os países (um perfil global em inglês; os anúncios saem traduzidos).
 - Bio (EN): "Daily collagen + peptide ritual · No hormones, no stimulants · Free shipping · Delivered in 2 business days · Discreet packaging ↓ Take the 60-sec quiz"
 - Link: `/quiz?utm_source=instagram&utm_medium=bio`
 - Destaques: **Quiz** · **How to take** · **Free shipping** (2 dias + caixa discreta) · **Subscribe or once** · **Science** (os 3 estudos com ressalva) · **Guarantee** · **FAQ**
@@ -209,7 +209,7 @@ Quem vê o anúncio clica no perfil antes de comprar. Perfil vazio = conversão 
 | # | Formato | Conteúdo |
 |---|---|---|
 | 1 | Reels | Ritual da manhã (versão orgânica do IG01) |
-| 2 | Carrossel | "O que tem — e o que não tem — no RENOVA CELL" (rótulo) |
+| 2 | Carrossel | "O que tem — e o que não tem — no VitalRise" (rótulo) |
 | 3 | Imagem | Produto + "Free shipping · 2 business days · discreet box" |
 | 4 | Reels | Unboxing da caixa neutra (IG03) |
 | 5 | Carrossel | "Os 3 estudos que citamos — e o que eles **não** provam" |
@@ -280,7 +280,7 @@ Cada conceito tem **3 ganchos** (A/B/C) — sobe como 3 anúncios no mesmo conju
   - Tela 2: "8 questions. 60 seconds. A plan matched to your answers."
   - Tela 3: "Free shipping · 2 business days · Take the quiz"
 - **Formato B:** Reels gravando a tela do celular respondendo o quiz real (rápido, com cliques sonoros) até a tela "Analysis complete".
-- **Ganchos:** A: "Answer 8 questions, get your collagen plan" · B: "Which RENOVA CELL plan fits your routine?" · C: "60 seconds. No email needed to see your plan." (o contato é opcional no quiz — confirmar antes de usar)
+- **Ganchos:** A: "Answer 8 questions, get your collagen plan" · B: "Which VitalRise plan fits your routine?" · C: "60 seconds. No email needed to see your plan." (o contato é opcional no quiz — confirmar antes de usar)
 - **Por que funciona na Europa:** zero alegação de saúde; curiosidade + personalização.
 
 ### IG05 — "Chega quando acaba" (assinatura) · meio · EUA, Reino Unido, Nórdicos
@@ -300,7 +300,7 @@ Cada conceito tem **3 ganchos** (A/B/C) — sobe como 3 anúncios no mesmo conju
 ### IG07 — Por que criamos (fundador) · meio · todos
 
 - **Formato:** Reels 9:16, 30–45 s, fundador(a) real falando para a câmera.
-- **Ganchos:** A: "I started RENOVA CELL because…" · B: "We left one thing out of our formula on purpose." · C: "Why our box has no logo."
+- **Ganchos:** A: "I started VitalRise because…" · B: "We left one thing out of our formula on purpose." · C: "Why our box has no logo."
 - **Roteiro:** história real (por que o produto existe) → o que tem / não tem → frete grátis e caixa discreta → garantia → quiz.
 - **Depende de:** pessoa real disposta a aparecer. **Se não houver, pule** (não use ator fingindo ser fundador).
 
@@ -308,7 +308,7 @@ Cada conceito tem **3 ganchos** (A/B/C) — sobe como 3 anúncios no mesmo conju
 
 - **Formato:** imagem 4:5 + versão Stories.
 - **Arte:** produto + "30-day money-back guarantee · Free shipping · 2 business days".
-- **Texto principal:** "Still thinking about it? Try RENOVA CELL for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, discreet packaging, delivered in up to 2 business days. [+ Rodapé]"
+- **Texto principal:** "Still thinking about it? Try VitalRise for 30 days. If it's not for you, email us and we'll refund your first order. Free shipping, discreet packaging, delivered in up to 2 business days. [+ Rodapé]"
 - **Regra:** não dizer "risk-free" enquanto não estiver confirmado que o reembolso não exige devolução e cobre o frete.
 
 ### IG09 — Carrossel "Mitos e fatos do colágeno" · meio · EUA (Europa com versão sem alegação)
@@ -326,7 +326,7 @@ Cada conceito tem **3 ganchos** (A/B/C) — sobe como 3 anúncios no mesmo conju
 ### IG11 — Stories "Isto ou aquilo" · topo · Europa e CEE
 
 - **Formato:** Stories 9:16, 3 telas com figurinha de enquete/teste.
-- Tela 1: "Morning coffee or evening smoothie?" (enquete) · Tela 2: "RENOVA CELL fits either. One serving a day." · Tela 3: "Free shipping · 2 business days · Take the 60-sec quiz".
+- Tela 1: "Morning coffee or evening smoothie?" (enquete) · Tela 2: "VitalRise fits either. One serving a day." · Tela 3: "Free shipping · 2 business days · Take the 60-sec quiz".
 - Barato de produzir, fácil de traduzir para 28 idiomas.
 
 ### IG12 — "O que vem na caixa" · fundo · todos

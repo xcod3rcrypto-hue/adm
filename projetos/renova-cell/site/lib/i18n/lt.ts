@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const lt: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Atgal',
     next: 'Toliau',
     continue: 'Tęsti',
@@ -140,7 +140,7 @@ export const lt: Dictionary = {
         { title: 'Noras ir gyvybingumas', body: 'Gera savijauta savo kūne yra noro dalis. Kasdienis rūpinimosi savimi ritualas vyrams ir moterims, be hormonų ir be stimuliatorių.' },
         { title: 'Energija jūsų dienai', body: 'Baltymų turtinga kasdienė porcija, tinkanti jūsų rytui, be stimuliatorių ir be nuosmukių.' },
       ],
-      note: 'Rezultatai skiriasi. RENOVA CELL yra maisto papildas, o ne vaistas.',
+      note: 'Rezultatai skiriasi. VitalRise yra maisto papildas, o ne vaistas.',
     },
     science: {
       title: 'Ką sako tyrimai',
@@ -201,8 +201,8 @@ export const lt: Dictionary = {
       note: 'Dažnai minimo ~1 % per metus sumažėjimo po 25 metų iliustracija. Tai nėra produkto rezultatų prognozė.',
     },
     comparison: {
-      title: 'RENOVA CELL prieš įprastą kolageną',
-      us: 'RENOVA CELL',
+      title: 'VitalRise prieš įprastą kolageną',
+      us: 'VitalRise',
       them: 'Įprastas kolagenas',
       rows: [
         { label: 'Hidrolizuoti kolageno peptidai', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const lt: Dictionary = {
     exit: {
       title: 'Palaukite: 10 % nuolaida prieš išeinant',
       body: 'Atsiskaitydami naudokite šį kodą:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Naudoti 10 % nuolaidą',
       dismiss: 'Ne, ačiū',
     },
     chat: {
       title: 'Paklauskite Elenos',
       subtitle: 'DI asistentė · ne gydytoja',
-      greeting: 'Sveiki! Esu Elena, RENOVA CELL DI asistentė. Klauskite manęs bet ko apie produktą ar savo planą.',
+      greeting: 'Sveiki! Esu Elena, VitalRise DI asistentė. Klauskite manęs bet ko apie produktą ar savo planą.',
       placeholder: 'Įrašykite klausimą…',
       send: 'Siųsti',
       error: 'Atsiprašome, kažkas nepavyko. Bandykite dar kartą.',
@@ -307,7 +307,7 @@ export const lt: Dictionary = {
       coupon: 'Nuolaidos kodas',
       couponPlaceholder: 'Įveskite kodą',
       apply: 'Taikyti',
-      hint: 'Ššš… išbandykite RENOVA10',
+      hint: 'Ššš… išbandykite VITAL10',
       valid: 'Kodas pritaikytas: {pct} % nuolaida',
       invalid: 'Šis kodas negalioja.',
       total: 'Iš viso',
@@ -361,7 +361,7 @@ export const lt: Dictionary = {
     vip: { title: 'VIP grupė', body: 'Patarimai, receptai ir kitų klientų palaikymas.', cta: 'Prisijungti prie grupės' },
     referral: {
       title: 'Pasidalykite su draugu',
-      body: 'Nusiųskite savo nuorodą. Ją panaudojęs gaus 10 % nuolaidą su kodu RENOVA10.',
+      body: 'Nusiųskite savo nuorodą. Ją panaudojęs gaus 10 % nuolaidą su kodu VITAL10.',
       copy: 'Kopijuoti nuorodą',
       copied: 'Nukopijuota!',
     },
@@ -375,24 +375,24 @@ export const lt: Dictionary = {
     pillar: { title: 'Gyvybingumas ir pasitikėjimas', body: 'Gera savijauta savo kūne yra pasitikėjimo savimi dalis. Kasdienis rūpinimosi savimi ritualas vyrams ir moterims, be hormonų ir be stimuliatorių.' },
   },
   emails: {
-    footer: 'Gaunate šį laišką, nes atlikote RENOVA CELL testą.',
+    footer: 'Gaunate šį laišką, nes atlikote VitalRise testą.',
     unsubscribe: 'Atsisakyti',
     diagnosis: {
-      subject: '{name}, jūsų RENOVA CELL planas',
+      subject: '{name}, jūsų VitalRise planas',
       body: 'Štai jūsų rezultatas: {diagnosis}\n\nJums rekomenduojamas planas: {plan}. Peržiūrėkite jį čia: {link}',
     },
     vsl: {
       subject: '2 minučių vaizdo įrašas jūsų profiliui',
       body: 'Paruošėme trumpą vaizdo įrašą apie tai, ką reiškia jūsų atsakymai. Žiūrėkite čia: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10 % nuolaida jūsų planui su kodu RENOVA10 → {link} Norėdami atsisakyti, atsakykite STOP.' },
+    sms: { body: 'VitalRise: 10 % nuolaida jūsų planui su kodu VITAL10 → {link} Norėdami atsisakyti, atsakykite STOP.' },
     socialProof: {
       subject: 'Kodėl žmonės tęsia',
       body: 'Dauguma kolageno tyrimų truko 8–12 savaičių. Todėl 90 dienų Kit 3 yra dažniausiai renkamas mūsų planas. Jūsų planas: {link}',
     },
     lastChance: {
       subject: 'Jūsų 10 % nuolaidos kodas vis dar laukia',
-      body: 'Jūsų kodas RENOVA10 vis dar laukia. Naudokite jį čia: {link}',
+      body: 'Jūsų kodas VITAL10 vis dar laukia. Naudokite jį čia: {link}',
     },
     story: {
       subject: 'Maži įpročiai, didelis skirtumas',

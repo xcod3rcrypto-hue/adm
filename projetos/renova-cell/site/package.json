@@ -1,8 +1,8 @@
 {
-  "name": "renova-cell-funnel",
+  "name": "vitalrise-funnel",
   "version": "0.1.0",
   "private": true,
-  "description": "RENOVA CELL — quiz → oferta personalizada → checkout Stripe → upsells.",
+  "description": "VitalRise — quiz → oferta personalizada → checkout Stripe → upsells.",
   "engines": {
     "node": ">=20.9"
   },

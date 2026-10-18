@@ -1,4 +1,4 @@
--- RENOVA CELL — Supabase schema.
+-- VitalRise — Supabase schema.
 -- Run in the Supabase SQL editor. All access goes through the server with the
 -- service-role key; RLS is enabled with no policies, so anon/browser keys can read nothing.
 

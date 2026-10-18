@@ -1,4 +1,4 @@
-# Criativos de anúncio — RENOVA CELL · Lote 1 (EUA)
+# Criativos de anúncio — VitalRise · Lote 1 (EUA)
 
 > **Status:** rascunho para aprovação do cliente · **Data:** 16/10/2026 · **Mercado:** EUA (anúncios em inglês)
 > **Lote:** 15 criativos — 6 Meta Reels/Stories (vídeo 9:16), 4 Meta Feed (imagem ou carrossel), 5 TikTok In-Feed (vídeo 9:16)
@@ -7,7 +7,7 @@
 
 - Tudo o que vai ao ar está em **inglês**, entre aspas ou em bloco de citação. A tradução em português aparece logo abaixo, *em itálico*, só para o cliente acompanhar. **A tradução não vai ao ar.**
 - Direção de cena, rótulos e explicações estão em português.
-- As URLs usam o endereço grátis da Vercel (`renova-cell.vercel.app`). Ao comprar um domínio, troque em todas.
+- As URLs usam o endereço grátis da Vercel (`vitalrise.vercel.app`). Ao comprar um domínio, troque em todas.
 - A copy segue a landing (`site/lib/i18n/en.ts`) e os roteiros de VSL (`site/lib/vsl-scripts.ts`). Os ângulos vêm de `03-estrategia/estrategia.md`.
 
 ---
@@ -19,7 +19,7 @@
 | 1 unidade | US$ 29,90 | "1 unit — $29.90" |
 | Kit 3 | US$ 80, pagamento único, ciclo de 90 dias | "Kit 3 — the 90-day cycle, $80 one-time" |
 | Kit 6 | US$ 140 uma vez, ou assinatura de US$ 140 a cada 6 meses (renova quando o estoque acaba); frete grátis | "Kit 6 — $140, or subscribe every 6 months · free shipping" |
-| Cupom | RENOVA10 = 10% de desconto no primeiro pagamento | "Code RENOVA10: 10% off your first payment" |
+| Cupom | VITAL10 = 10% de desconto no primeiro pagamento | "Code VITAL10: 10% off your first payment" |
 | Garantia | 30 dias, reembolso do primeiro pedido (`/terms`) | "30-day money-back guarantee" (nos anúncios de garantia: "on your first order") |
 
 O order bump (+1 unidade por US$ 19,90) e os upsells (Kit 6 avulso por US$ 77; Kit 3 mensal por US$ 56) só existem depois da compra. **Nunca aparecem em anúncio.**
@@ -71,7 +71,7 @@ O order bump (+1 unidade por US$ 19,90) e os upsells (Kit 6 avulso por US$ 77; K
 - Só linguagem de estrutura e função: pele, articulações, bem-estar. Nunca tratar, curar ou prevenir doença (artrite, osteoporose etc.).
 - Nunca hormônio (testosterona, estrogênio) nem desejo ou disfunção sexual. A opção "Low desire / vitality" do quiz **não entra em anúncio**. "No hormones" é permitido (descreve a fórmula, não promete efeito).
 - Sem prazo prometido. A duração dos estudos só aparece como fato do estudo ("the study ran 8 weeks"), nunca como "results in 8 weeks".
-- Só três estudos podem ser citados (Proksch 2014, Clark 2008, Pu 2023), sempre com a ressalva "tested specific formulas; results may not apply to every product, including ours". Nunca dizer que o RENOVA CELL usa a mesma dose ou fórmula dos estudos: a dose por porção não está documentada no projeto.
+- Só três estudos podem ser citados (Proksch 2014, Clark 2008, Pu 2023), sempre com a ressalva "tested specific formulas; results may not apply to every product, including ours". Nunca dizer que o VitalRise usa a mesma dose ou fórmula dos estudos: a dose por porção não está documentada no projeto.
 - Sem estatística inventada. O "~1% a menos de colágeno por ano" da landing é uma média citada sem fonte entre os três estudos, então **não usamos esse número em anúncio**. O máximo é "the body makes less collagen with age".
 - Sem "risk-free" / "risco zero" no texto até confirmar que o reembolso cobre o frete e não exige devolução. Usamos "30-day money-back guarantee".
 - Sem escassez ou urgência falsa ("only today", "almost sold out"): nada disso existe na oferta.
@@ -121,7 +121,7 @@ Cada persona tem 5 criativos e cada ângulo tem 3.
 
 ### UTMs
 
-Padrão: `https://renova-cell.vercel.app/quiz?utm_source={meta|tiktok}&utm_medium=paid&utm_campaign={campanha}&utm_content=adNN`
+Padrão: `https://vitalrise.vercel.app/quiz?utm_source={meta|tiktok}&utm_medium=paid&utm_campaign={campanha}&utm_content=adNN`
 
 | utm_campaign | Ângulo / etapa | Criativos |
 |---|---|---|
@@ -163,7 +163,7 @@ Cena: mulher de ~42 anos em plano médio (rosto e ombros, sem zoom), sorrindo pa
 
   *A pele muda com o tempo. A de todo mundo muda.*
 
-**3–8 s** — Cozinha. Ela mistura uma dose de RENOVA CELL no café. Close no produto e na caneca, não no rosto.
+**3–8 s** — Cozinha. Ela mistura uma dose de VitalRise no café. Close no produto e na caneca, não no rosto.
 
 - Texto na tela e locução: "Collagen is the protein that gives skin its structure."
 
@@ -174,9 +174,9 @@ Cena: mulher de ~42 anos em plano médio (rosto e ombros, sem zoom), sorrindo pa
 - Texto na tela: "1 serving a day · coffee, water or a smoothie"
 
   *1 dose por dia · café, água ou vitamina*
-- Locução: "RENOVA CELL turns it into a daily ritual: one serving, in coffee, water or a smoothie."
+- Locução: "VitalRise turns it into a daily ritual: one serving, in coffee, water or a smoothie."
 
-  *O RENOVA CELL transforma isso num ritual diário: uma dose, no café, na água ou na vitamina.*
+  *O VitalRise transforma isso num ritual diário: uma dose, no café, na água ou na vitamina.*
 
 **14–19 s** — Pack shot na bancada.
 
@@ -203,9 +203,9 @@ Cena: mulher de ~42 anos em plano médio (rosto e ombros, sem zoom), sorrindo pa
 >
 > *A pele muda com o tempo. A de todo mundo muda, e tudo bem.*
 >
-> "RENOVA CELL is a daily collagen + peptide formula: one serving a day in coffee, water or a smoothie. No hormones, no stimulants."
+> "VitalRise is a daily collagen + peptide formula: one serving a day in coffee, water or a smoothie. No hormones, no stimulants."
 >
-> *O RENOVA CELL é uma fórmula diária de colágeno + peptídeos: uma dose por dia no café, na água ou na vitamina. Sem hormônios, sem estimulantes.*
+> *O VitalRise é uma fórmula diária de colágeno + peptídeos: uma dose por dia no café, na água ou na vitamina. Sem hormônios, sem estimulantes.*
 >
 > "Take the quick quiz (8 questions, about 60 seconds) and get a plan matched to your answers. 30-day money-back guarantee."
 >
@@ -223,7 +223,7 @@ Cena: mulher de ~42 anos em plano médio (rosto e ombros, sem zoom), sorrindo pa
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad01`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad01`
 
 **Compliance:** fala da pele de todo mundo, não da de quem assiste; sem antes/depois, sem close em "defeito" e sem promessa ou prazo; a atriz aparece sinalizada como dramatização.
 
@@ -276,14 +276,14 @@ Cena: homem de ~45 anos amarra o tênis na porta de casa, ao amanhecer. Selo fix
 
   *As letras miúdas: esses estudos testaram fórmulas específicas. Os resultados podem não valer para todo produto, inclusive o nosso.*
 
-**21–26 s** — Cozinha. Ele mistura uma dose de RENOVA CELL no shake.
+**21–26 s** — Cozinha. Ele mistura uma dose de VitalRise no shake.
 
-- Texto na tela: "RENOVA CELL · daily collagen + peptides · no stimulants, no hormones"
+- Texto na tela: "VitalRise · daily collagen + peptides · no stimulants, no hormones"
 
-  *RENOVA CELL · colágeno + peptídeos todo dia · sem estimulantes, sem hormônios*
-- Locução: "RENOVA CELL is a daily collagen and peptide formula. One serving a day."
+  *VitalRise · colágeno + peptídeos todo dia · sem estimulantes, sem hormônios*
+- Locução: "VitalRise is a daily collagen and peptide formula. One serving a day."
 
-  *O RENOVA CELL é uma fórmula diária de colágeno e peptídeos. Uma dose por dia.*
+  *O VitalRise é uma fórmula diária de colágeno e peptídeos. Uma dose por dia.*
 
 **26–30 s** — Cartão final.
 
@@ -313,9 +313,9 @@ Cena: homem de ~45 anos amarra o tênis na porta de casa, ao amanhecer. Selo fix
 >
 > *Esses estudos testaram fórmulas específicas, então os resultados podem não valer para todo produto, inclusive o nosso.*
 >
-> "RENOVA CELL is a daily collagen + peptide formula for joints, skin and well-being. Take the quick quiz to see the plan matched to your answers."
+> "VitalRise is a daily collagen + peptide formula for joints, skin and well-being. Take the quick quiz to see the plan matched to your answers."
 >
-> *O RENOVA CELL é uma fórmula diária de colágeno + peptídeos para articulações, pele e bem-estar. Faça o quiz rápido para ver o plano de acordo com as suas respostas.*
+> *O VitalRise é uma fórmula diária de colágeno + peptídeos para articulações, pele e bem-estar. Faça o quiz rápido para ver o plano de acordo com as suas respostas.*
 >
 > [+ Rodapé obrigatório]
 
@@ -329,7 +329,7 @@ Cena: homem de ~45 anos amarra o tênis na porta de casa, ao amanhecer. Selo fix
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad02`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad02`
 
 **Compliance:** cita dois dos três estudos aprovados exatamente como publicados e com a ressalva de fórmula específica; nada é prometido a quem assiste; ninguém aparece como médico; o ator é sinalizado como dramatização.
 
@@ -373,9 +373,9 @@ Cena: mulher de ~62 anos calça o tênis de caminhada; homem de ~65 abre a porta
 - Texto na tela: "1 serving a day · coffee, tea, water or a smoothie · no stimulants, no hormones"
 
   *1 dose por dia · café, chá, água ou vitamina · sem estimulantes, sem hormônios*
-- Locução: "RENOVA CELL is one serving a day, stirred into coffee, tea, water or a smoothie. Easy to take, and easy to keep taking."
+- Locução: "VitalRise is one serving a day, stirred into coffee, tea, water or a smoothie. Easy to take, and easy to keep taking."
 
-  *O RENOVA CELL é uma dose por dia, misturada no café, no chá, na água ou na vitamina. Fácil de tomar e fácil de manter.*
+  *O VitalRise é uma dose por dia, misturada no café, no chá, na água ou na vitamina. Fácil de tomar e fácil de manter.*
 
 **20–25 s** — Cartão final.
 
@@ -400,9 +400,9 @@ Cena: mulher de ~62 anos calça o tênis de caminhada; homem de ~65 abre a porta
 >
 > *O colágeno é a proteína que dá estrutura à cartilagem, aos tendões e à pele, e o corpo produz menos dele com a idade.*
 >
-> "RENOVA CELL is a daily collagen + peptide formula. One serving a day in coffee, tea or water. No stimulants, no hormones."
+> "VitalRise is a daily collagen + peptide formula. One serving a day in coffee, tea or water. No stimulants, no hormones."
 >
-> *O RENOVA CELL é uma fórmula diária de colágeno + peptídeos. Uma dose por dia no café, no chá ou na água. Sem estimulantes, sem hormônios.*
+> *O VitalRise é uma fórmula diária de colágeno + peptídeos. Uma dose por dia no café, no chá ou na água. Sem estimulantes, sem hormônios.*
 >
 > "Take the quick quiz to see the plan matched to your answers. 30-day money-back guarantee."
 >
@@ -424,7 +424,7 @@ Cena: mulher de ~62 anos calça o tênis de caminhada; homem de ~65 abre a porta
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad03`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad03`
 
 **Compliance:** mostra movimento com alegria, sem dor nem articulação "problema"; a idade fica só na segmentação; a queda de colágeno é citada sem número; o aviso de medicação está em terceira pessoa.
 
@@ -474,9 +474,9 @@ Cena: montagem rápida da mesma caneca em manhãs diferentes (muda a roupa, o cl
 
 **13–19 s** — Ela mistura uma dose na vitamina e sai para o trabalho.
 
-- Texto na tela e locução: "So we made RENOVA CELL easy to keep: one serving, in coffee, water or a smoothie."
+- Texto na tela e locução: "So we made VitalRise easy to keep: one serving, in coffee, water or a smoothie."
 
-  *Por isso fizemos o RENOVA CELL fácil de manter: uma dose, no café, na água ou na vitamina.*
+  *Por isso fizemos o VitalRise fácil de manter: uma dose, no café, na água ou na vitamina.*
 
 **19–25 s** — Cartão final.
 
@@ -501,9 +501,9 @@ Cena: montagem rápida da mesma caneca em manhãs diferentes (muda a roupa, o cl
 >
 > *O estudo de elasticidade da pele que citamos durou 8 semanas, com dose diária (Proksch et al., 2014). Ele testou uma fórmula específica, e os resultados variam.*
 >
-> "So we built RENOVA CELL to be easy to keep: one serving a day in coffee, water or a smoothie."
+> "So we built VitalRise to be easy to keep: one serving a day in coffee, water or a smoothie."
 >
-> *Por isso criamos o RENOVA CELL para ser fácil de manter: uma dose por dia no café, na água ou na vitamina.*
+> *Por isso criamos o VitalRise para ser fácil de manter: uma dose por dia no café, na água ou na vitamina.*
 >
 > "1 unit — $29.90 · Kit 3, the 90-day cycle — $80 one-time · 30-day money-back guarantee."
 >
@@ -525,7 +525,7 @@ Cena: montagem rápida da mesma caneca em manhãs diferentes (muda a roupa, o cl
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad04`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad04`
 
 **Compliance:** a duração do estudo aparece como fato do estudo, não como prazo de resultado; a montagem não mostra mudança no rosto (não é antes/depois); os preços são exatamente os da landing.
 
@@ -562,28 +562,28 @@ Cena: produto na mesa do café da manhã, luz natural. Sem pessoas.
 
 **Tela 3 (10–15 s)** — Produto em close, seta apontando para o botão.
 
-- Texto na tela: "Code RENOVA10 = 10% off your first payment"
+- Texto na tela: "Code VITAL10 = 10% off your first payment"
 
-  *Código RENOVA10 = 10% de desconto no primeiro pagamento*
+  *Código VITAL10 = 10% de desconto no primeiro pagamento*
 - [+ Rodapé obrigatório]
 
-**Locução (opcional, voz calma):** "Try RENOVA CELL for 30 days. If you're not happy, email us and we'll refund your first order. Use code RENOVA10 for 10% off your first payment."
+**Locução (opcional, voz calma):** "Try VitalRise for 30 days. If you're not happy, email us and we'll refund your first order. Use code VITAL10 for 10% off your first payment."
 
-*Experimente o RENOVA CELL por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido. Use o código RENOVA10 para ter 10% de desconto no primeiro pagamento.*
+*Experimente o VitalRise por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido. Use o código VITAL10 para ter 10% de desconto no primeiro pagamento.*
 
 **Texto principal**
 
-> "Try RENOVA CELL for 30 days. If you're not happy, email us and we'll refund your first order, no questions asked."
+> "Try VitalRise for 30 days. If you're not happy, email us and we'll refund your first order, no questions asked."
 >
-> *Experimente o RENOVA CELL por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
+> *Experimente o VitalRise por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
 >
 > "One serving a day of collagen + peptides. Kit 6 is a 6-month supply for $140 with free shipping; subscribe and it comes again when you run out. Cancel anytime."
 >
 > *Uma dose por dia de colágeno + peptídeos. O Kit 6 traz 6 meses de estoque por US$ 140, com frete grátis; na assinatura, ele chega de novo quando o estoque acaba, e dá para cancelar quando quiser.*
 >
-> "Code RENOVA10: 10% off your first payment."
+> "Code VITAL10: 10% off your first payment."
 >
-> *Código RENOVA10: 10% de desconto no primeiro pagamento.*
+> *Código VITAL10: 10% de desconto no primeiro pagamento.*
 >
 > [+ Rodapé obrigatório]
 
@@ -591,13 +591,13 @@ Cena: produto na mesa do café da manhã, luz natural. Sem pessoas.
 
 *Garantia de 30 dias ou seu dinheiro de volta*
 
-**Descrição:** "RENOVA10: 10% off your first payment"
+**Descrição:** "VITAL10: 10% off your first payment"
 
-*RENOVA10: 10% de desconto no primeiro pagamento*
+*VITAL10: 10% de desconto no primeiro pagamento*
 
 **Botão (CTA):** Shop Now (*Comprar agora*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad05`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad05`
 
 **Compliance:** garantia, preço e cupom idênticos ao checkout e aos termos ("first order"); a recorrência e o cancelamento do Kit 6 ficam claros; sem pessoas, então não há risco de depoimento; sem "risk-free".
 
@@ -655,9 +655,9 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 >
 > *O segredo do colágeno é chato: mesma caneca, mesmo horário, todo dia.*
 >
-> "RENOVA CELL is a daily collagen + peptide formula for skin, joints and well-being. One serving in coffee, water or a shake. No stimulants, no hormones."
+> "VitalRise is a daily collagen + peptide formula for skin, joints and well-being. One serving in coffee, water or a shake. No stimulants, no hormones."
 >
-> *O RENOVA CELL é uma fórmula diária de colágeno + peptídeos para pele, articulações e bem-estar. Uma dose no café, na água ou no shake. Sem estimulantes, sem hormônios.*
+> *O VitalRise é uma fórmula diária de colágeno + peptídeos para pele, articulações e bem-estar. Uma dose no café, na água ou no shake. Sem estimulantes, sem hormônios.*
 >
 > "The studies we cite ran for weeks, not days. That's why Kit 3 is the 90-day cycle: $80, one-time."
 >
@@ -679,7 +679,7 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad06`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad06`
 
 **Compliance:** fala do hábito, não do corpo de quem assiste; "weeks, not days" descreve os estudos sem prometer prazo; o ator não dá depoimento e é sinalizado como dramatização.
 
@@ -752,9 +752,9 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 - Arte: "The fine print, up front: these studies tested specific formulas. Results may not apply to every product, including ours."
 
   *As letras miúdas, logo de cara: esses estudos testaram fórmulas específicas. Os resultados podem não valer para todo produto, inclusive o nosso.*
-- Arte: "RENOVA CELL · daily collagen + peptides · Take the quick quiz"
+- Arte: "VitalRise · daily collagen + peptides · Take the quick quiz"
 
-  *RENOVA CELL · colágeno + peptídeos todo dia · Faça o quiz rápido*
+  *VitalRise · colágeno + peptídeos todo dia · Faça o quiz rápido*
 - Arte (pequeno): [+ Rodapé obrigatório]
 - Título do card: "Get a plan matched to your answers"
 
@@ -769,9 +769,9 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 >
 > *Só citamos pesquisas com link, e mostramos os limites delas.*
 >
-> "Swipe for three published studies on collagen, skin and joints. They tested specific formulas, so results may not apply to every product, including RENOVA CELL."
+> "Swipe for three published studies on collagen, skin and joints. They tested specific formulas, so results may not apply to every product, including VitalRise."
 >
-> *Arraste para ver três estudos publicados sobre colágeno, pele e articulações. Eles testaram fórmulas específicas, então os resultados podem não valer para todo produto, inclusive o RENOVA CELL.*
+> *Arraste para ver três estudos publicados sobre colágeno, pele e articulações. Eles testaram fórmulas específicas, então os resultados podem não valer para todo produto, inclusive o VitalRise.*
 >
 > "Want a daily collagen + peptide plan matched to your answers? Take the quick quiz (8 questions, about 60 seconds). 30-day money-back guarantee."
 >
@@ -785,7 +785,7 @@ Cena: close numa caneca preta; mão masculina coloca uma dose no café e a colhe
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad07`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad07`
 
 **Compliance:** usa as mesmas frases dos cards de ciência da landing, com fonte e ressalva; não há pessoa, jaleco nem "especialista"; nenhuma promessa a quem vê.
 
@@ -813,19 +813,19 @@ Casal de ~60 anos caminhando numa trilha arborizada, rindo, em movimento. Produt
 
 **Gancho (primeira linha)**
 
-> "Movement is a daily habit. So is RENOVA CELL."
+> "Movement is a daily habit. So is VitalRise."
 >
-> *Se mexer é um hábito diário. O RENOVA CELL também.*
+> *Se mexer é um hábito diário. O VitalRise também.*
 
 **Texto principal**
 
-> "Movement is a daily habit. So is RENOVA CELL."
+> "Movement is a daily habit. So is VitalRise."
 >
-> *Se mexer é um hábito diário. O RENOVA CELL também.*
+> *Se mexer é um hábito diário. O VitalRise também.*
 >
-> "Collagen is the protein that gives structure to cartilage, tendons and skin. RENOVA CELL is a daily collagen + peptide formula: one serving in coffee, tea or water. No stimulants, no hormones."
+> "Collagen is the protein that gives structure to cartilage, tendons and skin. VitalRise is a daily collagen + peptide formula: one serving in coffee, tea or water. No stimulants, no hormones."
 >
-> *O colágeno é a proteína que dá estrutura à cartilagem, aos tendões e à pele. O RENOVA CELL é uma fórmula diária de colágeno + peptídeos: uma dose no café, no chá ou na água. Sem estimulantes, sem hormônios.*
+> *O colágeno é a proteína que dá estrutura à cartilagem, aos tendões e à pele. O VitalRise é uma fórmula diária de colágeno + peptídeos: uma dose no café, no chá ou na água. Sem estimulantes, sem hormônios.*
 >
 > "Subscribe and Kit 6 ($140) arrives again every 6 months, so the routine never breaks. Free shipping. Cancel anytime."
 >
@@ -851,7 +851,7 @@ Casal de ~60 anos caminhando numa trilha arborizada, rindo, em movimento. Produt
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad08`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad08`
 
 **Compliance:** imagem positiva e realista, sem dor, close ou antes/depois; os modelos são sinalizados como pagos; nenhuma alegação de alívio ou tratamento; o preço recorrente e o cancelamento estão claros.
 
@@ -873,9 +873,9 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 - Arte (fonte grande): "30 days. Or your money back."
 
   *30 dias. Ou seu dinheiro de volta.*
-- Faixa: "Code RENOVA10: 10% off your first payment"
+- Faixa: "Code VITAL10: 10% off your first payment"
 
-  *Código RENOVA10: 10% de desconto no primeiro pagamento*
+  *Código VITAL10: 10% de desconto no primeiro pagamento*
 
 **Gancho (primeira linha)**
 
@@ -889,17 +889,17 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 >
 > *O colágeno tem um problema de exagero. Então a nossa proposta é esta:*
 >
-> "Try RENOVA CELL for 30 days. If you're not happy, email us and we'll refund your first order, no questions asked."
+> "Try VitalRise for 30 days. If you're not happy, email us and we'll refund your first order, no questions asked."
 >
-> *Experimente o RENOVA CELL por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
+> *Experimente o VitalRise por 30 dias. Se não gostar, mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
 >
 > "Daily collagen + peptides for joints, skin and well-being. One serving in coffee, water or a shake. No stimulants, no hormones."
 >
 > *Colágeno + peptídeos todo dia para articulações, pele e bem-estar. Uma dose no café, na água ou no shake. Sem estimulantes, sem hormônios.*
 >
-> "Code RENOVA10: 10% off your first payment. Take the quick quiz to see your plan."
+> "Code VITAL10: 10% off your first payment. Take the quick quiz to see your plan."
 >
-> *Código RENOVA10: 10% de desconto no primeiro pagamento. Faça o quiz rápido para ver o seu plano.*
+> *Código VITAL10: 10% de desconto no primeiro pagamento. Faça o quiz rápido para ver o seu plano.*
 >
 > [+ Rodapé obrigatório]
 
@@ -907,13 +907,13 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 *Garantia de 30 dias ou seu dinheiro de volta*
 
-**Descrição:** "RENOVA10: 10% off your first payment"
+**Descrição:** "VITAL10: 10% off your first payment"
 
-*RENOVA10: 10% de desconto no primeiro pagamento*
+*VITAL10: 10% de desconto no primeiro pagamento*
 
 **Botão (CTA):** Get Offer (*Obter oferta*). Alternativa para teste: Shop Now.
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad09`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad09`
 
 **Compliance:** o gancho fala do mercado ("collagen has a hype problem"), não de quem vê; garantia e cupom exatamente como nos termos e no checkout; sem pessoas e sem "risk-free".
 
@@ -986,9 +986,9 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 **Card 5**
 
-- Arte: "30-day money-back guarantee · Code RENOVA10 = 10% off your first payment"
+- Arte: "30-day money-back guarantee · Code VITAL10 = 10% off your first payment"
 
-  *Garantia de 30 dias ou seu dinheiro de volta · Código RENOVA10 = 10% de desconto no primeiro pagamento*
+  *Garantia de 30 dias ou seu dinheiro de volta · Código VITAL10 = 10% de desconto no primeiro pagamento*
 - Arte (pequeno): [+ Rodapé obrigatório]
 - Título do card: "Take the quick quiz"
 
@@ -1003,17 +1003,17 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 >
 > *A parte mais difícil de qualquer rotina de suplemento é manter.*
 >
-> "That's why RENOVA CELL has a subscription: it comes again when your supply runs out (Kit 6, $140, every 6 months), with free shipping, and you can cancel anytime from your email receipt."
+> "That's why VitalRise has a subscription: it comes again when your supply runs out (Kit 6, $140, every 6 months), with free shipping, and you can cancel anytime from your email receipt."
 >
-> *Por isso o RENOVA CELL tem assinatura: o produto chega de novo quando o estoque acaba (o Kit 6, de US$ 140, a cada 6 meses), com frete grátis, e dá para cancelar quando quiser pelo recibo que chega no e-mail.*
+> *Por isso o VitalRise tem assinatura: o produto chega de novo quando o estoque acaba (o Kit 6, de US$ 140, a cada 6 meses), com frete grátis, e dá para cancelar quando quiser pelo recibo que chega no e-mail.*
 >
 > "Prefer to pay once? Kit 3 is the 90-day cycle for $80. Or try 1 unit for $29.90."
 >
 > *Prefere pagar uma vez só? O Kit 3 é o ciclo de 90 dias por US$ 80. Ou experimente 1 unidade por US$ 29,90.*
 >
-> "Take the quick quiz to see the plan matched to your answers. 30-day money-back guarantee. Code RENOVA10: 10% off your first payment."
+> "Take the quick quiz to see the plan matched to your answers. 30-day money-back guarantee. Code VITAL10: 10% off your first payment."
 >
-> *Faça o quiz rápido para ver o plano de acordo com as suas respostas. Garantia de 30 dias ou seu dinheiro de volta. Código RENOVA10: 10% de desconto no primeiro pagamento.*
+> *Faça o quiz rápido para ver o plano de acordo com as suas respostas. Garantia de 30 dias ou seu dinheiro de volta. Código VITAL10: 10% de desconto no primeiro pagamento.*
 >
 > [+ Rodapé obrigatório]
 
@@ -1023,7 +1023,7 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad10`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=meta&utm_medium=paid&utm_campaign=rc-us-meio-constancia&utm_content=ad10`
 
 **Compliance:** os três planos aparecem com preço e condição idênticos à landing; a cobrança recorrente e o cancelamento estão explícitos, como pede a lei americana de assinaturas online (ROSCA); sem pessoas e sem alegação de resultado.
 
@@ -1043,13 +1043,13 @@ Produto sobre uma bancada de cozinha escura, ao lado de uma caneca de café pret
 
 Cena: criadora real de ~40 anos no espelho do banheiro, prendendo o cabelo, fala direto para a câmera.
 
-> "RENOVA CELL paid me to make this, so I'm keeping it honest."
+> "VitalRise paid me to make this, so I'm keeping it honest."
 >
-> *A RENOVA CELL me pagou para fazer este vídeo, então vou ser sincera.*
+> *A VitalRise me pagou para fazer este vídeo, então vou ser sincera.*
 
-Texto na tela: "Paid partnership with RENOVA CELL"
+Texto na tela: "Paid partnership with VitalRise"
 
-*Parceria paga com a RENOVA CELL*
+*Parceria paga com a VitalRise*
 
 **Roteiro**
 
@@ -1110,7 +1110,7 @@ Texto na tela: "Paid partnership with RENOVA CELL"
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad11`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad11`
 
 **Compliance:** a parceria paga é dita em voz, na tela, no rótulo da plataforma e no texto; a criadora não relata resultado; a pele é tratada como mudança normal de todo mundo; o estudo vem com a ressalva de fórmula específica.
 
@@ -1149,14 +1149,14 @@ Cena: homem de ~45 anos se barbeando no espelho, rindo de algo fora de quadro (a
 
   *Com a idade, o corpo produz menos dele.*
 
-**13–20 s** — Ele mistura uma dose de RENOVA CELL no shake e sai para correr com o cachorro.
+**13–20 s** — Ele mistura uma dose de VitalRise no shake e sai para correr com o cachorro.
 
-- Texto na tela: "RENOVA CELL · 1 serving a day · coffee, water or a shake · no stimulants, no hormones"
+- Texto na tela: "VitalRise · 1 serving a day · coffee, water or a shake · no stimulants, no hormones"
 
-  *RENOVA CELL · 1 dose por dia · café, água ou shake · sem estimulantes, sem hormônios*
-- Locução: "RENOVA CELL is one serving a day of collagen and peptides. In coffee, water or a shake."
+  *VitalRise · 1 dose por dia · café, água ou shake · sem estimulantes, sem hormônios*
+- Locução: "VitalRise is one serving a day of collagen and peptides. In coffee, water or a shake."
 
-  *O RENOVA CELL é uma dose por dia de colágeno e peptídeos. No café, na água ou no shake.*
+  *O VitalRise é uma dose por dia de colágeno e peptídeos. No café, na água ou no shake.*
 
 **20–25 s** — Cartão final.
 
@@ -1184,7 +1184,7 @@ Cena: homem de ~45 anos se barbeando no espelho, rindo de algo fora de quadro (a
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad12`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-topo-espelho&utm_content=ad12`
 
 **Compliance:** frase geral sobre homens e pele, sem atribuir idade ou condição a quem assiste; sem close nem antes/depois; nenhuma alegação de hormônio ou desempenho; ator sinalizado.
 
@@ -1232,9 +1232,9 @@ Cena: apresentadora de ~60 anos, roupa do dia a dia, na cozinha de casa (não em
 
 **23–28 s** — Ela mexe uma dose no chá.
 
-- Fala: "RENOVA CELL is a daily collagen and peptide formula. One serving in coffee, tea or water."
+- Fala: "VitalRise is a daily collagen and peptide formula. One serving in coffee, tea or water."
 
-  *O RENOVA CELL é uma fórmula diária de colágeno e peptídeos. Uma dose no café, no chá ou na água.*
+  *O VitalRise é uma fórmula diária de colágeno e peptídeos. Uma dose no café, no chá ou na água.*
 - Texto na tela: "Anyone taking medication or managing a health condition should check with a doctor first."
 
   *Quem toma remédios ou cuida de alguma condição de saúde deve consultar um médico antes.*
@@ -1265,7 +1265,7 @@ Cena: apresentadora de ~60 anos, roupa do dia a dia, na cozinha de casa (não em
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad13`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-ciencia&utm_content=ad13`
 
 **Compliance:** a apresentadora aparece como paga e "not a doctor", em cenário doméstico; fala sobre envelhecimento em geral, não sobre quem assiste; estudos citados com ressalva; inclui o aviso de medicação.
 
@@ -1307,14 +1307,14 @@ Cena: basquete de rua no fim de semana, homens de 40 a 50 anos, cortes rápidos 
 
   *Clark et al., 2008 · fórmula específica · os resultados variam*
 
-**16–22 s** — Depois do jogo, um deles mistura RENOVA CELL no shaker; risadas no banco.
+**16–22 s** — Depois do jogo, um deles mistura VitalRise no shaker; risadas no banco.
 
-- Texto na tela: "RENOVA CELL · daily collagen + peptides · no stimulants, no hormones"
+- Texto na tela: "VitalRise · daily collagen + peptides · no stimulants, no hormones"
 
-  *RENOVA CELL · colágeno + peptídeos todo dia · sem estimulantes, sem hormônios*
-- Locução: "RENOVA CELL: daily collagen and peptides. One serving a day."
+  *VitalRise · colágeno + peptídeos todo dia · sem estimulantes, sem hormônios*
+- Locução: "VitalRise: daily collagen and peptides. One serving a day."
 
-  *RENOVA CELL: colágeno e peptídeos todo dia. Uma dose por dia.*
+  *VitalRise: colágeno e peptídeos todo dia. Uma dose por dia.*
 
 **22–27 s** — Cartão final.
 
@@ -1342,7 +1342,7 @@ Cena: basquete de rua no fim de semana, homens de 40 a 50 anos, cortes rápidos 
 
 **Botão (CTA):** Learn More (*Saiba mais*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad14`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-meio-articulacoes&utm_content=ad14`
 
 **Compliance:** ninguém encena dor nem segura articulação; o gancho descreve o colágeno no corpo, não promete desempenho ("jump higher" é proibido); o estudo vem com a ressalva; ator sinalizado.
 
@@ -1359,7 +1359,7 @@ Cena: basquete de rua no fim de semana, homens de 40 a 50 anos, cortes rápidos 
 
 **Gancho (0–3 s)**
 
-Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Selo fixo: "Dramatization".
+Cena: mãos abrem a caixa do VitalRise numa bancada clara; som de unboxing. Selo fixo: "Dramatization".
 
 > "The 30-day rule."
 >
@@ -1371,9 +1371,9 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 **3–9 s** — Mãos tiram o produto da caixa.
 
-- Texto na tela e locução (voz feminina da marca): "Try RENOVA CELL for 30 days. Not happy? Email us and we'll refund your first order, no questions asked."
+- Texto na tela e locução (voz feminina da marca): "Try VitalRise for 30 days. Not happy? Email us and we'll refund your first order, no questions asked."
 
-  *Experimente o RENOVA CELL por 30 dias. Não gostou? Mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
+  *Experimente o VitalRise por 30 dias. Não gostou? Mande um e-mail e devolvemos o valor do seu primeiro pedido, sem perguntas.*
 
 **9–14 s** — Mãos misturam uma dose na vitamina.
 
@@ -1383,12 +1383,12 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 **14–19 s** — Produto sobre a bancada, preços na tela.
 
-- Texto na tela: "1 unit — $29.90 · Kit 3, the 90-day cycle — $80 · Code RENOVA10 = 10% off your first payment"
+- Texto na tela: "1 unit — $29.90 · Kit 3, the 90-day cycle — $80 · Code VITAL10 = 10% off your first payment"
 
-  *1 unidade — US$ 29,90 · Kit 3, o ciclo de 90 dias — US$ 80 · Código RENOVA10 = 10% de desconto no primeiro pagamento*
-- Locução: "Use code RENOVA10 for 10% off your first payment."
+  *1 unidade — US$ 29,90 · Kit 3, o ciclo de 90 dias — US$ 80 · Código VITAL10 = 10% de desconto no primeiro pagamento*
+- Locução: "Use code VITAL10 for 10% off your first payment."
 
-  *Use o código RENOVA10 para ter 10% de desconto no primeiro pagamento.*
+  *Use o código VITAL10 para ter 10% de desconto no primeiro pagamento.*
 
 **19–22 s** — Cartão final.
 
@@ -1399,21 +1399,21 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 **Texto principal (texto do anúncio, até 100 caracteres)**
 
-> "The 30-day rule: try it or get your money back. RENOVA10 = 10% off your first payment."
+> "The 30-day rule: try it or get your money back. VITAL10 = 10% off your first payment."
 >
-> *A regra dos 30 dias: experimente ou receba seu dinheiro de volta. RENOVA10 = 10% de desconto no primeiro pagamento.*
+> *A regra dos 30 dias: experimente ou receba seu dinheiro de volta. VITAL10 = 10% de desconto no primeiro pagamento.*
 
 **Título (cartão final):** "30-day money-back guarantee"
 
 *Garantia de 30 dias ou seu dinheiro de volta*
 
-**Descrição (cartão final):** "RENOVA10: 10% off your first payment"
+**Descrição (cartão final):** "VITAL10: 10% off your first payment"
 
-*RENOVA10: 10% de desconto no primeiro pagamento*
+*VITAL10: 10% de desconto no primeiro pagamento*
 
 **Botão (CTA):** Shop Now (*Comprar agora*)
 
-**URL de destino:** `https://renova-cell.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad15`
+**URL de destino:** `https://vitalrise.vercel.app/quiz?utm_source=tiktok&utm_medium=paid&utm_campaign=rc-us-fundo-garantia&utm_content=ad15`
 
 **Compliance:** garantia ("first order"), preços e cupom idênticos aos termos e ao checkout; sem rosto, sem depoimento e sem alegação de resultado; a pessoa que aparece (só as mãos) é sinalizada como dramatização.
 
@@ -1425,7 +1425,7 @@ Cena: mãos abrem a caixa do RENOVA CELL numa bancada clara; som de unboxing. Se
 
 ### Checklist antes de subir
 
-1. Abrir cada link para conferir que cai no `/quiz` (endereço atual: `renova-cell.vercel.app`; trocar se comprar domínio).
+1. Abrir cada link para conferir que cai no `/quiz` (endereço atual: `vitalrise.vercel.app`; trocar se comprar domínio).
 2. Confirmar com o cliente o formato físico do produto, a embalagem e o rótulo (as cenas supõem uma dose misturada na bebida) e se o reembolso cobre o frete.
 3. **Kit 6:** resolvido — é estoque de 6 meses (US$ 140), em compra única ou assinatura que renova a cada 6 meses. AD05, AD08 e AD10 já foram atualizados.
 4. **Pixel do TikTok:** o site só tem GA4, Meta Pixel e PostHog (`components/Analytics.tsx`). Sem instalar o pixel do TikTok (ou a Events API), não dá para medir custo por quiz nem por compra no TikTok. Os criativos AD11–AD15 só entram depois disso.

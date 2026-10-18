@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-export const metadata: Metadata = { title: 'Privacy — RENOVA CELL' };
+export const metadata: Metadata = { title: 'Privacy — VitalRise' };
 
 /**
  * Plain-language summary of what this codebase actually collects.
@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-gutter py-safe leading-relaxed [--py:3.5rem]">
       <h1 className="h2 mb-6">Privacy</h1>
-      <p className="mb-4">This summary describes what the RENOVA CELL site collects and why.</p>
+      <p className="mb-4">This summary describes what the VitalRise site collects and why.</p>
       <ul className="list-disc space-y-2 pl-5">
         <li>Quiz answers, language and country (from your IP) to personalize your plan.</li>
         <li>Name, email and phone only if you give them. Marketing emails and SMS only if you tick the matching box; unsubscribe anytime.</li>

@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const fi: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Takaisin',
     next: 'Seuraava',
     continue: 'Jatka',
@@ -140,7 +140,7 @@ export const fi: Dictionary = {
         { title: 'Halu ja elinvoima', body: 'Hyvä olo omassa kehossa on osa halua. Päivittäinen itsestä huolehtimisen rituaali miehille ja naisille, ilman hormoneja ja piristeitä.' },
         { title: 'Energiaa päivään', body: 'Proteiinipitoinen päivittäinen annos, joka sopii aamuusi, ilman piristeitä ja ilman romahdusta.' },
       ],
-      note: 'Tulokset vaihtelevat. RENOVA CELL on ravintolisä, ei lääke.',
+      note: 'Tulokset vaihtelevat. VitalRise on ravintolisä, ei lääke.',
     },
     science: {
       title: 'Mitä tutkimukset sanovat',
@@ -201,8 +201,8 @@ export const fi: Dictionary = {
       note: 'Havainnollistus usein mainitusta ~1 %:n vuosittaisesta laskusta 25 ikävuoden jälkeen. Ei ennuste tuotteen tuloksista.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. tavallinen kollageeni',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. tavallinen kollageeni',
+      us: 'VitalRise',
       them: 'Tavallinen kollageeni',
       rows: [
         { label: 'Hydrolysoidut kollageenipeptidit', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const fi: Dictionary = {
     exit: {
       title: 'Odota: 10 % alennus ennen kuin lähdet',
       body: 'Käytä tätä koodia kassalla:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Käytä 10 % alennukseni',
       dismiss: 'Ei kiitos',
     },
     chat: {
       title: 'Kysy Elenalta',
       subtitle: 'Tekoälyavustaja · ei lääkäri',
-      greeting: 'Hei! Olen Elena, RENOVA CELLin tekoälyavustaja. Kysy minulta mitä tahansa tuotteesta tai suunnitelmastasi.',
+      greeting: 'Hei! Olen Elena, VitalRisen tekoälyavustaja. Kysy minulta mitä tahansa tuotteesta tai suunnitelmastasi.',
       placeholder: 'Kirjoita kysymyksesi…',
       send: 'Lähetä',
       error: 'Pahoittelut, jotain meni pieleen. Yritä uudelleen.',
@@ -307,7 +307,7 @@ export const fi: Dictionary = {
       coupon: 'Alennuskoodi',
       couponPlaceholder: 'Syötä koodi',
       apply: 'Käytä',
-      hint: 'Psst… kokeile RENOVA10',
+      hint: 'Psst… kokeile VITAL10',
       valid: 'Koodi käytössä: {pct} % alennus',
       invalid: 'Koodi ei ole voimassa.',
       total: 'Yhteensä',
@@ -361,7 +361,7 @@ export const fi: Dictionary = {
     vip: { title: 'VIP-ryhmä', body: 'Vinkkejä, reseptejä ja tukea muilta asiakkailta.', cta: 'Liity ryhmään' },
     referral: {
       title: 'Jaa ystävälle',
-      body: 'Lähetä linkkisi. Linkin käyttäjä saa 10 % alennuksen koodilla RENOVA10.',
+      body: 'Lähetä linkkisi. Linkin käyttäjä saa 10 % alennuksen koodilla VITAL10.',
       copy: 'Kopioi linkki',
       copied: 'Kopioitu!',
     },
@@ -375,24 +375,24 @@ export const fi: Dictionary = {
     pillar: { title: 'Elinvoima ja itsevarmuus', body: 'Hyvä olo omassa kehossa on osa itsevarmuutta. Päivittäinen itsestä huolehtimisen rituaali miehille ja naisille, ilman hormoneja ja piristeitä.' },
   },
   emails: {
-    footer: 'Saat tämän viestin, koska teit RENOVA CELL -visan.',
+    footer: 'Saat tämän viestin, koska teit VitalRise -visan.',
     unsubscribe: 'Peru tilaus',
     diagnosis: {
-      subject: '{name}, RENOVA CELL -suunnitelmasi',
+      subject: '{name}, VitalRise -suunnitelmasi',
       body: 'Tässä tuloksesi: {diagnosis}\n\nSinulle suositeltu suunnitelma on {plan}. Katso se täältä: {link}',
     },
     vsl: {
       subject: 'Profiilillesi tehty 2 minuutin video',
       body: 'Teimme lyhyen videon siitä, mitä vastauksesi tarkoittavat. Katso se täältä: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10 % alennus suunnitelmastasi koodilla RENOVA10 → {link} Vastaa STOP lopettaaksesi.' },
+    sms: { body: 'VitalRise: 10 % alennus suunnitelmastasi koodilla VITAL10 → {link} Vastaa STOP lopettaaksesi.' },
     socialProof: {
       subject: 'Miksi ihmiset jatkavat',
       body: 'Useimmat kollageenitutkimukset kestivät 8–12 viikkoa. Siksi 90 päivän Kit 3 on valituin suunnitelmamme. Suunnitelmasi: {link}',
     },
     lastChance: {
       subject: '10 % alennuskoodisi odottaa yhä',
-      body: 'Koodisi RENOVA10 odottaa sinua yhä. Käytä se täällä: {link}',
+      body: 'Koodisi VITAL10 odottaa sinua yhä. Käytä se täällä: {link}',
     },
     story: {
       subject: 'Pienet tavat, iso ero',

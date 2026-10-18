@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const nl: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Terug',
     next: 'Volgende',
     continue: 'Doorgaan',
@@ -140,7 +140,7 @@ export const nl: Dictionary = {
         { title: 'Zin en vitaliteit', body: 'Je goed voelen in je lichaam hoort bij zin hebben. Een dagelijks zelfzorgritueel voor mannen en vrouwen, zonder hormonen en zonder stimulerende middelen.' },
         { title: 'Energie voor je dag', body: 'Een eiwitrijke dagelijkse portie die in je ochtend past, zonder stimulerende middelen en zonder dip.' },
       ],
-      note: 'Resultaten verschillen. RENOVA CELL is een voedingssupplement, geen geneesmiddel.',
+      note: 'Resultaten verschillen. VitalRise is een voedingssupplement, geen geneesmiddel.',
     },
     science: {
       title: 'Wat onderzoek zegt',
@@ -201,8 +201,8 @@ export const nl: Dictionary = {
       note: 'Weergave van de vaak genoemde daling van ~1% per jaar na je 25e. Geen voorspelling van productresultaten.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. een gewoon collageen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. een gewoon collageen',
+      us: 'VitalRise',
       them: 'Gewoon collageen',
       rows: [
         { label: 'Gehydrolyseerde collageenpeptiden', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const nl: Dictionary = {
     exit: {
       title: 'Wacht: 10% korting voor je gaat',
       body: 'Gebruik deze code bij het afrekenen:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Gebruik mijn 10% korting',
       dismiss: 'Nee, bedankt',
     },
     chat: {
       title: 'Vraag het Elena',
       subtitle: 'AI-assistent · geen arts',
-      greeting: 'Hoi! Ik ben Elena, de AI-assistent van RENOVA CELL. Vraag me alles over het product of je plan.',
+      greeting: 'Hoi! Ik ben Elena, de AI-assistent van VitalRise. Vraag me alles over het product of je plan.',
       placeholder: 'Typ je vraag…',
       send: 'Versturen',
       error: 'Sorry, er ging iets mis. Probeer het opnieuw.',
@@ -307,7 +307,7 @@ export const nl: Dictionary = {
       coupon: 'Kortingscode',
       couponPlaceholder: 'Voer code in',
       apply: 'Toepassen',
-      hint: 'Psst… probeer RENOVA10',
+      hint: 'Psst… probeer VITAL10',
       valid: 'Code toegepast: {pct}% korting',
       invalid: 'Deze code is niet geldig.',
       total: 'Totaal',
@@ -361,7 +361,7 @@ export const nl: Dictionary = {
     vip: { title: 'VIP-groep', body: 'Tips, recepten en steun van andere klanten.', cta: 'Word lid van de groep' },
     referral: {
       title: 'Deel het met een vriend(in)',
-      body: 'Stuur je link. Wie hem gebruikt, krijgt 10% korting met code RENOVA10.',
+      body: 'Stuur je link. Wie hem gebruikt, krijgt 10% korting met code VITAL10.',
       copy: 'Link kopiëren',
       copied: 'Gekopieerd!',
     },
@@ -375,24 +375,24 @@ export const nl: Dictionary = {
     pillar: { title: 'Vitaliteit en zelfvertrouwen', body: 'Je goed voelen in je lichaam hoort bij zelfvertrouwen. Een dagelijks zelfzorgritueel voor mannen en vrouwen, zonder hormonen en zonder stimulerende middelen.' },
   },
   emails: {
-    footer: 'Je ontvangt dit omdat je de RENOVA CELL-quiz hebt ingevuld.',
+    footer: 'Je ontvangt dit omdat je de VitalRise-quiz hebt ingevuld.',
     unsubscribe: 'Afmelden',
     diagnosis: {
-      subject: '{name}, je RENOVA CELL-plan',
+      subject: '{name}, je VitalRise-plan',
       body: 'Dit is je resultaat: {diagnosis}\n\nJe aanbevolen plan is {plan}. Bekijk het hier: {link}',
     },
     vsl: {
       subject: 'De video van 2 minuten voor jouw profiel',
       body: 'We maakten een korte video over wat je antwoorden betekenen. Bekijk hem hier: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% korting op je plan met code RENOVA10 → {link} Antwoord STOP om af te melden.' },
+    sms: { body: 'VitalRise: 10% korting op je plan met code VITAL10 → {link} Antwoord STOP om af te melden.' },
     socialProof: {
       subject: 'Waarom mensen het volhouden',
       body: 'De meeste studies naar collageen liepen 8 tot 12 weken. Daarom is de Kit 3 van 90 dagen ons meest gekozen plan. Jouw plan: {link}',
     },
     lastChance: {
       subject: 'Je code voor 10% korting ligt nog klaar',
-      body: 'Je code RENOVA10 ligt nog voor je klaar. Gebruik hem hier: {link}',
+      body: 'Je code VITAL10 ligt nog voor je klaar. Gebruik hem hier: {link}',
     },
     story: {
       subject: 'Kleine gewoontes, groot verschil',

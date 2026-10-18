@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const lv: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Atpakaļ',
     next: 'Tālāk',
     continue: 'Turpināt',
@@ -140,7 +140,7 @@ export const lv: Dictionary = {
         { title: 'Vēlme un dzīvesspars', body: 'Laba pašsajūta savā ķermenī ir daļa no vēlmes. Ikdienas rūpju par sevi rituāls vīriešiem un sievietēm, bez hormoniem un bez stimulantiem.' },
         { title: 'Enerģija jūsu dienai', body: 'Olbaltumvielām bagāta ikdienas deva, kas iederas jūsu rītā, bez stimulantiem un bez kritumiem.' },
       ],
-      note: 'Rezultāti atšķiras. RENOVA CELL ir uztura bagātinātājs, nevis zāles.',
+      note: 'Rezultāti atšķiras. VitalRise ir uztura bagātinātājs, nevis zāles.',
     },
     science: {
       title: 'Ko saka pētījumi',
@@ -201,8 +201,8 @@ export const lv: Dictionary = {
       note: 'Bieži minētā ~1% gada krituma pēc 25 gadiem ilustrācija. Tā nav produkta rezultātu prognoze.',
     },
     comparison: {
-      title: 'RENOVA CELL pret parastu kolagēnu',
-      us: 'RENOVA CELL',
+      title: 'VitalRise pret parastu kolagēnu',
+      us: 'VitalRise',
       them: 'Parasts kolagēns',
       rows: [
         { label: 'Hidrolizēti kolagēna peptīdi', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const lv: Dictionary = {
     exit: {
       title: 'Pagaidiet: 10% atlaide pirms aiziešanas',
       body: 'Izmantojiet šo kodu, norēķinoties:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Izmantot 10% atlaidi',
       dismiss: 'Nē, paldies',
     },
     chat: {
       title: 'Pajautājiet Elenai',
       subtitle: 'MI asistente · nav ārste',
-      greeting: 'Sveiki! Esmu Elena, RENOVA CELL MI asistente. Jautājiet man visu par produktu vai savu plānu.',
+      greeting: 'Sveiki! Esmu Elena, VitalRise MI asistente. Jautājiet man visu par produktu vai savu plānu.',
       placeholder: 'Ierakstiet savu jautājumu…',
       send: 'Sūtīt',
       error: 'Atvainojiet, kaut kas nogāja greizi. Mēģiniet vēlreiz.',
@@ -307,7 +307,7 @@ export const lv: Dictionary = {
       coupon: 'Atlaides kods',
       couponPlaceholder: 'Ievadiet kodu',
       apply: 'Piemērot',
-      hint: 'Pst… pamēģiniet RENOVA10',
+      hint: 'Pst… pamēģiniet VITAL10',
       valid: 'Kods piemērots: {pct}% atlaide',
       invalid: 'Šis kods nav derīgs.',
       total: 'Kopā',
@@ -361,7 +361,7 @@ export const lv: Dictionary = {
     vip: { title: 'VIP grupa', body: 'Padomi, receptes un citu klientu atbalsts.', cta: 'Pievienoties grupai' },
     referral: {
       title: 'Dalieties ar draugu',
-      body: 'Nosūtiet savu saiti. Kas to izmantos, saņems 10% atlaidi ar kodu RENOVA10.',
+      body: 'Nosūtiet savu saiti. Kas to izmantos, saņems 10% atlaidi ar kodu VITAL10.',
       copy: 'Kopēt saiti',
       copied: 'Nokopēts!',
     },
@@ -375,24 +375,24 @@ export const lv: Dictionary = {
     pillar: { title: 'Dzīvesspars un pašpārliecība', body: 'Laba pašsajūta savā ķermenī ir daļa no pašpārliecības. Ikdienas rūpju par sevi rituāls vīriešiem un sievietēm, bez hormoniem un bez stimulantiem.' },
   },
   emails: {
-    footer: 'Jūs saņemat šo vēstuli, jo aizpildījāt RENOVA CELL testu.',
+    footer: 'Jūs saņemat šo vēstuli, jo aizpildījāt VitalRise testu.',
     unsubscribe: 'Atrakstīties',
     diagnosis: {
-      subject: '{name}, jūsu RENOVA CELL plāns',
+      subject: '{name}, jūsu VitalRise plāns',
       body: 'Lūk, jūsu rezultāts: {diagnosis}\n\nJums ieteiktais plāns: {plan}. Apskatiet to šeit: {link}',
     },
     vsl: {
       subject: '2 minūšu video jūsu profilam',
       body: 'Sagatavojām īsu video par to, ko nozīmē jūsu atbildes. Skatieties šeit: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% atlaide jūsu plānam ar kodu RENOVA10 → {link} Lai atteiktos, atbildiet STOP.' },
+    sms: { body: 'VitalRise: 10% atlaide jūsu plānam ar kodu VITAL10 → {link} Lai atteiktos, atbildiet STOP.' },
     socialProof: {
       subject: 'Kāpēc cilvēki turpina',
       body: 'Vairums kolagēna pētījumu ilga 8–12 nedēļas. Tāpēc 90 dienu Kit 3 ir mūsu visbiežāk izvēlētais plāns. Jūsu plāns: {link}',
     },
     lastChance: {
       subject: 'Jūsu 10% atlaides kods joprojām gaida',
-      body: 'Jūsu kods RENOVA10 joprojām gaida. Izmantojiet to šeit: {link}',
+      body: 'Jūsu kods VITAL10 joprojām gaida. Izmantojiet to šeit: {link}',
     },
     story: {
       subject: 'Mazi ieradumi, liela atšķirība',

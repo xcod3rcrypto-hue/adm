@@ -15,9 +15,9 @@ import { pathToFileURL } from 'node:url';
 
 const dir = join(process.cwd(), 'lib', 'i18n');
 const NOT_DICTIONARIES = new Set(['index', 'dictionaries', 'load', 'locales', 'neutral']);
-const PROTECTED = ['RENOVA CELL', 'RENOVA10', 'Kit 3', 'Kit 6', '10.1159/000351376', '10.1185/030079908X291967', '37432180'];
+const PROTECTED = ['VitalRise', 'VITAL10', 'Kit 3', 'Kit 6', '10.1159/000351376', '10.1185/030079908X291967', '37432180'];
 // Strings allowed to stay identical to English (names, codes, numbers).
-const SAME_OK = /^(RENOVA CELL|RENOVA10|OK|Kit \d|\d|[\d–+ ]+|https?:\/\/\S+|(DOI|PMID) \S+|.*et al\.,.*)$/;
+const SAME_OK = /^(VitalRise|VITAL10|OK|Kit \d|\d|[\d–+ ]+|https?:\/\/\S+|(DOI|PMID) \S+|.*et al\.,.*)$/;
 
 type Node = string | Node[] | { [k: string]: Node };
 

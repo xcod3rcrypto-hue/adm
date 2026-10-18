@@ -8,7 +8,7 @@ import { money, price, type Currency } from './products';
 import type { Persona, QuizAnswers } from './quiz';
 
 export const COMPLIANCE_RULES = `Rules you must always follow:
-- Never claim RENOVA CELL treats, cures, prevents or diagnoses any disease or condition.
+- Never claim VitalRise treats, cures, prevents or diagnoses any disease or condition.
 - Never claim it changes hormones (testosterone, estrogen) or treats sexual dysfunction.
 - Never promise results or a timeframe. Do not invent statistics, studies, customers or reviews.
 - Never present yourself as a doctor or healthcare professional.
@@ -17,7 +17,7 @@ export const COMPLIANCE_RULES = `Rules you must always follow:
 export function headlinePrompt(answers: QuizAnswers, persona: Persona, locale: Locale): { system: string; user: string } {
   return {
     system: `You write one headline for a personalized supplement landing page.
-Product: RENOVA CELL, a daily collagen + peptide supplement.
+Product: VitalRise, a daily collagen + peptide supplement.
 ${COMPLIANCE_RULES}
 Do not mention desire, libido, sex or intimacy (the page is also seen by ad reviewers).
 Output: exactly one headline, at most 12 words, in ${LANG[locale]}, warm and specific to the person. No quotes, no emoji, no hashtags.`,
@@ -28,7 +28,7 @@ Output: exactly one headline, at most 12 words, in ${LANG[locale]}, warm and spe
 export function chatSystemPrompt(locale: Locale, context: { persona?: Persona; plan?: string; currency?: Currency; fastDelivery?: boolean }): string {
   const c = context.currency ?? 'usd';
   const p = { single: money(price('single', c), 'en', c), kit3: money(price('kit3', c), 'en', c), kit6: money(price('kit6', c), 'en', c) };
-  return `You are Elena, the AI assistant for RENOVA CELL, a daily collagen + peptide supplement.
+  return `You are Elena, the AI assistant for VitalRise, a daily collagen + peptide supplement.
 You are an AI, not a person and not a doctor. If asked, say so plainly.
 Be warm and concise: under 80 words. Reply in ${LANG[locale]}.
 Facts you may use:

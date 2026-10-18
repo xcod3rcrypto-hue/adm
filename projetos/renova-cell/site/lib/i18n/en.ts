@@ -5,7 +5,7 @@
  */
 export const en = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Back',
     next: 'Next',
     continue: 'Continue',
@@ -143,7 +143,7 @@ export const en = {
         { title: "Desire & vitality", body: "Feeling good in your body is part of feeling desire. A daily self-care ritual for men and women, with no hormones and no stimulants." },
         { title: "Energy for your day", body: "A protein-rich daily serving that fits into your morning, with no stimulants and no crash." },
       ],
-      note: "Results vary. RENOVA CELL is a food supplement, not a medicine.",
+      note: "Results vary. VitalRise is a food supplement, not a medicine.",
     },
     science: {
       title: 'What research says',
@@ -204,8 +204,8 @@ export const en = {
       note: 'Illustration of the commonly cited ~1%/year decline after 25. Not a prediction of product results.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. a typical collagen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. a typical collagen',
+      us: 'VitalRise',
       them: 'Typical collagen',
       rows: [
         { label: 'Hydrolyzed collagen peptides', us: 'yes', them: 'yes' },
@@ -279,14 +279,14 @@ export const en = {
     exit: {
       title: 'Wait — 10% off before you go',
       body: 'Use this code at checkout:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Use my 10% off',
       dismiss: 'No thanks',
     },
     chat: {
       title: 'Ask Elena',
       subtitle: 'AI assistant · not a doctor',
-      greeting: "Hi! I'm Elena, RENOVA CELL's AI assistant. Ask me anything about the product or your plan.",
+      greeting: "Hi! I'm Elena, VitalRise's AI assistant. Ask me anything about the product or your plan.",
       placeholder: 'Type your question…',
       send: 'Send',
       error: 'Sorry, something went wrong. Please try again.',
@@ -310,7 +310,7 @@ export const en = {
       coupon: 'Discount code',
       couponPlaceholder: 'Enter code',
       apply: 'Apply',
-      hint: 'Psst… try RENOVA10',
+      hint: 'Psst… try VITAL10',
       valid: 'Code applied: {pct}% off',
       invalid: 'This code is not valid.',
       total: 'Total',
@@ -364,7 +364,7 @@ export const en = {
     vip: { title: 'VIP group', body: 'Tips, recipes and support from other customers.', cta: 'Join the group' },
     referral: {
       title: 'Share with a friend',
-      body: 'Send your link. Your friend gets 10% off with code RENOVA10.',
+      body: 'Send your link. Your friend gets 10% off with code VITAL10.',
       copy: 'Copy link',
       copied: 'Copied!',
     },
@@ -379,24 +379,24 @@ export const en = {
     pillar: { title: 'Vitality & confidence', body: 'Feeling good in your body is part of feeling confident. A daily self-care ritual for men and women, with no hormones and no stimulants.' },
   },
   emails: {
-    footer: 'You are receiving this because you took the RENOVA CELL quiz.',
+    footer: 'You are receiving this because you took the VitalRise quiz.',
     unsubscribe: 'Unsubscribe',
     diagnosis: {
-      subject: '{name}, your RENOVA CELL plan',
+      subject: '{name}, your VitalRise plan',
       body: 'Here is your result: {diagnosis}\n\nYour recommended plan is {plan}. See it here: {link}',
     },
     vsl: {
       subject: 'The 2-minute video made for your profile',
       body: 'We put together a short video about what your answers mean. Watch it here: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% off your plan with code RENOVA10 → {link} Reply STOP to opt out.' },
+    sms: { body: 'VitalRise: 10% off your plan with code VITAL10 → {link} Reply STOP to opt out.' },
     socialProof: {
       subject: 'Why people stick with it',
       body: 'Most studies on collagen ran 8 to 12 weeks. That is why the 90-day Kit 3 is our most chosen plan. Your plan: {link}',
     },
     lastChance: {
       subject: 'Your 10% off code is still waiting',
-      body: 'Your code RENOVA10 is still waiting. Use it here: {link}',
+      body: 'Your code VITAL10 is still waiting. Use it here: {link}',
     },
     story: {
       subject: 'Small habits, big difference',

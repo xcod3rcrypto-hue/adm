@@ -1,4 +1,4 @@
-# RENOVA CELL — funil (Next.js 14)
+# VitalRise — funil (Next.js 14)
 
 Quiz → análise → landing personalizada → checkout Stripe → upsells 1-clique → obrigado.
 Multilíngue (28 idiomas, EUA + toda a Europa) com idioma do celular primeiro e moeda local pelo país, headline gerada pelo Claude, VSL por persona gerada na HeyGen e follow-up automático por e-mail/SMS.
@@ -44,8 +44,8 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
 ## Configuração passo a passo
 
 1. **Supabase** — crie um projeto, rode `supabase/schema.sql` no SQL Editor (cria as tabelas, RLS e o bucket público `vsl`). Copie `SUPABASE_URL` e a **service role key**. Todo acesso ao banco acontece no servidor.
-2. **Stripe** — coloque `STRIPE_SECRET_KEY` em `.env.local` e rode `npm run stripe:setup`. O script cria os 6 preços (1 un. $29,90 · Kit 3 $80 · Kit 6 $140/mês · bump $19,90 · upsell Kit 6 $77 · assinatura $56/mês) e o cupom **RENOVA10** (10% na primeira cobrança). Ele imprime as linhas `STRIPE_PRICE_*` para colar no `.env.local`. Rodar duas vezes não duplica nada.
-   - Webhook: aponte para `https://renova-cell.vercel.app/api/webhooks/stripe` com os eventos `checkout.session.completed` e `checkout.session.async_payment_succeeded`. Em dev: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
+2. **Stripe** — coloque `STRIPE_SECRET_KEY` em `.env.local` e rode `npm run stripe:setup`. O script cria os 6 preços (1 un. $29,90 · Kit 3 $80 · Kit 6 $140/mês · bump $19,90 · upsell Kit 6 $77 · assinatura $56/mês) e o cupom **VITAL10** (10% na primeira cobrança). Ele imprime as linhas `STRIPE_PRICE_*` para colar no `.env.local`. Rodar duas vezes não duplica nada.
+   - Webhook: aponte para `https://vitalrise.vercel.app/api/webhooks/stripe` com os eventos `checkout.session.completed` e `checkout.session.async_payment_succeeded`. Em dev: `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
    - Apple Pay, Google Pay, PayPal e parcelamento (Klarna/Afterpay/Affirm) aparecem sozinhos no Checkout quando ativados no Dashboard (Settings → Payment methods). Para Apple Pay, verifique o domínio no Stripe.
 3. **Claude** — `ANTHROPIC_API_KEY`. Modelo padrão `claude-opus-5-5` (troque com `ANTHROPIC_MODEL`). As chamadas usam `effort: low` e `fallbacks: "default"`, ou seja, se o modelo recusar um pedido a API tenta de novo no modelo reserva recomendado.
 4. **HeyGen** — `HEYGEN_API_KEY`, IDs de avatar e de voz. Depois:
@@ -57,7 +57,7 @@ Sem nenhuma chave o site já roda: o quiz, a landing e o checkout aparecem, a he
    Os roteiros EN e PT estão em `lib/vsl-scripts.ts`. Os links da HeyGen expiram, por isso o script copia cada vídeo para o Storage.
 5. **E-mail/SMS** — Resend (`RESEND_API_KEY`, `EMAIL_FROM` de domínio verificado) e Twilio. Defina `UNSUBSCRIBE_SECRET`, `CRON_SECRET` e `COMPANY_POSTAL_ADDRESS`. `MAKE_WEBHOOK_URL` é opcional e repassa cada lead ao Make.com.
 6. **Analytics** — GA4, Meta Pixel, PostHog e Hotjar por variáveis `NEXT_PUBLIC_*`. Eles só carregam depois que a pessoa aceita os cookies. Eventos enviados: `quiz_start`, `quiz_complete` (Lead), `view_offer` (ViewContent), `begin_checkout` (InitiateCheckout), `upsell_accepted`, `purchase` (Purchase).
-7. **Deploy na Vercel** — importe o repositório com *Root Directory* = `projetos/renova-cell/site`, cole as variáveis e publique. O `vercel.json` agenda o cron 1×/dia, o que funciona no plano grátis (Hobby). Para a sequência sair no horário (30 min, 2 h…), crie também um cron grátis em cron-job.org: URL `https://renova-cell.vercel.app/api/cron/followups`, a cada 10 minutos, com o cabeçalho `Authorization: Bearer <CRON_SECRET>`. No plano Pro dá para trocar o `vercel.json` para `*/10 * * * *` e dispensar o externo.
+7. **Deploy na Vercel** — importe o repositório com *Root Directory* = `projetos/renova-cell/site`, cole as variáveis e publique. O `vercel.json` agenda o cron 1×/dia, o que funciona no plano grátis (Hobby). Para a sequência sair no horário (30 min, 2 h…), crie também um cron grátis em cron-job.org: URL `https://vitalrise.vercel.app/api/cron/followups`, a cada 10 minutos, com o cabeçalho `Authorization: Bearer <CRON_SECRET>`. No plano Pro dá para trocar o `vercel.json` para `*/10 * * * *` e dispensar o externo.
 
 ## Mercados, idiomas, moedas, assinatura e frete
 
@@ -103,7 +103,7 @@ Algumas partes do briefing original fariam o funil enganar o comprador ou expor 
 | "Dr. Elena, especialista" | "Elena, assistente de IA · não é médica". O prompt proíbe afirmações médicas e hormonais. |
 | Promessas de testosterona/libido e "resultado visível em 15 dias" | Textos de estrutura/função (pele, articulações, bem-estar), sem prazo garantido, com aviso da FDA e "resultados variam". A pergunta de libido continua no quiz e responde com confiança e autocuidado, sem prometer efeito hormonal. |
 | Depoimentos e antes/depois | Componentes prontos, mas vazios: só renderizam com clientes reais e autorização (`content/proof.ts`). |
-| Simulador "projeção de resultado" | Mostra a queda de colágeno com a idade (~1%/ano, média citada), sem linha "com RENOVA CELL", porque não há dados que a sustentem. |
+| Simulador "projeção de resultado" | Mostra a queda de colágeno com a idade (~1%/ano, média citada), sem linha "com VitalRise", porque não há dados que a sustentem. |
 | Estudos com DOI | 3 estudos reais e conferidos: Proksch 2014 (DOI 10.1159/000351376), Clark 2008 (DOI 10.1185/030079908X291967), Pu 2023 (PMID 37432180), com a ressalva de que testaram fórmulas específicas. |
 | Upsell 1-clique | Valor exato (e recorrência, na assinatura) escrito acima do botão. Idempotente e sem cobrança dupla. |
 | Bloquear o avanço da VSL | Opcional (`NEXT_PUBLIC_VSL_LOCK_SEEK`). Voltar, pausar e tela cheia sempre funcionam. |

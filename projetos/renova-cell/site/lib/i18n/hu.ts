@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const hu: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Vissza',
     next: 'Tovább',
     continue: 'Folytatás',
@@ -140,7 +140,7 @@ export const hu: Dictionary = {
         { title: 'Vágy és vitalitás', body: 'A jó közérzet a saját testedben a vágy része. Napi öngondoskodási rituálé férfiaknak és nőknek, hormonok és serkentők nélkül.' },
         { title: 'Energia a napodhoz', body: 'Fehérjében gazdag napi adag, ami belefér a reggeledbe, serkentők és visszaesés nélkül.' },
       ],
-      note: 'Az eredmények eltérnek. A RENOVA CELL étrend-kiegészítő, nem gyógyszer.',
+      note: 'Az eredmények eltérnek. A VitalRise étrend-kiegészítő, nem gyógyszer.',
     },
     science: {
       title: 'Mit mond a kutatás',
@@ -201,8 +201,8 @@ export const hu: Dictionary = {
       note: 'A gyakran idézett, 25 év utáni évi ~1%-os csökkenés szemléltetése. Nem a termék eredményeinek előrejelzése.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. átlagos kollagén',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. átlagos kollagén',
+      us: 'VitalRise',
       them: 'Átlagos kollagén',
       rows: [
         { label: 'Hidrolizált kollagénpeptidek', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const hu: Dictionary = {
     exit: {
       title: 'Várj: 10% kedvezmény, mielőtt elmész',
       body: 'Használd ezt a kódot a pénztárnál:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Kérem a 10% kedvezményt',
       dismiss: 'Nem, köszönöm',
     },
     chat: {
       title: 'Kérdezd Elenát',
       subtitle: 'MI-asszisztens · nem orvos',
-      greeting: 'Szia! Elena vagyok, a RENOVA CELL MI-asszisztense. Kérdezz bármit a termékről vagy a tervedről.',
+      greeting: 'Szia! Elena vagyok, a VitalRise MI-asszisztense. Kérdezz bármit a termékről vagy a tervedről.',
       placeholder: 'Írd be a kérdésed…',
       send: 'Küldés',
       error: 'Elnézést, valami hiba történt. Próbáld újra.',
@@ -307,7 +307,7 @@ export const hu: Dictionary = {
       coupon: 'Kuponkód',
       couponPlaceholder: 'Írd be a kódot',
       apply: 'Beváltás',
-      hint: 'Psszt… próbáld a RENOVA10-et',
+      hint: 'Psszt… próbáld a VITAL10-et',
       valid: 'Kód beváltva: {pct}% kedvezmény',
       invalid: 'Ez a kód nem érvényes.',
       total: 'Összesen',
@@ -361,7 +361,7 @@ export const hu: Dictionary = {
     vip: { title: 'VIP csoport', body: 'Tippek, receptek és támogatás más vásárlóktól.', cta: 'Csatlakozom' },
     referral: {
       title: 'Oszd meg egy barátoddal',
-      body: 'Küldd el a linked. Aki használja, 10% kedvezményt kap a RENOVA10 kóddal.',
+      body: 'Küldd el a linked. Aki használja, 10% kedvezményt kap a VITAL10 kóddal.',
       copy: 'Link másolása',
       copied: 'Kimásolva!',
     },
@@ -375,24 +375,24 @@ export const hu: Dictionary = {
     pillar: { title: 'Vitalitás és magabiztosság', body: 'A jó közérzet a saját testedben a magabiztosság része. Napi öngondoskodási rituálé férfiaknak és nőknek, hormonok és serkentők nélkül.' },
   },
   emails: {
-    footer: 'Azért kapod ezt az üzenetet, mert kitöltötted a RENOVA CELL kvízt.',
+    footer: 'Azért kapod ezt az üzenetet, mert kitöltötted a VitalRise kvízt.',
     unsubscribe: 'Leiratkozás',
     diagnosis: {
-      subject: '{name}, a RENOVA CELL terved',
+      subject: '{name}, a VitalRise terved',
       body: 'Itt az eredményed: {diagnosis}\n\nA neked ajánlott terv: {plan}. Itt megnézheted: {link}',
     },
     vsl: {
       subject: 'A profilodhoz készült 2 perces videó',
       body: 'Készítettünk egy rövid videót arról, mit jelentenek a válaszaid. Itt megnézheted: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% kedvezmény a tervedre a RENOVA10 kóddal → {link} Leiratkozás: válaszolj STOP-pal.' },
+    sms: { body: 'VitalRise: 10% kedvezmény a tervedre a VITAL10 kóddal → {link} Leiratkozás: válaszolj STOP-pal.' },
     socialProof: {
       subject: 'Miért maradnak az emberek',
       body: 'A legtöbb kollagénvizsgálat 8–12 hétig tartott. Ezért a 90 napos Kit 3 a legnépszerűbb tervünk. A terved: {link}',
     },
     lastChance: {
       subject: 'A 10%-os kuponkódod még vár',
-      body: 'A RENOVA10 kódod még mindig vár rád. Itt használhatod: {link}',
+      body: 'A VITAL10 kódod még mindig vár rád. Itt használhatod: {link}',
     },
     story: {
       subject: 'Apró szokások, nagy különbség',

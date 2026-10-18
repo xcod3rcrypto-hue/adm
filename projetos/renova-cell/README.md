@@ -1,6 +1,6 @@
-# Renova Cell
+# VitalRise
 
-Pasta do projeto **RENOVA CELL**, um suplemento diário de colágeno + peptídeos (mercado EUA primeiro, em 5 idiomas). Organiza todo o ciclo — do briefing ao relatório — na mesma ordem em que o trabalho acontece no ADVERTEX AI Studio.
+Pasta do projeto **VitalRise**, um suplemento diário de colágeno + peptídeos (mercado EUA primeiro, em 5 idiomas). Organiza todo o ciclo — do briefing ao relatório — na mesma ordem em que o trabalho acontece no ADVERTEX AI Studio.
 
 O funil (quiz → oferta → checkout → upsells) está em [`site/`](site/README.md).
 

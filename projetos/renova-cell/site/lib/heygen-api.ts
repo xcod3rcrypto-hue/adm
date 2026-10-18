@@ -38,7 +38,7 @@ export async function generateVSL(persona: Persona, script: string, locale: Loca
     method: 'POST',
     headers: { 'X-Api-Key': apiKey(), 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      title: `RENOVA CELL VSL — ${persona} — ${locale}`,
+      title: `VitalRise VSL — ${persona} — ${locale}`,
       video_inputs: [
         {
           character: { type: 'avatar', avatar_id: avatarFor(persona), avatar_style: 'normal' },

@@ -20,7 +20,7 @@ From around age twenty-five, your body starts making a little less collagen ever
 
 Collagen is the protein that gives structure to your skin, your joints and the connective tissue that holds you together. And here's what the research says. In a placebo-controlled study published in 2014, women who took specific collagen peptides every day for eight weeks had better skin elasticity than the placebo group. A 2023 review of twenty-six trials found improvements in skin hydration and elasticity too.
 
-That's why we created RENOVA CELL: a daily collagen and peptide formula. One serving a day, in your water, your coffee or your smoothie. No hormones. No stimulants. Just a simple ritual that fits into the life you already have.
+That's why we created VitalRise: a daily collagen and peptide formula. One serving a day, in your water, your coffee or your smoothie. No hormones. No stimulants. Just a simple ritual that fits into the life you already have.
 
 Now, I'll be honest with you. Collagen is not magic, and it's not overnight. The studies ran for eight to twelve weeks. That's why for your profile we recommend Kit 3 — the full ninety-day cycle. Results vary from person to person, and that's exactly why you're covered by a thirty-day money-back guarantee. If you're not happy, you get your money back.
 
@@ -36,7 +36,7 @@ Most men think this is just age. Part of it is. From around twenty-five, your bo
 
 Here's what research shows. In a twenty-four-week study, athletes who took ten grams of collagen hydrolysate a day reported less activity-related joint pain than those on placebo. And placebo-controlled studies have linked collagen peptides to better skin elasticity.
 
-That's why we built RENOVA CELL: a daily collagen and peptide formula. One serving a day — in water, coffee or your shake. No stimulants. No hormones. Nothing that promises to change your testosterone, because that's not what collagen does, and we won't pretend it is.
+That's why we built VitalRise: a daily collagen and peptide formula. One serving a day — in water, coffee or your shake. No stimulants. No hormones. Nothing that promises to change your testosterone, because that's not what collagen does, and we won't pretend it is.
 
 What it does is give your body a steady daily supply of the building blocks it uses to support joints and skin. Combine that with sleep, training and real food, and you're giving yourself a real shot at feeling ready for the day again.
 
@@ -54,7 +54,7 @@ From around age twenty-five, collagen production drops by roughly one percent a 
 
 Research has looked at what daily collagen can do. A twenty-four-week study found people taking collagen hydrolysate reported less activity-related joint pain than those on placebo. And a 2023 review of twenty-six trials found improvements in skin hydration and elasticity.
 
-RENOVA CELL is a daily collagen and peptide formula. One serving a day, stirred into water, coffee, tea or a smoothie. No stimulants and no hormones. It's easy to take, and easy to keep taking — which matters, because the studies ran for months, not days.
+VitalRise is a daily collagen and peptide formula. One serving a day, stirred into water, coffee, tea or a smoothie. No stimulants and no hormones. It's easy to take, and easy to keep taking — which matters, because the studies ran for months, not days.
 
 A word of care: if you take medication or have a medical condition, check with your doctor before starting any supplement.
 
@@ -74,7 +74,7 @@ A partir dos vinte e cinco anos, o corpo começa a produzir um pouco menos de co
 
 O colágeno é a proteína que dá estrutura à pele, às articulações e ao tecido que sustenta o seu corpo. E veja o que a pesquisa diz. Em um estudo com placebo publicado em 2014, mulheres que tomaram peptídeos de colágeno específicos todos os dias por oito semanas tiveram mais elasticidade na pele do que o grupo placebo. Uma revisão de 2023 com vinte e seis estudos também encontrou melhora na hidratação e na elasticidade da pele.
 
-Por isso criamos o RENOVA CELL: uma fórmula diária de colágeno e peptídeos. Uma dose por dia, na água, no café ou na vitamina. Sem hormônios. Sem estimulantes. Só um ritual simples que cabe na vida que você já tem.
+Por isso criamos o VitalRise: uma fórmula diária de colágeno e peptídeos. Uma dose por dia, na água, no café ou na vitamina. Sem hormônios. Sem estimulantes. Só um ritual simples que cabe na vida que você já tem.
 
 Vou ser sincera com você. Colágeno não é mágica e não funciona da noite para o dia. Os estudos duraram de oito a doze semanas. Por isso, para o seu perfil, recomendamos o Kit 3 — o ciclo completo de noventa dias. Os resultados variam de pessoa para pessoa, e é exatamente por isso que você tem a garantia de trinta dias. Se não gostar, recebe seu dinheiro de volta.
 
@@ -90,7 +90,7 @@ A maioria dos homens acha que é só a idade. Em parte, é. A partir dos vinte e
 
 Olha o que a pesquisa mostra. Em um estudo de vinte e quatro semanas, atletas que tomaram dez gramas de colágeno hidrolisado por dia relataram menos dor articular ligada à atividade do que o grupo placebo. E estudos com placebo associaram peptídeos de colágeno a mais elasticidade da pele.
 
-Por isso criamos o RENOVA CELL: uma fórmula diária de colágeno e peptídeos. Uma dose por dia — na água, no café ou no shake. Sem estimulantes. Sem hormônios. Nada de prometer mexer na sua testosterona, porque não é isso que colágeno faz, e a gente não vai fingir que é.
+Por isso criamos o VitalRise: uma fórmula diária de colágeno e peptídeos. Uma dose por dia — na água, no café ou no shake. Sem estimulantes. Sem hormônios. Nada de prometer mexer na sua testosterona, porque não é isso que colágeno faz, e a gente não vai fingir que é.
 
 O que ele faz é dar ao seu corpo, todo dia, os blocos que ele usa para sustentar articulações e pele. Junte isso com sono, treino e comida de verdade, e você tem uma chance real de voltar a se sentir pronto para o dia.
 
@@ -108,7 +108,7 @@ A partir dos vinte e cinco anos, a produção de colágeno cai cerca de um por c
 
 As pesquisas já estudaram o que o colágeno diário pode fazer. Um estudo de vinte e quatro semanas mostrou que pessoas que tomaram colágeno hidrolisado relataram menos dor articular ligada à atividade do que o grupo placebo. E uma revisão de 2023 com vinte e seis estudos encontrou melhora na hidratação e na elasticidade da pele.
 
-O RENOVA CELL é uma fórmula diária de colágeno e peptídeos. Uma dose por dia, misturada na água, no café, no chá ou na vitamina. Sem estimulantes e sem hormônios. Fácil de tomar e fácil de manter — o que importa, porque os estudos duraram meses, não dias.
+O VitalRise é uma fórmula diária de colágeno e peptídeos. Uma dose por dia, misturada na água, no café, no chá ou na vitamina. Sem estimulantes e sem hormônios. Fácil de tomar e fácil de manter — o que importa, porque os estudos duraram meses, não dias.
 
 Um cuidado: se você toma remédios ou tem alguma condição de saúde, fale com seu médico antes de começar qualquer suplemento.
 

@@ -1,4 +1,4 @@
-# Briefing — Renova Cell
+# Briefing — VitalRise
 
 _Preencher com o cliente. Deixe em branco o que não for confirmado._
 

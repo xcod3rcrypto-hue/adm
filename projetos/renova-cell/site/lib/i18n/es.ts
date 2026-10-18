@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const es: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Atrás',
     next: 'Siguiente',
     continue: 'Continuar',
@@ -140,7 +140,7 @@ export const es: Dictionary = {
         { title: "Deseo y vitalidad", body: "Sentirte bien en tu cuerpo es parte de sentir deseo. Un ritual diario de autocuidado para hombres y mujeres, sin hormonas y sin estimulantes." },
         { title: "Energía para tu día", body: "Una dosis diaria rica en proteína que cabe en tu mañana, sin estimulantes y sin bajones." },
       ],
-      note: "Los resultados varían. RENOVA CELL es un complemento alimenticio, no un medicamento.",
+      note: "Los resultados varían. VitalRise es un complemento alimenticio, no un medicamento.",
     },
     science: {
       title: 'Lo que dice la investigación',
@@ -201,8 +201,8 @@ export const es: Dictionary = {
       note: 'Ilustración de la caída de ~1% al año después de los 25, muy citada. No es una predicción del resultado del producto.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. un colágeno típico',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. un colágeno típico',
+      us: 'VitalRise',
       them: 'Colágeno típico',
       rows: [
         { label: 'Péptidos de colágeno hidrolizado', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const es: Dictionary = {
     exit: {
       title: 'Espera: 10% de descuento antes de irte',
       body: 'Usa este código al pagar:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Usar mi 10% de descuento',
       dismiss: 'No, gracias',
     },
     chat: {
       title: 'Pregunta a Elena',
       subtitle: 'Asistente de IA · no es médica',
-      greeting: '¡Hola! Soy Elena, la asistente de IA de RENOVA CELL. Pregúntame lo que quieras sobre el producto o tu plan.',
+      greeting: '¡Hola! Soy Elena, la asistente de IA de VitalRise. Pregúntame lo que quieras sobre el producto o tu plan.',
       placeholder: 'Escribe tu pregunta…',
       send: 'Enviar',
       error: 'Lo siento, algo salió mal. Inténtalo de nuevo.',
@@ -307,7 +307,7 @@ export const es: Dictionary = {
       coupon: 'Código de descuento',
       couponPlaceholder: 'Introduce el código',
       apply: 'Aplicar',
-      hint: 'Psst… prueba RENOVA10',
+      hint: 'Psst… prueba VITAL10',
       valid: 'Código aplicado: {pct}% de descuento',
       invalid: 'Este código no es válido.',
       total: 'Total',
@@ -361,7 +361,7 @@ export const es: Dictionary = {
     vip: { title: 'Grupo VIP', body: 'Consejos, recetas y apoyo de otros clientes.', cta: 'Unirme al grupo' },
     referral: {
       title: 'Compártelo',
-      body: 'Envía tu enlace. Quien lo use obtiene un 10% con el código RENOVA10.',
+      body: 'Envía tu enlace. Quien lo use obtiene un 10% con el código VITAL10.',
       copy: 'Copiar enlace',
       copied: '¡Copiado!',
     },
@@ -375,24 +375,24 @@ export const es: Dictionary = {
     pillar: { title: 'Vitalidad y confianza', body: 'Sentirte bien en tu cuerpo es parte de sentirte seguro. Un ritual diario de autocuidado para hombres y mujeres, sin hormonas y sin estimulantes.' },
   },
   emails: {
-    footer: 'Recibes esto porque hiciste el quiz de RENOVA CELL.',
+    footer: 'Recibes esto porque hiciste el quiz de VitalRise.',
     unsubscribe: 'Darme de baja',
     diagnosis: {
-      subject: '{name}, tu plan RENOVA CELL',
+      subject: '{name}, tu plan VitalRise',
       body: 'Este es tu resultado: {diagnosis}\n\nTu plan recomendado es {plan}. Míralo aquí: {link}',
     },
     vsl: {
       subject: 'El vídeo de 2 minutos hecho para tu perfil',
       body: 'Preparamos un vídeo corto sobre lo que significan tus respuestas. Míralo aquí: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% en tu plan con el código RENOVA10 → {link} Responde STOP para darte de baja.' },
+    sms: { body: 'VitalRise: 10% en tu plan con el código VITAL10 → {link} Responde STOP para darte de baja.' },
     socialProof: {
       subject: 'Por qué la gente sigue',
       body: 'La mayoría de los estudios sobre colágeno duraron de 8 a 12 semanas. Por eso el Kit 3 de 90 días es el plan más elegido. Tu plan: {link}',
     },
     lastChance: {
       subject: 'Tu código del 10% sigue disponible',
-      body: 'Tu código RENOVA10 sigue esperándote. Úsalo aquí: {link}',
+      body: 'Tu código VITAL10 sigue esperándote. Úsalo aquí: {link}',
     },
     story: {
       subject: 'Pequeños hábitos, gran diferencia',

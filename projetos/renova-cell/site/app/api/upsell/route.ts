@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
           payment_method: paymentMethod,
           off_session: true,
           confirm: true,
-          description: 'RENOVA CELL — Kit 6 (post-purchase offer)',
+          description: 'VitalRise — Kit 6 (post-purchase offer)',
           metadata,
         },
         { idempotencyKey },

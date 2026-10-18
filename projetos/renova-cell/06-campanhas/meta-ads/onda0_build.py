@@ -10,7 +10,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 HERE = Path(__file__).parent
-DOMAIN = 'https://renova-cell.vercel.app'
+DOMAIN = 'https://vitalrise.vercel.app'
 URL_PARAMS = 'utm_source=meta&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}'
 FOOTER = ('Individual results vary. These statements have not been evaluated by the Food and Drug Administration. '
           'This product is not intended to diagnose, treat, cure, or prevent any disease.')
@@ -103,10 +103,10 @@ CONCEPTS = {
         'title': 'Unboxing discreto + 2 dias',
         'format': 'Vídeo 9:16 só com mãos · 12–15 s',
         'scenes': 'Caixa neutra na porta → close da caixa sem marca → abre → produto → mistura na água → cartão final. Gancho C só depois de comprovar a entrega real.',
-        'primary': ('Some things are nobody else\'s business. RENOVA CELL ships in a plain box with no product name on the outside.\n\n'
+        'primary': ('Some things are nobody else\'s business. VitalRise ships in a plain box with no product name on the outside.\n\n'
                     'Free shipping, delivered in up to 2 business days with tracking. Buy once, or subscribe and it arrives again when you run out. Cancel anytime.\n\n'
                     'Take the 60-second quiz to find your plan. 30-day money-back guarantee.'),
-        'pt': 'Tem coisa que não é da conta de ninguém. O RENOVA CELL chega numa caixa neutra, sem o nome do produto por fora. Frete grátis, entrega em até 2 dias úteis com rastreio. Compra única ou assinatura que chega de novo quando acaba. Faça o quiz de 60 segundos. Garantia de 30 dias.',
+        'pt': 'Tem coisa que não é da conta de ninguém. O VitalRise chega numa caixa neutra, sem o nome do produto por fora. Frete grátis, entrega em até 2 dias úteis com rastreio. Compra única ou assinatura que chega de novo quando acaba. Faça o quiz de 60 segundos. Garantia de 30 dias.',
         'hooks': [('No logo on the box. On purpose.', 'Free shipping · discreet box'),
                   ('Free shipping. 2 business days. Plain box.', 'Delivered in up to 2 business days'),
                   ('Ordered Monday. Here Wednesday.', 'Plain box. Fast delivery.')],
@@ -147,8 +147,8 @@ CONCEPTS = {
         'title': 'Criador (anúncio de parceria)',
         'format': 'Reels do criador, 9:16, 20–40 s, publicado no perfil dele e impulsionado como anúncio de parceria',
         'scenes': 'Rotina real do criador + caixa discreta chegando + preparo no café. Três aberturas gravadas (A/B/C). Rótulo "Paid partnership" + "#ad" + divulgação falada nos primeiros segundos.',
-        'primary': ('[Legenda do próprio criador, aprovada pela marca — só experiência real, sem resultado.] Example: "I\'ve been adding RENOVA CELL to my morning coffee for 4 weeks. One scoop and done. Free shipping, and it came in a plain box. #ad"'),
-        'pt': '[Legenda do criador.] Exemplo: "Faz 4 semanas que coloco RENOVA CELL no meu café da manhã. Uma dose e pronto. Frete grátis, e chegou numa caixa neutra. #publi" — só se for verdade.',
+        'primary': ('[Legenda do próprio criador, aprovada pela marca — só experiência real, sem resultado.] Example: "I\'ve been adding VitalRise to my morning coffee for 4 weeks. One scoop and done. Free shipping, and it came in a plain box. #ad"'),
+        'pt': '[Legenda do criador.] Exemplo: "Faz 4 semanas que coloco VitalRise no meu café da manhã. Uma dose e pronto. Frete grátis, e chegou numa caixa neutra. #publi" — só se for verdade.',
         'hooks': [('[Abertura A do criador]', 'Take the 60-second quiz'),
                   ('[Abertura B do criador]', 'Free shipping · 2 business days'),
                   ('[Abertura C do criador]', 'Find your plan in 60 seconds')],
@@ -175,7 +175,7 @@ RT_ADS = [
     {
         'name': 'ig08a', 'title': 'Garantia de 30 dias', 'format': 'Imagem 4:5 + versão 9:16 (Stories)',
         'onscreen': 'Arte: produto + "30-day money-back guarantee · Free shipping · 2 business days"',
-        'primary': ('Still thinking about it? Try RENOVA CELL for 30 days. If it\'s not for you, email us and we\'ll refund your first order.\n\n'
+        'primary': ('Still thinking about it? Try VitalRise for 30 days. If it\'s not for you, email us and we\'ll refund your first order.\n\n'
                     'Free shipping, delivered in up to 2 business days in discreet packaging.'),
         'headline': '30-day money-back guarantee', 'description': 'Free shipping · discreet box', 'cta': 'Comprar agora (Shop now)', 'url': OFFER,
     },
@@ -191,11 +191,11 @@ RT_ADS = [
         'description': 'Tracked · discreet · free', 'cta': 'Comprar agora (Shop now)', 'url': OFFER,
     },
     {
-        'name': 'ig13a', 'title': 'Cupom RENOVA10 (quem iniciou o checkout)', 'format': 'Imagem 4:5 + 9:16',
-        'onscreen': 'Arte: "10% off your first payment · code RENOVA10" + produto',
-        'primary': ('Your plan is still waiting. Use code RENOVA10 for 10% off your first payment.\n\n'
+        'name': 'ig13a', 'title': 'Cupom VITAL10 (quem iniciou o checkout)', 'format': 'Imagem 4:5 + 9:16',
+        'onscreen': 'Arte: "10% off your first payment · code VITAL10" + produto',
+        'primary': ('Your plan is still waiting. Use code VITAL10 for 10% off your first payment.\n\n'
                     'Free shipping in up to 2 business days, discreet packaging, 30-day money-back guarantee.'),
-        'headline': '10% off with RENOVA10', 'description': 'First payment only', 'cta': 'Obter oferta (Get offer)', 'url': OFFER,
+        'headline': '10% off with VITAL10', 'description': 'First payment only', 'cta': 'Obter oferta (Get offer)', 'url': OFFER,
     },
 ]
 
@@ -244,7 +244,7 @@ AUDIENCES = [
 
 CHECKLIST = [
     ('Site', 'SHIP_COUNTRIES=US e FAST_DELIVERY_COUNTRIES=US no ambiente de produção', 'D-10'),
-    ('Site', 'Chaves Stripe live + npm run stripe:setup (preços e cupom RENOVA10)', 'D-10'),
+    ('Site', 'Chaves Stripe live + npm run stripe:setup (preços e cupom VITAL10)', 'D-10'),
     ('Site', 'NEXT_PUBLIC_META_PIXEL_ID + META_CAPI_TOKEN; supabase/schema.sql rodado de novo', 'D-10'),
     ('Conta', 'Portfólio empresarial verificado, 2 administradores com 2FA', 'D-10'),
     ('Conta', 'Conta de anúncios USD, fuso de quem opera, forma de pagamento + reserva', 'D-10'),

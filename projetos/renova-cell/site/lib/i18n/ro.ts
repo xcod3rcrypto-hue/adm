@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const ro: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Înapoi',
     next: 'Înainte',
     continue: 'Continuă',
@@ -140,7 +140,7 @@ export const ro: Dictionary = {
         { title: "Dorință și vitalitate", body: "Să te simți bine în corpul tău face parte din a simți dorință. Un ritual zilnic de grijă față de tine, pentru bărbați și femei, fără hormoni și fără stimulente." },
         { title: "Energie pentru ziua ta", body: "O porție zilnică bogată în proteine, care se potrivește dimineții tale, fără stimulente și fără căderi de energie." },
       ],
-      note: "Rezultatele variază. RENOVA CELL este un supliment alimentar, nu un medicament.",
+      note: "Rezultatele variază. VitalRise este un supliment alimentar, nu un medicament.",
     },
     science: {
       title: 'Ce spun cercetările',
@@ -201,8 +201,8 @@ export const ro: Dictionary = {
       note: 'Ilustrare a scăderii de ~1%/an după 25 de ani, citată frecvent. Nu este o predicție a rezultatelor produsului.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. un colagen obișnuit',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. un colagen obișnuit',
+      us: 'VitalRise',
       them: 'Colagen obișnuit',
       rows: [
         { label: 'Peptide de colagen hidrolizat', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const ro: Dictionary = {
     exit: {
       title: 'Stai — 10% reducere înainte să pleci',
       body: 'Folosește acest cod la finalizarea comenzii:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Vreau reducerea de 10%',
       dismiss: 'Nu, mulțumesc',
     },
     chat: {
       title: 'Întreab-o pe Elena',
       subtitle: 'Asistentă AI · nu e medic',
-      greeting: 'Bună! Sunt Elena, asistenta AI de la RENOVA CELL. Întreabă-mă orice despre produs sau despre planul tău.',
+      greeting: 'Bună! Sunt Elena, asistenta AI de la VitalRise. Întreabă-mă orice despre produs sau despre planul tău.',
       placeholder: 'Scrie întrebarea ta…',
       send: 'Trimite',
       error: 'Ne pare rău, ceva n-a mers. Încearcă din nou.',
@@ -307,7 +307,7 @@ export const ro: Dictionary = {
       coupon: 'Cod de reducere',
       couponPlaceholder: 'Introdu codul',
       apply: 'Aplică',
-      hint: 'Psst… încearcă RENOVA10',
+      hint: 'Psst… încearcă VITAL10',
       valid: 'Cod aplicat: {pct}% reducere',
       invalid: 'Acest cod nu este valid.',
       total: 'Total',
@@ -361,7 +361,7 @@ export const ro: Dictionary = {
     vip: { title: 'Grupul VIP', body: 'Sfaturi, rețete și sprijin de la alți clienți.', cta: 'Intră în grup' },
     referral: {
       title: 'Recomandă unui prieten',
-      body: 'Trimite linkul tău. Persoana căreia i-l trimiți primește 10% reducere cu codul RENOVA10.',
+      body: 'Trimite linkul tău. Persoana căreia i-l trimiți primește 10% reducere cu codul VITAL10.',
       copy: 'Copiază linkul',
       copied: 'Copiat!',
     },
@@ -375,24 +375,24 @@ export const ro: Dictionary = {
     pillar: { title: 'Vitalitate și încredere', body: 'Să te simți bine în corpul tău face parte din încrederea în tine. Un ritual zilnic de grijă față de tine, pentru bărbați și femei, fără hormoni și fără stimulente.' },
   },
   emails: {
-    footer: 'Primești acest mesaj pentru că ai completat chestionarul RENOVA CELL.',
+    footer: 'Primești acest mesaj pentru că ai completat chestionarul VitalRise.',
     unsubscribe: 'Dezabonare',
     diagnosis: {
-      subject: '{name}, planul tău RENOVA CELL',
+      subject: '{name}, planul tău VitalRise',
       body: 'Iată rezultatul tău: {diagnosis}\n\nPlanul recomandat pentru tine: {plan}. Îl vezi aici: {link}',
     },
     vsl: {
       subject: 'Videoclipul de 2 minute făcut pentru profilul tău',
       body: 'Am pregătit un videoclip scurt despre ce înseamnă răspunsurile tale. Urmărește-l aici: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% reducere la planul tău cu codul RENOVA10 → {link} Răspunde STOP pentru dezabonare.' },
+    sms: { body: 'VitalRise: 10% reducere la planul tău cu codul VITAL10 → {link} Răspunde STOP pentru dezabonare.' },
     socialProof: {
       subject: 'De ce oamenii rămân fideli rutinei',
       body: 'Majoritatea studiilor despre colagen au durat între 8 și 12 săptămâni. De aceea, Kit 3 pentru 90 de zile este planul ales cel mai des. Planul tău: {link}',
     },
     lastChance: {
       subject: 'Codul tău de 10% reducere încă te așteaptă',
-      body: 'Codul tău RENOVA10 încă te așteaptă. Folosește-l aici: {link}',
+      body: 'Codul tău VITAL10 încă te așteaptă. Folosește-l aici: {link}',
     },
     story: {
       subject: 'Obiceiuri mici, diferență mare',

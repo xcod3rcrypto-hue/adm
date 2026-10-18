@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const cs: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Zpět',
     next: 'Další',
     continue: 'Pokračovat',
@@ -140,7 +140,7 @@ export const cs: Dictionary = {
         { title: 'Chuť a vitalita', body: 'Cítit se dobře ve svém těle je součástí chuti. Každodenní rituál péče o sebe pro muže i ženy, bez hormonů a bez stimulantů.' },
         { title: 'Energie na celý den', body: 'Denní dávka bohatá na bílkoviny, která se vejde do vašeho rána, bez stimulantů a bez propadů.' },
       ],
-      note: 'Výsledky se liší. RENOVA CELL je doplněk stravy, nikoli léčivo.',
+      note: 'Výsledky se liší. VitalRise je doplněk stravy, nikoli léčivo.',
     },
     science: {
       title: 'Co říká výzkum',
@@ -201,8 +201,8 @@ export const cs: Dictionary = {
       note: 'Znázornění často uváděného poklesu o ~1 % ročně po 25. roce. Nejde o předpověď výsledků výrobku.',
     },
     comparison: {
-      title: 'RENOVA CELL vs. běžný kolagen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise vs. běžný kolagen',
+      us: 'VitalRise',
       them: 'Běžný kolagen',
       rows: [
         { label: 'Hydrolyzované kolagenové peptidy', us: 'yes', them: 'yes' },
@@ -276,14 +276,14 @@ export const cs: Dictionary = {
     exit: {
       title: 'Počkejte: sleva 10 %, než odejdete',
       body: 'Použijte tento kód v pokladně:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Použít slevu 10 %',
       dismiss: 'Ne, děkuji',
     },
     chat: {
       title: 'Zeptejte se Eleny',
       subtitle: 'AI asistentka · není lékařka',
-      greeting: 'Dobrý den! Jsem Elena, AI asistentka RENOVA CELL. Zeptejte se mě na cokoli o výrobku nebo vašem plánu.',
+      greeting: 'Dobrý den! Jsem Elena, AI asistentka VitalRise. Zeptejte se mě na cokoli o výrobku nebo vašem plánu.',
       placeholder: 'Napište svůj dotaz…',
       send: 'Odeslat',
       error: 'Omlouváme se, něco se pokazilo. Zkuste to znovu.',
@@ -307,7 +307,7 @@ export const cs: Dictionary = {
       coupon: 'Slevový kód',
       couponPlaceholder: 'Zadejte kód',
       apply: 'Použít',
-      hint: 'Psst… zkuste RENOVA10',
+      hint: 'Psst… zkuste VITAL10',
       valid: 'Kód použit: sleva {pct} %',
       invalid: 'Tento kód není platný.',
       total: 'Celkem',
@@ -361,7 +361,7 @@ export const cs: Dictionary = {
     vip: { title: 'VIP skupina', body: 'Tipy, recepty a podpora od dalších zákazníků.', cta: 'Přidat se do skupiny' },
     referral: {
       title: 'Doporučte to přátelům',
-      body: 'Pošlete svůj odkaz. Kdo ho použije, získá slevu 10 % s kódem RENOVA10.',
+      body: 'Pošlete svůj odkaz. Kdo ho použije, získá slevu 10 % s kódem VITAL10.',
       copy: 'Kopírovat odkaz',
       copied: 'Zkopírováno!',
     },
@@ -375,24 +375,24 @@ export const cs: Dictionary = {
     pillar: { title: 'Vitalita a sebevědomí', body: 'Cítit se dobře ve svém těle je součástí sebevědomí. Každodenní rituál péče o sebe pro muže i ženy, bez hormonů a bez stimulantů.' },
   },
   emails: {
-    footer: 'Tento e-mail dostáváte, protože jste vyplnil(a) kvíz RENOVA CELL.',
+    footer: 'Tento e-mail dostáváte, protože jste vyplnil(a) kvíz VitalRise.',
     unsubscribe: 'Odhlásit se',
     diagnosis: {
-      subject: '{name}, váš plán RENOVA CELL',
+      subject: '{name}, váš plán VitalRise',
       body: 'Tady je váš výsledek: {diagnosis}\n\nDoporučený plán pro vás je {plan}. Podívejte se na něj zde: {link}',
     },
     vsl: {
       subject: 'Dvouminutové video pro váš profil',
       body: 'Připravili jsme krátké video o tom, co znamenají vaše odpovědi. Podívejte se zde: {link}',
     },
-    sms: { body: 'RENOVA CELL: sleva 10 % na váš plán s kódem RENOVA10 → {link} Odhlásíte se odpovědí STOP.' },
+    sms: { body: 'VitalRise: sleva 10 % na váš plán s kódem VITAL10 → {link} Odhlásíte se odpovědí STOP.' },
     socialProof: {
       subject: 'Proč u toho lidé zůstávají',
       body: 'Většina studií kolagenu trvala 8 až 12 týdnů. Proto je 90denní Kit 3 náš nejčastěji volený plán. Váš plán: {link}',
     },
     lastChance: {
       subject: 'Váš slevový kód na 10 % stále čeká',
-      body: 'Váš kód RENOVA10 na vás stále čeká. Použijte ho zde: {link}',
+      body: 'Váš kód VITAL10 na vás stále čeká. Použijte ho zde: {link}',
     },
     story: {
       subject: 'Malé zvyky, velký rozdíl',

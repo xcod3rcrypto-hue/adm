@@ -3,7 +3,7 @@ import type { Dictionary } from './en';
 /** Serbian in Latin script (latinica), also served to Montenegro. */
 export const sr: Dictionary = {
   common: {
-    brand: 'RENOVA CELL',
+    brand: 'VitalRise',
     back: 'Nazad',
     next: 'Dalje',
     continue: 'Nastavi',
@@ -141,7 +141,7 @@ export const sr: Dictionary = {
         { title: 'Želja i vitalnost', body: 'Osećati se dobro u svom telu deo je želje. Svakodnevni ritual brige o sebi za muškarce i žene, bez hormona i bez stimulansa.' },
         { title: 'Energija za tvoj dan', body: 'Dnevna doza bogata proteinima koja se uklapa u tvoje jutro, bez stimulansa i bez padova.' },
       ],
-      note: 'Rezultati se razlikuju. RENOVA CELL je dodatak ishrani, a ne lek.',
+      note: 'Rezultati se razlikuju. VitalRise je dodatak ishrani, a ne lek.',
     },
     science: {
       title: 'Šta kažu istraživanja',
@@ -202,8 +202,8 @@ export const sr: Dictionary = {
       note: 'Prikaz često navođenog pada od ~1% godišnje posle 25. godine. Nije predviđanje rezultata proizvoda.',
     },
     comparison: {
-      title: 'RENOVA CELL u odnosu na običan kolagen',
-      us: 'RENOVA CELL',
+      title: 'VitalRise u odnosu na običan kolagen',
+      us: 'VitalRise',
       them: 'Običan kolagen',
       rows: [
         { label: 'Hidrolizovani kolagenski peptidi', us: 'yes', them: 'yes' },
@@ -277,14 +277,14 @@ export const sr: Dictionary = {
     exit: {
       title: 'Čekaj: 10% popusta pre odlaska',
       body: 'Iskoristi ovaj kod pri plaćanju:',
-      code: 'RENOVA10',
+      code: 'VITAL10',
       cta: 'Iskoristi 10% popusta',
       dismiss: 'Ne, hvala',
     },
     chat: {
       title: 'Pitaj Elenu',
       subtitle: 'AI asistentkinja · nije lekar',
-      greeting: 'Zdravo! Ja sam Elena, AI asistentkinja kompanije RENOVA CELL. Pitaj me bilo šta o proizvodu ili svom planu.',
+      greeting: 'Zdravo! Ja sam Elena, AI asistentkinja kompanije VitalRise. Pitaj me bilo šta o proizvodu ili svom planu.',
       placeholder: 'Upiši svoje pitanje…',
       send: 'Pošalji',
       error: 'Izvini, nešto je pošlo naopako. Pokušaj ponovo.',
@@ -308,7 +308,7 @@ export const sr: Dictionary = {
       coupon: 'Kod za popust',
       couponPlaceholder: 'Upiši kod',
       apply: 'Primeni',
-      hint: 'Pst… probaj RENOVA10',
+      hint: 'Pst… probaj VITAL10',
       valid: 'Kod primenjen: {pct}% popusta',
       invalid: 'Ovaj kod nije važeći.',
       total: 'Ukupno',
@@ -362,7 +362,7 @@ export const sr: Dictionary = {
     vip: { title: 'VIP grupa', body: 'Saveti, recepti i podrška drugih kupaca.', cta: 'Pridruži se grupi' },
     referral: {
       title: 'Podeli sa prijateljem',
-      body: 'Pošalji svoj link. Ko ga iskoristi, dobija 10% popusta uz kod RENOVA10.',
+      body: 'Pošalji svoj link. Ko ga iskoristi, dobija 10% popusta uz kod VITAL10.',
       copy: 'Kopiraj link',
       copied: 'Kopirano!',
     },
@@ -376,24 +376,24 @@ export const sr: Dictionary = {
     pillar: { title: 'Vitalnost i samopouzdanje', body: 'Osećati se dobro u svom telu deo je samopouzdanja. Svakodnevni ritual brige o sebi za muškarce i žene, bez hormona i bez stimulansa.' },
   },
   emails: {
-    footer: 'Ovu poruku primaš jer si popunio/la kviz RENOVA CELL.',
+    footer: 'Ovu poruku primaš jer si popunio/la kviz VitalRise.',
     unsubscribe: 'Odjava',
     diagnosis: {
-      subject: '{name}, tvoj RENOVA CELL plan',
+      subject: '{name}, tvoj VitalRise plan',
       body: 'Ovo je tvoj rezultat: {diagnosis}\n\nTvoj preporučeni plan je {plan}. Pogledaj ga ovde: {link}',
     },
     vsl: {
       subject: 'Video od 2 minuta za tvoj profil',
       body: 'Pripremili smo kratak video o tome šta znače tvoji odgovori. Pogledaj ga ovde: {link}',
     },
-    sms: { body: 'RENOVA CELL: 10% popusta na tvoj plan uz kod RENOVA10 → {link} Za odjavu odgovori STOP.' },
+    sms: { body: 'VitalRise: 10% popusta na tvoj plan uz kod VITAL10 → {link} Za odjavu odgovori STOP.' },
     socialProof: {
       subject: 'Zašto ljudi istrajavaju',
       body: 'Većina studija o kolagenu trajala je 8 do 12 nedelja. Zato je Kit 3 od 90 dana naš najčešće biran plan. Tvoj plan: {link}',
     },
     lastChance: {
       subject: 'Tvoj kod za 10% popusta te još čeka',
-      body: 'Tvoj kod RENOVA10 te još uvek čeka. Iskoristi ga ovde: {link}',
+      body: 'Tvoj kod VITAL10 te još uvek čeka. Iskoristi ga ovde: {link}',
     },
     story: {
       subject: 'Male navike, velika razlika',

@@ -9,9 +9,10 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import base, cep, web
+from . import base, cep, publicar, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
+SITE_PADRAO = Path(__file__).resolve().parent.parent / "site"
 CIDADES_SUPORTADAS = web.CIDADES_SUPORTADAS
 LINK_2A_VIA = web.LINK_2A_VIA
 
@@ -117,6 +118,18 @@ def cmd_web(args) -> int:
     return 0
 
 
+def cmd_publicar(args) -> int:
+    destino = Path(args.destino)
+    try:
+        r = publicar.publicar(args.db, destino, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
+    except FileNotFoundError as e:
+        print(e, file=sys.stderr)
+        return 1
+    print(f"\nSite gerado em {destino}: {r['imoveis']:,} imóveis em {r['arquivos']} arquivos ({r['megabytes']} MB).".replace(",", "."))
+    print(f"Para publicar:  cd {destino}  &&  npx vercel --prod")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="iptu_cep", description="Consulta imóveis e IPTU pelo CEP (São Paulo).")
     p.add_argument("--db", default=str(DB_PADRAO), help=f"arquivo SQLite da base (padrão: {DB_PADRAO})")
@@ -137,6 +150,10 @@ def main(argv: list[str] | None = None) -> int:
     pw.add_argument("--porta", type=int, default=8765)
     pw.add_argument("--sem-navegador", action="store_true", help="não abre o navegador sozinho")
     pw.set_defaults(func=cmd_web)
+
+    pp = sub.add_parser("publicar", help="gera o site estático para a Vercel")
+    pp.add_argument("--destino", default=str(SITE_PADRAO), help=f"pasta do site (padrão: {SITE_PADRAO})")
+    pp.set_defaults(func=cmd_publicar)
 
     args = p.parse_args(argv)
     return args.func(args)

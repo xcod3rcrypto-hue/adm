@@ -44,6 +44,18 @@ def _sem_numero(numero: str) -> bool:
     return not numero or not numero.strip("0 ") or base._norm(numero) in {"sn", "s/n", "s/no"}
 
 
+def para_dict(imovel: base.Imovel) -> dict:
+    """Dados de um imóvel como a tela usa (o site estático grava o mesmo formato)."""
+    d = {k: v for k, v in asdict(imovel).items() if k != "extras"}
+    d.update(
+        endereco=imovel.endereco,
+        categoria=classificar(imovel),
+        sem_numero=_sem_numero(imovel.numero),
+        valor_venal_estimado=imovel.valor_venal_estimado,
+    )
+    return d
+
+
 def _status(db: Path) -> dict:
     if not db.exists():
         return {"importada": False, "total": 0}
@@ -82,16 +94,7 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
     except FileNotFoundError:
         return 409, {"erro": "A base do IPTU ainda não foi importada."}
 
-    lista = []
-    for i in imoveis:
-        d = {k: v for k, v in asdict(i).items() if k != "extras"}
-        d.update(
-            endereco=i.endereco,
-            categoria=classificar(i),
-            sem_numero=_sem_numero(i.numero),
-            valor_venal_estimado=i.valor_venal_estimado,
-        )
-        lista.append(d)
+    lista = [para_dict(i) for i in imoveis]
     return 200, {
         "cep": cep.formatar_cep(cep_num),
         "endereco": asdict(endereco) if endereco else None,

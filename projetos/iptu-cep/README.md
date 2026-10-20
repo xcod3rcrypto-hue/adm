@@ -29,6 +29,36 @@ O navegador abre em `http://127.0.0.1:8765`. Na primeira vez, a tela pede o cami
 
 > **Por que os débitos não vêm automáticos:** a Prefeitura não publica débitos na base aberta. Ela só informa imóvel a imóvel, na certidão de débitos ou no DUC, que pede Senha Web. O programa não tenta driblar essa proteção. Ele leva você direto ao lugar certo, com o número pronto para colar.
 
+## Publicar na Vercel (acesso de qualquer lugar, no celular também)
+
+A versão online é um **site estático**: a base é dividida pelos 5 primeiros dígitos do CEP em arquivos compactados (`dados/01310.bin`, ...). A página baixa só o arquivo do CEP digitado, normalmente algumas centenas de KB, e o descompacta no próprio navegador. Não tem servidor nem banco de dados online, então cabe no plano grátis da Vercel. A base completa de São Paulo deve ficar em torno de 100 MB no total.
+
+Você precisa de: Python 3.10+, Node.js (para o `npx`) e uma conta grátis em vercel.com.
+
+```bash
+cd projetos/iptu-cep
+
+# 1) importe a base (uma vez por ano), se ainda não importou
+python3 -m iptu_cep importar ~/Downloads/IPTU_2026.csv
+
+# 2) gere o site (cria a pasta site/ com index.html, meta.json, vercel.json e dados/)
+python3 -m iptu_cep publicar
+
+# 3) publique
+cd site
+npx vercel --prod
+```
+
+Na primeira vez, o `vercel` pede login (abre o navegador) e faz algumas perguntas. Aceite os padrões: escopo pessoal, nome do projeto (ex.: `iptu-cep`), "In which directory is your code located?" → `./`, e não altere as configurações de build. No fim ele mostra o endereço, algo como `https://iptu-cep.vercel.app`, que funciona de qualquer lugar.
+
+Quando sair a base do ano seguinte: repita os passos 1, 2 e 3. A URL continua a mesma.
+
+Observações:
+- A pasta `site/` não vai para o Git (fica no `.gitignore`). Por isso a publicação é pelo `npx vercel`, do seu computador, e não por push no GitHub.
+- Na versão online, a importação de CSV não existe: a tela só consulta.
+- A marcação "com débito / sem débito" fica salva **no navegador de cada aparelho**; ela não passa do celular para o computador. Use "Exportar CSV" para levar a lista.
+- Os dados publicados são os mesmos da base aberta da Prefeitura, sem nomes, CPF ou CNPJ.
+
 ## Uso na linha de comando
 
 ```bash

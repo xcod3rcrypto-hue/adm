@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IPTU pelo CEP</title>
+<meta name="theme-color" content="#1f6feb">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6feb'/%3E%3Cpath d='M8 16 16 9l8 7v8H8z' fill='white'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #f6f7f9; --card: #fff; --text: #16181d; --muted: #5f6672; --line: #e2e5ea;
@@ -26,7 +28,7 @@
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
   .busca { display: flex; gap: 8px; flex-wrap: wrap; }
   input, select, button { font: inherit; color: inherit; }
-  input[type=text], select { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  input[type=text], select { font-size: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
   #cep { font-size: 20px; letter-spacing: 1px; width: 180px; }
   button { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 10px 14px; cursor: pointer; }
   button.primario { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
@@ -35,9 +37,10 @@
   .msg.erro { background: var(--bad-soft); color: var(--bad); }
   .msg.aviso { background: var(--warn-soft); }
   .endereco { font-size: 18px; font-weight: 600; }
-  .resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+  .resumo { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; }
   .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
-  .kpi b { display: block; font-size: 20px; overflow-wrap: anywhere; }
+  .kpi b { display: block; font-size: 20px; white-space: nowrap; }
+  .kpi.largo { grid-column: span 2; }
   .kpi span { color: var(--muted); font-size: 13px; }
   .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .chip { border-radius: 999px; padding: 6px 12px; }
@@ -46,6 +49,7 @@
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
+  th.num { text-align: right; }
   td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .sql { font-family: ui-monospace, Consolas, monospace; white-space: nowrap; }
   .mini { padding: 3px 8px; font-size: 12px; border-radius: 6px; }
@@ -58,11 +62,32 @@
   .rodape { color: var(--muted); font-size: 13px; }
   .oculto { display: none !important; }
   @media (max-width: 760px) {
+    main { padding: 16px 12px 48px; }
+    h1 { font-size: 21px; }
+    .card { padding: 12px; }
+    #cep { flex: 1 1 0; width: auto; min-width: 0; }
+    .busca button { flex: 0 0 auto; }
+    .filtros .chips { display: flex; gap: 8px; overflow-x: auto; flex: 1 1 100%; padding-bottom: 4px; scrollbar-width: none; }
+    .filtros .chips .chip { flex: 0 0 auto; }
+    .filtros input[type=text], .filtros select, #btnCsv { flex: 1 1 100%; }
+    .lista { background: transparent; border: 0; padding: 0; }
+    table, tbody { display: block; }
     thead { display: none; }
-    tr { display: block; border-bottom: 1px solid var(--line); padding: 10px 0; }
-    td { display: flex; justify-content: space-between; gap: 12px; border: 0; padding: 4px 0; }
-    td::before { content: attr(data-rotulo); color: var(--muted); font-size: 13px; }
-    td.num { text-align: right; }
+    tr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; background: var(--card);
+         border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    td { display: block; border: 0; padding: 0; min-width: 0; }
+    td::before { content: attr(data-rotulo); display: block; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+    td.num { text-align: left; }
+    td.endereco-td { grid-column: 1 / -1; font-weight: 600; font-size: 16px; }
+    td.endereco-td::before, td.tipo-td::before { display: none; }
+    td.tipo-td { grid-column: 1 / -1; order: -1; }
+    td.debito-td { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+                   border-top: 1px solid var(--line); padding-top: 10px; }
+    td.debito-td::before { display: none; }
+    td.debito-td select { flex: 1 1 140px; padding: 9px 10px; font-size: 15px; }
+    td.debito-td .acoes { margin: 0; }
+    td.debito-td .mini, td .mini { padding: 8px 12px; font-size: 14px; }
+    #contagem { padding: 0 4px; }
   }
 </style>
 </head>
@@ -99,12 +124,14 @@
 
     <div class="card">
       <div class="filtros" id="filtros">
+        <div class="chips">
         <button class="chip ativo" data-cat="todos">Todos</button>
         <button class="chip" data-cat="casa">Casas</button>
         <button class="chip" data-cat="apartamento">Apartamentos</button>
         <button class="chip" data-cat="terreno">Terrenos</button>
         <button class="chip" data-cat="comercial">Comércio</button>
         <button class="chip" data-cat="outro">Outros</button>
+        </div>
         <label class="muted"><input type="checkbox" id="soSemNumero"> só sem número</label>
         <select id="filtroDebito">
           <option value="">Débitos: todos</option>
@@ -117,7 +144,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card lista">
       <table>
         <thead><tr>
           <th data-ord="endereco">Endereço</th>
@@ -138,7 +165,7 @@
       O <b>valor venal</b> é uma estimativa simplificada feita com a base aberta. O valor do carnê aparece na
       <a id="link2via" target="_blank" rel="noopener">2ª via do IPTU</a>.
       <b>Débitos:</b> a Prefeitura só informa imóvel a imóvel, na certidão de débitos imobiliários. O botão
-      “Consultar” copia o número e abre a página oficial. Marque o resultado na lista: ele fica salvo neste navegador.
+      “Consultar débitos” copia o número e abre a página oficial. Marque o resultado na lista: ele fica salvo neste navegador.
     </p>
   </section>
 </main>
@@ -171,8 +198,18 @@ function mensagem(texto, tipo = "erro") {
   $("#mensagem").innerHTML = texto ? `<div class="msg ${tipo}">${esc(texto)}</div>` : "";
 }
 
+// "estatico": site publicado (Vercel), dados em arquivos por faixa de CEP.
+// "api": programa rodando no computador (python -m iptu_cep web).
+let MODO = "api", META = null;
+
 async function carregarStatus() {
-  const s = await fetch("/api/status").then((r) => r.json());
+  try {
+    const r = await fetch("meta.json", { cache: "no-cache" });
+    if (r.ok) { META = await r.json(); MODO = "estatico"; }
+  } catch {}
+  const s = MODO === "estatico"
+    ? { importada: true, total: META.total, exercicio: META.exercicio }
+    : await fetch("/api/status").then((r) => r.json());
   $("#importar").classList.toggle("oculto", s.importada);
   $("#infoBase").textContent = s.importada
     ? `Base do IPTU com ${s.total.toLocaleString("pt-BR")} imóveis${s.exercicio ? " (exercício " + s.exercicio + ")" : ""}.`
@@ -190,21 +227,83 @@ $("#btnImportar").addEventListener("click", async () => {
   } finally { btn.disabled = false; btn.textContent = "Importar"; }
 });
 
+async function consultaApi(cepTexto) {
+  const r = await fetch("/api/consulta?cep=" + encodeURIComponent(cepTexto));
+  const j = await r.json();
+  return r.ok ? { dados: j } : { erro: j.erro };
+}
+
+async function enderecoDoCep(c) {
+  // null = CEP não existe; exceção = sem rede
+  const fontes = [
+    async () => {
+      const r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+      if (!r.ok) throw new Error("viacep");
+      const d = await r.json();
+      if (d.erro) return null;
+      return { cep: c, logradouro: d.logradouro, bairro: d.bairro, cidade: d.localidade, uf: d.uf, ibge: d.ibge, fonte: "ViaCEP" };
+    },
+    async () => {
+      const r = await fetch(`https://brasilapi.com.br/api/cep/v2/${c}`);
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("brasilapi");
+      const d = await r.json();
+      return { cep: c, logradouro: d.street, bairro: d.neighborhood, cidade: d.city, uf: d.state, ibge: "", fonte: "BrasilAPI" };
+    },
+  ];
+  for (const f of fontes) { try { return await f(); } catch {} }
+  throw new Error("sem rede");
+}
+
+const blocos = {};
+function blocoDoCep(c) {
+  const p = c.slice(0, 5);
+  blocos[p] ??= (async () => {
+    const r = await fetch(`dados/${p}.bin`);
+    if (r.status === 404) return { campos: [], ceps: {} };
+    if (!r.ok) throw new Error("dados");
+    const texto = await new Response(r.body.pipeThrough(new DecompressionStream("gzip"))).text();
+    return JSON.parse(texto);
+  })().catch((e) => { delete blocos[p]; throw e; });
+  return blocos[p];
+}
+
+async function consultaEstatica(cepTexto) {
+  const c = cepTexto.replace(/\D/g, "");
+  if (c.length !== 8) return { erro: "CEP inválido: use 8 dígitos, ex.: 01310-100." };
+  const fmt = c.slice(0, 5) + "-" + c.slice(5);
+  let endereco = null, aviso = null;
+  try {
+    endereco = await enderecoDoCep(c);
+    if (endereco === null) return { erro: `O CEP ${fmt} não existe.` };
+  } catch {
+    aviso = "Não deu para consultar o endereço do CEP agora; mostrando só a base do IPTU.";
+  }
+  const cidades = META.cidades || {};
+  const fora = endereco && (endereco.ibge ? !cidades[endereco.ibge]
+                                          : endereco.cidade && !Object.values(cidades).includes(endereco.cidade));
+  if (fora) return { erro: `Esse CEP é de ${endereco.cidade}/${endereco.uf}. Por enquanto só a cidade de São Paulo publica a base do IPTU que o site usa.` };
+  let bloco;
+  try { bloco = await blocoDoCep(c); }
+  catch { return { erro: "Não consegui baixar os dados do IPTU. Verifique a internet e tente de novo." }; }
+  const imoveis = (bloco.ceps[c] || []).map((l) => Object.fromEntries(bloco.campos.map((k, i) => [k, l[i]])));
+  return { dados: { cep: fmt, endereco, aviso, total: imoveis.length, imoveis, links: META.links } };
+}
+
 $("#form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = $("#btnConsultar");
   btn.disabled = true; btn.textContent = "Consultando…";
   mensagem("");
   try {
-    const r = await fetch("/api/consulta?cep=" + encodeURIComponent($("#cep").value));
-    const j = await r.json();
-    if (!r.ok) { $("#resultado").classList.add("oculto"); mensagem(j.erro); return; }
+    const { dados: j, erro } = await (MODO === "estatico" ? consultaEstatica : consultaApi)($("#cep").value);
+    if (erro) { $("#resultado").classList.add("oculto"); mensagem(erro); return; }
     dados = j;
     history.replaceState(null, "", "?cep=" + j.cep);
     if (j.aviso) mensagem(j.aviso, "aviso");
     mostrar();
   } catch {
-    mensagem("Não consegui falar com o programa. Ele ainda está aberto?");
+    mensagem(MODO === "estatico" ? "Algo deu errado na consulta. Tente de novo." : "Não consegui falar com o programa. Ele ainda está aberto?");
   } finally { btn.disabled = false; btn.textContent = "Consultar"; }
 });
 
@@ -218,6 +317,7 @@ function mostrar() {
   const conta = (f) => im.filter(f).length;
   const soma = im.reduce((t, i) => t + (i.valor_venal_estimado || 0), 0);
   const kpis = [
+    [moeda(soma), "valor venal somado", "largo"],
     [im.length, "imóveis no CEP"],
     [conta((i) => i.categoria === "casa"), "casas"],
     [conta((i) => i.categoria === "apartamento"), "apartamentos"],
@@ -225,9 +325,8 @@ function mostrar() {
     [conta((i) => i.categoria === "comercial"), "comércios"],
     [conta((i) => i.sem_numero), "sem número"],
     [conta((i) => debitos.get(i.sql) === "com"), "marcados com débito"],
-    [moeda(soma), "valor venal somado"],
   ];
-  $("#resumo").innerHTML = kpis.map(([v, r]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(r)}</span></div>`).join("");
+  $("#resumo").innerHTML = kpis.map(([v, r, c = ""]) => `<div class="kpi ${c}"><b>${esc(v)}</b><span>${esc(r)}</span></div>`).join("");
   $("#resultado").classList.remove("oculto");
   if (!im.length) mensagem("Nenhum imóvel desse CEP está na base do IPTU. CEPs de prédio ou de caixa postal às vezes não aparecem; tente o CEP da rua.", "aviso");
   desenhar();
@@ -257,21 +356,21 @@ function desenhar() {
   $("#linhas").innerHTML = lista.map((i) => {
     const st = debitos.get(i.sql);
     return `<tr>
-      <td data-rotulo="Endereço">${esc(i.sem_numero ? (i.logradouro + ", s/n" + (i.complemento ? " - " + i.complemento : "")) : i.endereco)}
+      <td data-rotulo="Endereço" class="endereco-td">${esc(i.sem_numero ? (i.logradouro + ", s/n" + (i.complemento ? " - " + i.complemento : "")) : i.endereco)}
         <div class="muted">${esc(i.uso || "")}${i.ano_construcao ? " · " + esc(i.ano_construcao) : ""}</div></td>
       <td data-rotulo="Nº do IPTU"><span class="sql">${esc(i.sql || "–")}</span>
         <div class="acoes"><button class="mini" data-copiar="${esc(i.sql)}">Copiar</button></div></td>
-      <td data-rotulo="Tipo"><span class="tag">${NOMES[i.categoria]}</span></td>
+      <td data-rotulo="Tipo" class="tipo-td"><span class="tag">${NOMES[i.categoria]}</span></td>
       <td data-rotulo="Terreno" class="num">${area(i.area_terreno)}</td>
       <td data-rotulo="Construída" class="num">${area(i.area_construida)}</td>
       <td data-rotulo="Valor venal" class="num">${moeda(i.valor_venal_estimado)}</td>
-      <td data-rotulo="Débitos">
+      <td data-rotulo="Débitos" class="debito-td">
         <select class="debito ${st}" data-sql="${esc(i.sql)}">
           <option value="nc"${st === "nc" ? " selected" : ""}>Não consultado</option>
           <option value="sem"${st === "sem" ? " selected" : ""}>Sem débito</option>
           <option value="com"${st === "com" ? " selected" : ""}>Com débito</option>
         </select>
-        <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar ↗</button></div>
+        <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar débitos ↗</button></div>
       </td></tr>`;
   }).join("");
   $("#contagem").textContent = `Mostrando ${lista.length} de ${dados.imoveis.length} imóveis.`;
@@ -292,7 +391,7 @@ $("#linhas").addEventListener("click", async (e) => {
     await copiar(b.dataset.debito);
     window.open(dados.links.debitos, "_blank", "noopener");
     b.textContent = "Nº copiado, cole na página";
-    setTimeout(() => (b.textContent = "Consultar ↗"), 3000);
+    setTimeout(() => (b.textContent = "Consultar débitos ↗"), 3000);
   }
 });
 
@@ -332,9 +431,14 @@ $("#btnCsv").addEventListener("click", () => {
   a.click();
 });
 
-carregarStatus();
 const inicial = new URLSearchParams(location.search).get("cep");
-if (inicial) { $("#cep").value = inicial; $("#form").requestSubmit(); }
+carregarStatus().finally(() => {
+  if (inicial) {
+    $("#cep").value = inicial;
+    $("#cep").dispatchEvent(new Event("input"));
+    $("#form").requestSubmit();
+  }
+});
 </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+import gzip
 import io
 import json
 import sqlite3
@@ -8,7 +9,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from iptu_cep import __main__ as cli
-from iptu_cep import base, cep, web
+from iptu_cep import base, cep, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 
@@ -165,6 +166,33 @@ class TestWeb(unittest.TestCase):
     def test_status(self):
         self.assertEqual(web._status(self.db)["total"], 4)
         self.assertFalse(web._status(Path(self.tmp.name) / "nada.sqlite")["importada"])
+
+
+class TestPublicar(unittest.TestCase):
+    def test_gera_site(self):
+        with TemporaryDirectory() as tmp:
+            db, site = Path(tmp) / "iptu.sqlite", Path(tmp) / "site"
+            base.importar_csv(AMOSTRA, db)
+            r = publicar.publicar(db, site)
+            self.assertEqual(r["imoveis"], 4)
+            self.assertEqual(sorted(p.name for p in (site / "dados").iterdir()), ["01305.bin", "01310.bin"])
+            for nome in ("index.html", "vercel.json", "meta.json"):
+                self.assertTrue((site / nome).is_file())
+            meta = json.loads((site / "meta.json").read_text(encoding="utf-8"))
+            self.assertEqual((meta["modo"], meta["total"], meta["exercicio"]), ("estatico", 4, "2026"))
+
+            bloco = json.loads(gzip.decompress((site / "dados" / "01310.bin").read_bytes()))
+            linhas = bloco["ceps"]["01310100"]
+            self.assertEqual(len(linhas), 3)
+            terreno = dict(zip(bloco["campos"], next(l for l in linhas if l[0] == "0100010003-7")))
+            self.assertEqual(terreno["categoria"], "terreno")
+            self.assertTrue(terreno["sem_numero"])
+            self.assertNotIn("FULANA", json.dumps(bloco))
+
+    def test_sem_base(self):
+        with TemporaryDirectory() as tmp:
+            with self.assertRaises(FileNotFoundError):
+                publicar.publicar(Path(tmp) / "nada.sqlite", Path(tmp) / "site")
 
 
 if __name__ == "__main__":

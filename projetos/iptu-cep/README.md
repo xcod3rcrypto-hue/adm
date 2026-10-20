@@ -40,7 +40,8 @@ O navegador abre em `http://127.0.0.1:8765`. Na primeira vez, a tela pede o cami
 - áreas, uso, padrão, ano da construção e **valor venal estimado**
 - um resumo do CEP: quantos imóveis de cada tipo, quantos sem número e o valor venal somado
 - filtros por tipo, "só sem número", situação de débito e busca por número, complemento ou nº do IPTU; as colunas ordenam com um clique
-- **Débitos:** o botão "Consultar ↗" copia o nº do IPTU e abre a página oficial da certidão de débitos imobiliários da Prefeitura. Você marca o resultado (sem débito / com débito) e a marcação fica salva no seu navegador
+- **Débitos em abas:** "Todos", "Não consultados", "Com débito" e "Sem débito", com a contagem de cada uma
+- **Consultar em sequência:** a barra fixa no rodapé mostra o próximo imóvel não consultado, já com o nº do IPTU copiado. "Abrir certidão" abre a página oficial, sempre na mesma aba. Você confere o resultado e clica em "Sem débito" ou "Com débito" (no computador também funcionam as teclas S e C), e o próximo entra na fila. As marcações ficam salvas no navegador
 - exportação da lista filtrada em CSV, já com a situação de débito marcada
 
 > **Por que os débitos não vêm automáticos:** a Prefeitura não publica débitos na base aberta. Ela só informa imóvel a imóvel, na certidão de débitos ou no DUC, que pede Senha Web. O programa não tenta driblar essa proteção. Ele leva você direto ao lugar certo, com o número pronto para colar.

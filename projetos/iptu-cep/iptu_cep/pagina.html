@@ -60,6 +60,23 @@
   select.debito.sem { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
   .acoes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   .rodape { color: var(--muted); font-size: 13px; }
+  .abas { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .aba { border-radius: 8px 8px 0 0; border-bottom: 3px solid transparent; background: transparent; padding: 8px 12px; font-weight: 600; color: var(--muted); }
+  .aba.ativa { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-soft); }
+  .aba span { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; font-size: 12px; background: var(--line); color: var(--text); }
+  .aba[data-aba="com"] span { background: var(--bad-soft); color: var(--bad); }
+  .aba[data-aba="sem"] span { background: var(--ok-soft); color: var(--ok); }
+  #btnFila { margin-left: auto; }
+  .fila { position: sticky; bottom: 0; z-index: 5; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+          background: var(--card); border: 2px solid var(--accent); border-radius: 12px; padding: 12px 14px;
+          margin-bottom: 16px; box-shadow: 0 -4px 18px rgba(0,0,0,.12); }
+  .fila-info { flex: 1 1 260px; min-width: 0; }
+  .fila-info b { display: block; }
+  .fila-botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.ok { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); font-weight: 600; }
+  button.bad { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); font-weight: 600; }
+  kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; opacity: .7; }
+  tr.atual td { background: var(--accent-soft); }
   .oculto { display: none !important; }
   @media (max-width: 760px) {
     main { padding: 16px 12px 48px; }
@@ -88,6 +105,13 @@
     td.debito-td .acoes { margin: 0; }
     td.debito-td .mini, td .mini { padding: 8px 12px; font-size: 14px; }
     #contagem { padding: 0 4px; }
+    .abas { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .aba { flex: 0 0 auto; }
+    #btnFila { flex: 0 0 auto; }
+    .fila-botoes button { flex: 1 1 40%; padding: 12px; }
+    kbd { display: none; }
+    tr.atual { border: 2px solid var(--accent); }
+    tr.atual td { background: transparent; }
   }
 </style>
 </head>
@@ -133,15 +157,17 @@
         <button class="chip" data-cat="outro">Outros</button>
         </div>
         <label class="muted"><input type="checkbox" id="soSemNumero"> só sem número</label>
-        <select id="filtroDebito">
-          <option value="">Débitos: todos</option>
-          <option value="com">Com débito</option>
-          <option value="sem">Sem débito</option>
-          <option value="nc">Não consultado</option>
-        </select>
         <input type="text" id="texto" placeholder="Filtrar por número, complemento ou nº do IPTU">
         <button id="btnCsv">Exportar CSV</button>
       </div>
+    </div>
+
+    <div class="abas" id="abas" role="tablist">
+      <button class="aba ativa" data-aba="todos" role="tab">Todos<span></span></button>
+      <button class="aba" data-aba="nc" role="tab">Não consultados<span></span></button>
+      <button class="aba" data-aba="com" role="tab">Com débito<span></span></button>
+      <button class="aba" data-aba="sem" role="tab">Sem débito<span></span></button>
+      <button id="btnFila" class="primario">Consultar em sequência</button>
     </div>
 
     <div class="card lista">
@@ -160,12 +186,29 @@
       <p class="muted" id="contagem"></p>
     </div>
 
+    <div id="fila" class="fila oculto" aria-live="polite">
+      <div class="fila-info">
+        <span class="muted" id="filaPosicao"></span>
+        <b id="filaEndereco"></b>
+        <span class="muted">Nº do IPTU <span class="sql" id="filaSql"></span> · <span id="filaCopiado"></span></span>
+      </div>
+      <div class="fila-botoes">
+        <button id="filaAbrir" class="primario">Abrir certidão ↗<kbd>A</kbd></button>
+        <button id="filaSem" class="ok">Sem débito<kbd>S</kbd></button>
+        <button id="filaCom" class="bad">Com débito<kbd>C</kbd></button>
+        <button id="filaPular">Pular<kbd>P</kbd></button>
+        <button id="filaSair">Sair</button>
+      </div>
+    </div>
+
     <p class="rodape">
       <b>Nº do IPTU</b> é o número do contribuinte (SQL) usado em todos os serviços da Prefeitura.
       O <b>valor venal</b> é uma estimativa simplificada feita com a base aberta. O valor do carnê aparece na
       <a id="link2via" target="_blank" rel="noopener">2ª via do IPTU</a>.
-      <b>Débitos:</b> a Prefeitura só informa imóvel a imóvel, na certidão de débitos imobiliários. O botão
-      “Consultar débitos” copia o número e abre a página oficial. Marque o resultado na lista: ele fica salvo neste navegador.
+      <b>Débitos:</b> a Prefeitura só informa imóvel a imóvel, na certidão de débitos imobiliários (com verificação
+      anti-robô). Use <b>“Consultar em sequência”</b>: o número do imóvel já vai copiado, a certidão abre sempre na mesma aba,
+      e ao marcar “Sem débito” ou “Com débito” o próximo imóvel entra na fila. As marcações ficam salvas neste navegador
+      e separam a lista nas abas.
     </p>
   </section>
 </main>
@@ -177,7 +220,8 @@ const area = (v) => v == null ? "–" : v.toLocaleString("pt-BR", { maximumFract
 const NOMES = { casa: "Casa", apartamento: "Apartamento", terreno: "Terreno", comercial: "Comércio", outro: "Outro" };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-let dados = null, categoria = "todos", ordem = { campo: "endereco", asc: true };
+let dados = null, categoria = "todos", aba = "todos", ordem = { campo: "endereco", asc: true };
+let fila = null; // { atual: sql, pulados: Set } enquanto a consulta em sequência está ativa
 
 // Situação de débitos marcada pelo usuário, salva só neste navegador.
 const debitos = (() => {
@@ -299,6 +343,7 @@ $("#form").addEventListener("submit", async (e) => {
     const { dados: j, erro } = await (MODO === "estatico" ? consultaEstatica : consultaApi)($("#cep").value);
     if (erro) { $("#resultado").classList.add("oculto"); mensagem(erro); return; }
     dados = j;
+    if (fila) filaSair();
     history.replaceState(null, "", "?cep=" + j.cep);
     if (j.aviso) mensagem(j.aviso, "aviso");
     mostrar();
@@ -332,13 +377,13 @@ function mostrar() {
   desenhar();
 }
 
-function filtrados() {
+// Categoria, "sem número" e busca; a aba de débitos é aplicada por cima.
+function filtrados(comAba = true) {
   const t = $("#texto").value.trim().toLowerCase();
-  const fd = $("#filtroDebito").value;
   const lista = dados.imoveis.filter((i) =>
     (categoria === "todos" || i.categoria === categoria) &&
     (!$("#soSemNumero").checked || i.sem_numero) &&
-    (!fd || debitos.get(i.sql) === fd) &&
+    (!comAba || aba === "todos" || debitos.get(i.sql) === aba) &&
     (!t || [i.numero, i.complemento, i.sql, i.logradouro].join(" ").toLowerCase().includes(t)));
   const { campo, asc } = ordem;
   lista.sort((a, b) => {
@@ -352,10 +397,21 @@ function filtrados() {
 }
 
 function desenhar() {
+  const base = filtrados(false);
+  const conta = { todos: base.length, nc: 0, sem: 0, com: 0 };
+  base.forEach((i) => conta[debitos.get(i.sql)]++);
+  document.querySelectorAll(".aba").forEach((b) => {
+    b.querySelector("span").textContent = conta[b.dataset.aba];
+    b.classList.toggle("ativa", b.dataset.aba === aba);
+    b.setAttribute("aria-selected", b.dataset.aba === aba);
+  });
+  $("#btnFila").textContent = fila ? "Consultando…" : `Consultar em sequência (${conta.nc})`;
+  $("#btnFila").disabled = !!fila || !conta.nc;
+
   const lista = filtrados();
   $("#linhas").innerHTML = lista.map((i) => {
     const st = debitos.get(i.sql);
-    return `<tr>
+    return `<tr${fila && fila.atual === i.sql ? ' class="atual"' : ""}>
       <td data-rotulo="Endereço" class="endereco-td">${esc(i.sem_numero ? (i.logradouro + ", s/n" + (i.complemento ? " - " + i.complemento : "")) : i.endereco)}
         <div class="muted">${esc(i.uso || "")}${i.ano_construcao ? " · " + esc(i.ano_construcao) : ""}</div></td>
       <td data-rotulo="Nº do IPTU"><span class="sql">${esc(i.sql || "–")}</span>
@@ -373,8 +429,76 @@ function desenhar() {
         <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar débitos ↗</button></div>
       </td></tr>`;
   }).join("");
-  $("#contagem").textContent = `Mostrando ${lista.length} de ${dados.imoveis.length} imóveis.`;
+  $("#contagem").textContent = lista.length
+    ? `Mostrando ${lista.length} de ${dados.imoveis.length} imóveis.`
+    : "Nenhum imóvel nesta aba.";
 }
+
+// ---- Consulta em sequência --------------------------------------------------
+function abrirCertidao() {
+  // Mesma aba sempre ("certidao"), para não acumular abas.
+  const w = window.open(dados.links.debitos, "certidao");
+  if (w) w.opener = null;
+}
+
+async function filaMostrar() {
+  const pendentes = filtrados(false).filter((i) => debitos.get(i.sql) === "nc" && !fila.pulados.has(i.sql));
+  const i = pendentes[0];
+  if (!i) {
+    const pulados = fila.pulados.size;
+    filaSair();
+    mensagem(pulados ? `Fila concluída. ${pulados} imóvel(is) pulado(s) continuam em "Não consultados".`
+                     : "Fila concluída: todos os imóveis desta lista foram consultados.", "aviso");
+    return;
+  }
+  fila.atual = i.sql;
+  $("#filaPosicao").textContent = `Faltam ${pendentes.length} · `;
+  $("#filaEndereco").textContent = i.sem_numero ? `${i.logradouro}, s/n${i.complemento ? " - " + i.complemento : ""}` : i.endereco;
+  $("#filaSql").textContent = i.sql;
+  $("#filaCopiado").textContent = (await copiar(i.sql)) ? "copiado ✓, cole na certidão" : "copie o número";
+  desenhar();
+  document.querySelector("tr.atual")?.scrollIntoView({ block: "nearest" });
+}
+
+function filaIniciar() {
+  fila = { atual: null, pulados: new Set() };
+  $("#fila").classList.remove("oculto");
+  mensagem("");
+  filaMostrar();
+}
+
+function filaSair() {
+  fila = null;
+  $("#fila").classList.add("oculto");
+  desenhar();
+}
+
+function filaMarcar(valor) {
+  if (!fila?.atual) return;
+  debitos.set(fila.atual, valor);
+  mostrar();
+  filaMostrar();
+}
+
+$("#btnFila").addEventListener("click", filaIniciar);
+$("#filaAbrir").addEventListener("click", async () => { await copiar(fila.atual); abrirCertidao(); });
+$("#filaSem").addEventListener("click", () => filaMarcar("sem"));
+$("#filaCom").addEventListener("click", () => filaMarcar("com"));
+$("#filaPular").addEventListener("click", () => { fila.pulados.add(fila.atual); filaMostrar(); });
+$("#filaSair").addEventListener("click", filaSair);
+document.addEventListener("keydown", (e) => {
+  if (!fila || e.ctrlKey || e.metaKey || e.altKey || e.target.matches("input, select, textarea")) return;
+  const acao = { a: () => $("#filaAbrir").click(), s: () => filaMarcar("sem"), c: () => filaMarcar("com"),
+                 p: () => $("#filaPular").click() }[e.key.toLowerCase()];
+  if (acao) { e.preventDefault(); acao(); }
+});
+
+$("#abas").addEventListener("click", (e) => {
+  const b = e.target.closest(".aba");
+  if (!b) return;
+  aba = b.dataset.aba;
+  desenhar();
+});
 
 async function copiar(texto) {
   try { await navigator.clipboard.writeText(texto); return true; } catch { return false; }
@@ -389,7 +513,7 @@ $("#linhas").addEventListener("click", async (e) => {
   }
   if (b.dataset.debito !== undefined) {
     await copiar(b.dataset.debito);
-    window.open(dados.links.debitos, "_blank", "noopener");
+    abrirCertidao();
     b.textContent = "Nº copiado, cole na página";
     setTimeout(() => (b.textContent = "Consultar débitos ↗"), 3000);
   }
@@ -408,7 +532,7 @@ $("#filtros").addEventListener("click", (e) => {
   document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("ativo", x === c));
   desenhar();
 });
-["#texto", "#soSemNumero", "#filtroDebito"].forEach((s) => $(s).addEventListener("input", desenhar));
+["#texto", "#soSemNumero"].forEach((s) => $(s).addEventListener("input", desenhar));
 
 document.querySelector("thead").addEventListener("click", (e) => {
   const th = e.target.closest("th[data-ord]");

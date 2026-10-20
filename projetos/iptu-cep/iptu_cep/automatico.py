@@ -162,7 +162,9 @@ def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = No
     total = base.importar_csv(csv_path, db, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
     print(f"\nImportados: {total:,} imóveis.".replace(",", "."))
 
-    r = publicar.publicar(db, site)
+    print("Gerando o site (separando por CEP) ...")
+    r = publicar.publicar(db, site, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
+    print()
     print(f"Site gerado: {r['arquivos']} arquivos, {r['megabytes']} MB.")
     if not publicar_online:
         return None

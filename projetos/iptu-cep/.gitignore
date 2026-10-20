@@ -1,0 +1,4 @@
+dados/
+*.sqlite
+*.csv
+!tests/fixtures/*.csv

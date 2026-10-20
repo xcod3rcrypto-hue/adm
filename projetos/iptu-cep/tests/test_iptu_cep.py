@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from iptu_cep import __main__ as cli
-from iptu_cep import automatico, base, cep, publicar, web
+from iptu_cep import automatico, base, cep, fonte, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 
@@ -279,6 +279,69 @@ class TestAutomatico(unittest.TestCase):
         with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), redirect_stdout(io.StringIO()):
             self.assertIsNone(automatico.tudo(db, site, publicar_online=False))
         self.assertTrue((site / "dados" / "01310.bin").is_file())
+
+
+class TestFonte(unittest.TestCase):
+    def test_links_nas_paginas(self):
+        pagina = ('<a href="downloadArquivo.aspx?orig=DownloadCadastro&amp;arq=IPTU%5CIPTU_2025.zip&amp;arqTipo=CADASTRO">2025</a>'
+                  '<a href="/x/IPTU_2026.zip">2026</a><a href="/x/outra.zip">x</a>')
+        achados = fonte.links_nas_paginas(["https://download.geosampa.prefeitura.sp.gov.br/PaginasPublicas/"], ler=lambda _: pagina)
+        self.assertEqual(sorted(a for a, _ in achados), [2025, 2026])
+        self.assertIn(("https://download.geosampa.prefeitura.sp.gov.br/PaginasPublicas/downloadArquivo.aspx"
+                       "?orig=DownloadCadastro&arq=IPTU%5CIPTU_2025.zip&arqTipo=CADASTRO"), [u for _, u in achados])
+
+    def test_links_no_ckan(self):
+        resposta = json.dumps({"result": {"results": [{"resources": [
+            {"name": "IPTU 2025", "format": "ZIP", "url": "https://dados.exemplo/iptu_2025.zip"},
+            {"name": "Dicionário", "format": "PDF", "url": "https://dados.exemplo/dic.pdf"},
+        ]}]}})
+        self.assertEqual(fonte.links_no_ckan(ler=lambda _: resposta), [(2025, "https://dados.exemplo/iptu_2025.zip")])
+        self.assertEqual(fonte.links_no_ckan(ler=lambda _: "não é json"), [])
+
+    def test_links_montados(self):
+        from datetime import date
+        links = fonte.links_montados(date(2026, 3, 1))
+        self.assertEqual({a for a, _ in links}, {2024, 2025, 2026})
+        self.assertTrue(all(u.startswith(fonte.GEOSAMPA_DL) for _, u in links))
+
+    def test_baixar_aceita_so_a_base(self):
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.write(AMOSTRA, "IPTU_2026.csv")
+        conteudos = {"/zip": buf.getvalue(), "/html": b"<html>Pagina de erro</html>", "/csv": AMOSTRA.read_bytes()}
+
+        class H(BaseHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+
+            def do_GET(self):
+                corpo = conteudos.get(self.path)
+                self.send_response(200 if corpo else 404)
+                self.send_header("Content-Length", str(len(corpo or b"")))
+                self.end_headers()
+                self.wfile.write(corpo or b"")
+
+        srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        url = f"http://127.0.0.1:{srv.server_address[1]}"
+        try:
+            with TemporaryDirectory() as tmp:
+                pasta = Path(tmp)
+                self.assertIsNone(fonte.baixar(url + "/html", pasta, "IPTU_2026"))
+                self.assertIsNone(fonte.baixar(url + "/nada", pasta, "IPTU_2026"))
+                z = fonte.baixar(url + "/zip", pasta, "IPTU_2026")
+                self.assertEqual(z.name, "IPTU_2026.zip")
+                c = fonte.baixar(url + "/csv", pasta, "IPTU_2025")
+                self.assertEqual(c.suffix, ".csv")
+                self.assertEqual(sorted(p.name for p in pasta.iterdir()), ["IPTU_2025.csv", "IPTU_2026.zip"])
+                with mock.patch.object(fonte, "candidatos", return_value=[(2026, url + "/html"), (2026, url + "/zip")]):
+                    self.assertEqual(fonte.baixar_automatico(pasta / "auto", avisar=lambda *_: None).name, "IPTU_2026.zip")
+        finally:
+            srv.shutdown()
+            srv.server_close()
 
 
 if __name__ == "__main__":

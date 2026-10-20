@@ -12,7 +12,6 @@ import shutil
 import subprocess
 import sys
 import time
-import urllib.request
 import webbrowser
 import zipfile
 from pathlib import Path
@@ -57,14 +56,14 @@ def esperar_download(pasta: Path, desde: float, limite_s: int = 3600, intervalo_
 
 
 def baixar_url(url: str, destino_dir: Path) -> Path:
-    destino_dir.mkdir(parents=True, exist_ok=True)
-    nome = Path(url.split("?")[0]).name or "iptu.zip"
-    destino = destino_dir / nome
+    from . import fonte
     print(f"Baixando {url} ...")
-    req = urllib.request.Request(url, headers={"User-Agent": "iptu-cep/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as resp, open(destino, "wb") as f:
-        shutil.copyfileobj(resp, f, length=1 << 20)
-    return destino
+    arquivo = fonte.baixar(url, destino_dir, "IPTU_baixado",
+                           progresso=lambda feito, total: print(f"  {feito / 1e6:,.0f} MB", end="\r"))
+    if arquivo is None:
+        raise ValueError("Esse link não devolveu a base do IPTU (nem ZIP nem CSV com CEP).")
+    print()
+    return arquivo
 
 
 def preparar_csv(arquivo: Path, pasta_trabalho: Path) -> Path:
@@ -123,6 +122,11 @@ def publicar_vercel(pasta_site: Path, executar=subprocess.run, popen=subprocess.
     return extrair_url_publica("".join(linhas))
 
 
+def baixar_sozinho(pasta: Path) -> Path | None:
+    from . import fonte
+    return fonte.baixar_automatico(pasta)
+
+
 def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = None,
          publicar_online: bool = True, abrir_navegador: bool = True) -> str | None:
     from . import base, publicar
@@ -131,16 +135,20 @@ def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = No
     if url:
         arquivo = baixar_url(url, trabalho)
     if arquivo is None:
-        arquivo = procurar_base(pasta_downloads())
+        arquivo = procurar_base(pasta_downloads()) or procurar_base(trabalho)
         if arquivo:
             print(f"Base encontrada: {arquivo}")
         else:
+            arquivo = baixar_sozinho(trabalho)
+        if arquivo is None:
             inicio = time.time()
             print(
-                "\nNão achei a base do IPTU na pasta Downloads.\n"
+                "\nNão consegui baixar a base sozinho (o site da Prefeitura pode ter mudado).\n"
                 "Vou abrir o GeoSampa. Lá, clique em: Download de arquivos > Cadastro > IPTU\n"
                 "e baixe o arquivo do ano mais recente. O programa continua sozinho quando o\n"
-                "download terminar (Ctrl+C para cancelar)."
+                "download terminar (Ctrl+C para cancelar).\n"
+                "Dica: se preferir, clique com o botão direito no arquivo do IPTU, copie o link e rode\n"
+                '  py -m iptu_cep tudo --url "LINK_COPIADO"'
             )
             webbrowser.open(GEOSAMPA)
             arquivo = esperar_download(pasta_downloads(), inicio)

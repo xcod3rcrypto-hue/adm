@@ -18,9 +18,11 @@ py -m iptu_cep tudo
 ```
 
 O programa:
-1. procura a base do IPTU (`IPTU*.zip` ou `IPTU*.csv`) na pasta **Downloads**. Se não achar, abre o GeoSampa no navegador: clique em *Download de arquivos > Cadastro > IPTU*, baixe o ano mais recente, e ele continua sozinho quando o download terminar;
-2. descompacta o ZIP, importa e gera o site;
-3. publica na Vercel (na primeira vez abre o navegador para você fazer login) e mostra o endereço, por exemplo `https://iptu-cep.vercel.app`.
+1. procura a base do IPTU (`IPTU*.zip` ou `IPTU*.csv`) na pasta **Downloads**;
+2. se não achar, **tenta baixar sozinho** dos sites da Prefeitura: procura links do IPTU nas páginas do GeoSampa e no Portal de Dados Abertos, e testa o formato de link de download do GeoSampa para os últimos anos. Só aceita o arquivo se for de fato um ZIP ou um CSV com coluna de CEP;
+3. se mesmo assim não conseguir (a Prefeitura muda o site de vez em quando), abre o GeoSampa no navegador: clique em *Download de arquivos > Cadastro > IPTU*, baixe o ano mais recente, e ele continua sozinho quando o download terminar;
+4. descompacta o ZIP, importa e gera o site;
+5. publica na Vercel (na primeira vez abre o navegador para você fazer login) e mostra o endereço, por exemplo `https://iptu-cep.vercel.app`.
 
 Opções: `--arquivo caminho.zip` usa um arquivo específico; `--url link` baixa de um link direto; `--sem-vercel` só gera o site.
 

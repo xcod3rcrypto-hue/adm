@@ -214,6 +214,12 @@ class TestAutomatico(unittest.TestCase):
         self.assertIsNone(automatico.procurar_base(self.pasta, desde=novo.stat().st_mtime + 10))
         self.assertIsNone(automatico.procurar_base(self.pasta / "nao_existe"))
 
+    def test_prefere_o_ano_mais_novo(self):
+        a2026, a2025 = self.pasta / "IPTU_2026.zip", self.pasta / "IPTU_2025.zip"
+        a2026.write_text("x"); a2025.write_text("x")
+        os.utime(a2026, (1000, 1000))  # 2025 foi baixado depois
+        self.assertEqual(automatico.procurar_base(self.pasta), a2026)
+
     def test_extrai_maior_csv_do_zip(self):
         z = self.pasta / "IPTU_2026.zip"
         with zipfile.ZipFile(z, "w") as zf:

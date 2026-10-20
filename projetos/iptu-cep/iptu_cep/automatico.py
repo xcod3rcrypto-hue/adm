@@ -26,14 +26,20 @@ def pasta_downloads() -> Path:
 
 
 def procurar_base(pasta: Path, desde: float = 0) -> Path | None:
-    """O arquivo IPTU*.csv/.zip mais recente da pasta (modificado depois de `desde`)."""
+    """O IPTU*.csv/.zip de ano mais novo da pasta (modificado depois de `desde`)."""
     if not pasta.is_dir():
         return None
     candidatos = [
         p for p in pasta.iterdir()
         if p.is_file() and PADRAO_ARQUIVO.search(p.name) and p.stat().st_mtime >= desde
     ]
-    return max(candidatos, key=lambda p: p.stat().st_mtime, default=None)
+    # Maior ano no nome primeiro (IPTU_2026 antes de IPTU_2025); empate, o mais recente.
+    return max(candidatos, key=lambda p: (_ano(p.name), p.stat().st_mtime), default=None)
+
+
+def _ano(nome: str) -> int:
+    achado = re.search(r"(?:19|20)\d{2}", nome)
+    return int(achado.group(0)) if achado else 0
 
 
 def _download_em_andamento(pasta: Path) -> bool:

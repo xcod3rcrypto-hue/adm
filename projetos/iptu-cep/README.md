@@ -76,6 +76,17 @@ Observações:
 - A marcação "com débito / sem débito" fica salva **no navegador de cada aparelho**; ela não passa do celular para o computador. Use "Exportar CSV" para levar a lista.
 - Os dados publicados são os mesmos da base aberta da Prefeitura, sem nomes, CPF ou CNPJ.
 
+## Backup
+
+**Marcações de débito (no site):** o quadro "Backup das marcações de débito" tem **Baixar backup**, que salva um arquivo `iptu-debitos-backup-AAAA-MM-DD.json` na pasta de downloads do navegador, e **Restaurar backup**, que junta as marcações do arquivo às deste navegador. O arquivo também serve para levar as marcações do celular para o computador e vice-versa.
+
+**Base do IPTU (no PC):**
+```powershell
+py -m iptu_cep backup                                   # salva em Documentos\IPTU-backup
+py -m iptu_cep backup --pasta "D:\Backups\IPTU"         # ou numa pasta à sua escolha
+py -m iptu_cep restaurar "$HOME\Documents\IPTU-backup\iptu-backup-2026-10-20_1530.zip"
+```
+
 ## Uso na linha de comando
 
 ```bash

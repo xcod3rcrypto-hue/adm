@@ -77,6 +77,9 @@
   button.bad { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); font-weight: 600; }
   kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; opacity: .7; }
   tr.atual td { background: var(--accent-soft); }
+  .backup { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .backup > div:first-child { flex: 1 1 280px; }
+  .backup-botoes { display: flex; gap: 8px; flex-wrap: wrap; }
   .oculto { display: none !important; }
   @media (max-width: 760px) {
     main { padding: 16px 12px 48px; }
@@ -135,6 +138,16 @@
       <button class="primario" id="btnConsultar">Consultar</button>
     </form>
     <div id="infoBase" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card backup">
+    <div><b>Backup das marcações de débito</b>
+      <div class="muted">As marcações ficam só neste navegador. Baixe um arquivo para guardar no seu computador ou levar para outro aparelho.</div></div>
+    <div class="backup-botoes">
+      <button id="btnBackup">Baixar backup</button>
+      <button id="btnRestaurar">Restaurar backup</button>
+      <input type="file" id="arquivoBackup" accept=".json,application/json" hidden>
+    </div>
   </div>
 
   <div id="mensagem"></div>
@@ -227,11 +240,46 @@ let fila = null; // { atual: sql, pulados: Set } enquanto a consulta em sequênc
 const debitos = (() => {
   let m = {};
   try { m = JSON.parse(localStorage.getItem("iptu-debitos") || "{}"); } catch {}
+  const salvar = () => { try { localStorage.setItem("iptu-debitos", JSON.stringify(m)); } catch {} };
   return {
     get: (sql) => m[sql] || "nc",
-    set: (sql, v) => { m[sql] = v; try { localStorage.setItem("iptu-debitos", JSON.stringify(m)); } catch {} },
+    set: (sql, v) => { m[sql] = v; salvar(); },
+    todos: () => ({ ...m }),
+    juntar: (outras) => { Object.assign(m, outras); salvar(); },
   };
 })();
+
+// ---- Backup das marcações (arquivo .json no computador) ----------------------
+function baixarArquivo(nome, conteudo, tipo) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+  a.download = nome;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function baixarBackup() {
+  const marcacoes = Object.fromEntries(Object.entries(debitos.todos()).filter(([, v]) => v !== "nc"));
+  const total = Object.keys(marcacoes).length;
+  if (!total) { mensagem("Ainda não há marcações de débito para salvar.", "aviso"); return; }
+  const hoje = new Date().toISOString().slice(0, 10);
+  const backup = { app: "iptu-cep", tipo: "marcacoes-debito", versao: 1, gerado_em: new Date().toISOString(), total, marcacoes };
+  baixarArquivo(`iptu-debitos-backup-${hoje}.json`, JSON.stringify(backup, null, 2), "application/json");
+  mensagem(`Backup com ${total} marcação(ões) baixado.`, "aviso");
+}
+
+async function restaurarBackup(arquivo) {
+  let backup;
+  try { backup = JSON.parse(await arquivo.text()); } catch { backup = null; }
+  const m = backup && backup.app === "iptu-cep" && backup.marcacoes;
+  const validas = m && typeof m === "object"
+    ? Object.fromEntries(Object.entries(m).filter(([k, v]) => typeof k === "string" && ["sem", "com", "nc"].includes(v)))
+    : null;
+  if (!validas) { mensagem("Esse arquivo não é um backup do IPTU pelo CEP."); return; }
+  debitos.juntar(validas);
+  mensagem(`Backup restaurado: ${Object.keys(validas).length} marcação(ões) de ${String(backup.gerado_em || "").slice(0, 10) || "data desconhecida"}.`, "aviso");
+  if (dados) mostrar();
+}
 
 $("#cep").addEventListener("input", (e) => {
   const d = e.target.value.replace(/\D/g, "").slice(0, 8);
@@ -541,6 +589,14 @@ document.querySelector("thead").addEventListener("click", (e) => {
   desenhar();
 });
 
+$("#btnBackup").addEventListener("click", baixarBackup);
+$("#btnRestaurar").addEventListener("click", () => $("#arquivoBackup").click());
+$("#arquivoBackup").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (f) restaurarBackup(f);
+  e.target.value = "";
+});
+
 $("#btnCsv").addEventListener("click", () => {
   const cab = ["endereco", "numero", "complemento", "bairro", "cep", "numero_iptu", "tipo", "uso", "padrao",
                "ano_construcao", "area_terreno", "area_construida", "valor_venal_estimado", "situacao_debito"];
@@ -549,10 +605,7 @@ $("#btnCsv").addEventListener("click", () => {
   const linhas = filtrados().map((i) => [i.logradouro, i.numero, i.complemento, i.bairro, i.cep, i.sql, NOMES[i.categoria],
     i.uso, i.padrao, i.ano_construcao, num(i.area_terreno), num(i.area_construida), num(i.valor_venal_estimado), sit[debitos.get(i.sql)]]);
   const csv = [cab, ...linhas].map((l) => l.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-  a.download = `iptu_${dados.cep}.csv`;
-  a.click();
+  baixarArquivo(`iptu_${dados.cep}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
 });
 
 const inicial = new URLSearchParams(location.search).get("cep");

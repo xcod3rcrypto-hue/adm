@@ -9,7 +9,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import automatico, base, cep, fonte, publicar, web
+from . import automatico, backup, base, cep, fonte, publicar, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
 # O nome da última pasta vira o nome do projeto na Vercel (iptu-cep.vercel.app).
@@ -160,6 +160,27 @@ def cmd_tudo(args) -> int:
     return 0
 
 
+def cmd_backup(args) -> int:
+    print("Fazendo backup da base (pode levar alguns minutos) ...")
+    try:
+        arquivo = backup.fazer_backup(Path(args.db), Path(args.pasta).expanduser())
+    except (FileNotFoundError, OSError) as e:
+        print(f"Erro: {e}", file=sys.stderr)
+        return 1
+    print(f"Backup salvo em: {arquivo}  ({arquivo.stat().st_size / 1e6:,.0f} MB)".replace(",", "."))
+    return 0
+
+
+def cmd_restaurar(args) -> int:
+    try:
+        total = backup.restaurar_backup(Path(args.arquivo).expanduser(), Path(args.db))
+    except (FileNotFoundError, ValueError, OSError) as e:
+        print(f"Erro: {e}", file=sys.stderr)
+        return 1
+    print(f"Base restaurada: {total:,} imóveis.".replace(",", "."))
+    return 0
+
+
 def cmd_diagnostico(args) -> int:
     fonte.diagnostico()
     return 0
@@ -196,6 +217,14 @@ def main(argv: list[str] | None = None) -> int:
     pt.add_argument("--destino", default=str(SITE_PADRAO), help="pasta do site gerado")
     pt.add_argument("--sem-vercel", action="store_true", help="só gera o site, sem publicar")
     pt.set_defaults(func=cmd_tudo)
+
+    pb = sub.add_parser("backup", help="guarda a base importada num .zip numa pasta do computador")
+    pb.add_argument("--pasta", default=str(backup.PASTA_PADRAO), help=f"pasta do backup (padrão: {backup.PASTA_PADRAO})")
+    pb.set_defaults(func=cmd_backup)
+
+    pr = sub.add_parser("restaurar", help="restaura a base a partir de um backup .zip")
+    pr.add_argument("arquivo", help="arquivo iptu-backup-....zip")
+    pr.set_defaults(func=cmd_restaurar)
 
     pd = sub.add_parser("diagnostico", help="mostra onde o programa procura a base do IPTU e o que encontra")
     pd.set_defaults(func=cmd_diagnostico)

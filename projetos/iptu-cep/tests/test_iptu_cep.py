@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from iptu_cep import __main__ as cli
-from iptu_cep import automatico, base, cep, fonte, publicar, web
+from iptu_cep import automatico, backup, base, cep, fonte, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 
@@ -367,6 +367,32 @@ class TestFonte(unittest.TestCase):
         finally:
             srv.shutdown()
             srv.server_close()
+
+
+class TestBackup(unittest.TestCase):
+    def test_backup_e_restauracao(self):
+        with TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            db = tmp / "dados" / "iptu.sqlite"
+            db.parent.mkdir()
+            base.importar_csv(AMOSTRA, db)
+            arquivo = backup.fazer_backup(db, tmp / "IPTU-backup")
+            self.assertTrue(arquivo.name.startswith("iptu-backup-") and arquivo.suffix == ".zip")
+            self.assertEqual([p.suffix for p in arquivo.parent.iterdir()], [".zip"])  # sem cópia solta
+            novo = tmp / "outro" / "iptu.sqlite"
+            self.assertEqual(backup.restaurar_backup(arquivo, novo), 4)
+            self.assertEqual(len(base.consultar(novo, "01310100")), 3)
+
+    def test_erros(self):
+        with TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            with self.assertRaises(FileNotFoundError):
+                backup.fazer_backup(tmp / "nada.sqlite", tmp)
+            falso = tmp / "x.zip"
+            with zipfile.ZipFile(falso, "w") as z:
+                z.writestr("leia.txt", "oi")
+            with self.assertRaises(ValueError):
+                backup.restaurar_backup(falso, tmp / "db.sqlite")
 
 
 if __name__ == "__main__":

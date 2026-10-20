@@ -1,6 +1,9 @@
 import gzip
 import io
 import json
+import os
+import subprocess
+import zipfile
 import sqlite3
 import unittest
 from contextlib import redirect_stdout
@@ -9,7 +12,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from iptu_cep import __main__ as cli
-from iptu_cep import base, cep, publicar, web
+from iptu_cep import automatico, base, cep, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 
@@ -193,6 +196,89 @@ class TestPublicar(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             with self.assertRaises(FileNotFoundError):
                 publicar.publicar(Path(tmp) / "nada.sqlite", Path(tmp) / "site")
+
+
+class TestAutomatico(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.pasta = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_procura_o_mais_recente(self):
+        velho, novo = self.pasta / "IPTU_2025.zip", self.pasta / "iptu_2026.CSV"
+        velho.write_text("x"); novo.write_text("x"); (self.pasta / "outro.csv").write_text("x")
+        os.utime(velho, (1000, 1000))
+        self.assertEqual(automatico.procurar_base(self.pasta), novo)
+        self.assertIsNone(automatico.procurar_base(self.pasta, desde=novo.stat().st_mtime + 10))
+        self.assertIsNone(automatico.procurar_base(self.pasta / "nao_existe"))
+
+    def test_extrai_maior_csv_do_zip(self):
+        z = self.pasta / "IPTU_2026.zip"
+        with zipfile.ZipFile(z, "w") as zf:
+            zf.writestr("leia-me.csv", "a;b\n")
+            zf.write(AMOSTRA, "pasta/IPTU_2026.csv")
+        csv_path = automatico.preparar_csv(z, self.pasta / "trabalho")
+        self.assertEqual(csv_path.name, "IPTU_2026.csv")
+        self.assertEqual(base.importar_csv(csv_path, self.pasta / "db.sqlite"), 4)
+
+    def test_zip_sem_csv(self):
+        z = self.pasta / "IPTU.zip"
+        with zipfile.ZipFile(z, "w") as zf:
+            zf.writestr("x.txt", "oi")
+        with self.assertRaises(ValueError):
+            automatico.preparar_csv(z, self.pasta)
+
+    def test_espera_download_terminar(self):
+        parcial = self.pasta / "IPTU_2026.zip.crdownload"
+        parcial.write_text("x")
+        final = self.pasta / "IPTU_2026.zip"
+        chamadas = {"n": 0}
+
+        def dormir(_):
+            chamadas["n"] += 1
+            if chamadas["n"] == 2:  # o navegador termina o download
+                parcial.rename(final)
+
+        with mock.patch.object(automatico.time, "sleep", side_effect=dormir):
+            self.assertEqual(automatico.esperar_download(self.pasta, desde=0, intervalo_s=0), final)
+
+    def test_url_publica_da_saida_da_vercel(self):
+        saida = ("Inspect: https://vercel.com/fulano/iptu-cep/abc\n"
+                 "Production: https://iptu-cep-x1y2z3-fulano.vercel.app [3s]\n"
+                 "Aliased: https://iptu-cep.vercel.app [3s]\n")
+        self.assertEqual(automatico.extrair_url_publica(saida), "https://iptu-cep.vercel.app")
+        self.assertEqual(automatico.extrair_url_publica("https://iptu-cep-abc-fulano.vercel.app\n"),
+                         "https://iptu-cep-abc-fulano.vercel.app")
+        self.assertIsNone(automatico.extrair_url_publica("erro"))
+
+    def test_publicar_vercel_faz_login_se_preciso(self):
+        chamadas = []
+
+        def executar(cmd, **kw):
+            chamadas.append(cmd[-1])
+            return subprocess.CompletedProcess(cmd, 1 if cmd[-1] == "whoami" else 0)
+
+        class Proc:
+            stdout = iter(["Production: https://iptu-cep-q-fulano.vercel.app\n", "Aliased: https://iptu-cep.vercel.app\n"])
+            def wait(self):
+                return 0
+
+        with mock.patch.object(automatico, "_npx", return_value="npx"), redirect_stdout(io.StringIO()):
+            url = automatico.publicar_vercel(self.pasta, executar=executar, popen=lambda *a, **k: Proc())
+        self.assertEqual(chamadas, ["whoami", "login"])
+        self.assertEqual(url, "https://iptu-cep.vercel.app")
+
+    def test_tudo_sem_vercel(self):
+        downloads = self.pasta / "Downloads"
+        downloads.mkdir()
+        shutil_copy = (downloads / "IPTU_2026.csv")
+        shutil_copy.write_bytes(AMOSTRA.read_bytes())
+        db, site = self.pasta / "dados" / "iptu.sqlite", self.pasta / "site" / "iptu-cep"
+        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), redirect_stdout(io.StringIO()):
+            self.assertIsNone(automatico.tudo(db, site, publicar_online=False))
+        self.assertTrue((site / "dados" / "01310.bin").is_file())
 
 
 if __name__ == "__main__":

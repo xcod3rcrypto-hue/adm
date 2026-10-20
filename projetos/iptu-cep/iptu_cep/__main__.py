@@ -9,10 +9,11 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import base, cep, publicar, web
+from . import automatico, base, cep, publicar, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
-SITE_PADRAO = Path(__file__).resolve().parent.parent / "site"
+# O nome da última pasta vira o nome do projeto na Vercel (iptu-cep.vercel.app).
+SITE_PADRAO = Path(__file__).resolve().parent.parent / "site" / "iptu-cep"
 CIDADES_SUPORTADAS = web.CIDADES_SUPORTADAS
 LINK_2A_VIA = web.LINK_2A_VIA
 
@@ -28,6 +29,11 @@ def _area(v: float | None) -> str:
 
 
 def cmd_importar(args) -> int:
+    if not Path(args.csv).is_file():
+        print(f"Arquivo não encontrado: {args.csv}\n"
+              "Baixe a base no GeoSampa ou use:  py -m iptu_cep tudo  (o programa procura e baixa sozinho)",
+              file=sys.stderr)
+        return 1
     destino = Path(args.db)
     destino.parent.mkdir(parents=True, exist_ok=True)
     print(f"Importando {args.csv} -> {destino} ...")
@@ -130,6 +136,30 @@ def cmd_publicar(args) -> int:
     return 0
 
 
+def cmd_tudo(args) -> int:
+    try:
+        endereco = automatico.tudo(
+            Path(args.db), Path(args.destino),
+            arquivo=Path(args.arquivo) if args.arquivo else None,
+            url=args.url,
+            publicar_online=not args.sem_vercel,
+        )
+    except KeyboardInterrupt:
+        print("\nCancelado.", file=sys.stderr)
+        return 130
+    except (FileNotFoundError, TimeoutError, RuntimeError, ValueError, OSError) as e:
+        print(f"\nErro: {e}", file=sys.stderr)
+        return 1
+    if args.sem_vercel:
+        print(f"Pronto. Para publicar depois:  cd {args.destino}  e  npx vercel --prod")
+    elif endereco:
+        print(f"\n✅ Site publicado: {endereco}")
+        print("Se esse endereço pedir login da Vercel, use o domínio que aparece no projeto em vercel.com/dashboard.")
+    else:
+        print("\nPublicado, mas não identifiquei o endereço na saída. Veja em vercel.com/dashboard.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="iptu_cep", description="Consulta imóveis e IPTU pelo CEP (São Paulo).")
     p.add_argument("--db", default=str(DB_PADRAO), help=f"arquivo SQLite da base (padrão: {DB_PADRAO})")
@@ -154,6 +184,13 @@ def main(argv: list[str] | None = None) -> int:
     pp = sub.add_parser("publicar", help="gera o site estático para a Vercel")
     pp.add_argument("--destino", default=str(SITE_PADRAO), help=f"pasta do site (padrão: {SITE_PADRAO})")
     pp.set_defaults(func=cmd_publicar)
+
+    pt = sub.add_parser("tudo", help="acha/baixa a base, importa, gera o site e publica na Vercel")
+    pt.add_argument("--arquivo", help="CSV ou ZIP da base (se não informar, procura na pasta Downloads)")
+    pt.add_argument("--url", help="link direto para o ZIP/CSV da base, se você tiver")
+    pt.add_argument("--destino", default=str(SITE_PADRAO), help="pasta do site gerado")
+    pt.add_argument("--sem-vercel", action="store_true", help="só gera o site, sem publicar")
+    pt.set_defaults(func=cmd_tudo)
 
     args = p.parse_args(argv)
     return args.func(args)

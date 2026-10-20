@@ -9,6 +9,7 @@ mostra quem é o dono do imóvel.
 
 from __future__ import annotations
 
+import codecs
 import csv
 import io
 import re
@@ -93,9 +94,11 @@ def mapear_colunas(cabecalho: list[str]) -> dict[str, int]:
 
 
 def _abrir_texto(caminho: Path) -> io.TextIOWrapper:
-    bruto = caminho.read_bytes()[:4096]
+    with open(caminho, "rb") as f:
+        bruto = f.read(65536)
     try:
-        bruto.decode("utf-8")
+        # final=False: um caractere cortado no fim da amostra não conta como erro
+        codecs.getincrementaldecoder("utf-8")().decode(bruto, final=False)
         encoding = "utf-8-sig"
     except UnicodeDecodeError:
         encoding = "latin-1"

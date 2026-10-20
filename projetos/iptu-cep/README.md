@@ -10,6 +10,20 @@ Hoje funciona para a **cidade de São Paulo**, que publica a base completa do IP
 2. Os imóveis são buscados numa base local em SQLite, montada a partir do CSV oficial da Prefeitura e indexada por CEP. Assim a consulta é instantânea, mesmo com mais de 3 milhões de imóveis.
 3. O resultado sai como texto, JSON ou CSV.
 
+## Jeito mais fácil: um comando faz tudo
+
+```powershell
+cd projetos\iptu-cep
+py -m iptu_cep tudo
+```
+
+O programa:
+1. procura a base do IPTU (`IPTU*.zip` ou `IPTU*.csv`) na pasta **Downloads**. Se não achar, abre o GeoSampa no navegador: clique em *Download de arquivos > Cadastro > IPTU*, baixe o ano mais recente, e ele continua sozinho quando o download terminar;
+2. descompacta o ZIP, importa e gera o site;
+3. publica na Vercel (na primeira vez abre o navegador para você fazer login) e mostra o endereço, por exemplo `https://iptu-cep.vercel.app`.
+
+Opções: `--arquivo caminho.zip` usa um arquivo específico; `--url link` baixa de um link direto; `--sem-vercel` só gera o site.
+
 ## Tela (recomendado)
 
 ```bash

@@ -188,6 +188,18 @@ class TestWeb(unittest.TestCase):
         sem_base = Path(self.tmp.name) / "nada.sqlite"
         self.assertEqual(web.consultar_cep(sem_base, "01310100", buscar_endereco=lambda _: None)[0], 409)
 
+    def test_porta_ocupada_explica(self):
+        import socket
+        ocupado = socket.socket()
+        ocupado.bind(("127.0.0.1", 0))
+        ocupado.listen()
+        try:
+            with self.assertRaises(OSError) as erro:
+                web.servir(self.db, porta=ocupado.getsockname()[1], abrir=False)
+            self.assertIn("já está em uso", str(erro.exception))
+        finally:
+            ocupado.close()
+
     def test_status(self):
         self.assertEqual(web._status(self.db)["total"], 4)
         self.assertFalse(web._status(Path(self.tmp.name) / "nada.sqlite")["importada"])

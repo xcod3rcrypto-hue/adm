@@ -179,7 +179,15 @@ def criar_handler(db: Path):
 
 def servir(db: Path, porta: int = 8765, abrir: bool = True) -> None:
     # Só escuta no próprio computador: a base não fica exposta na rede.
-    servidor = ThreadingHTTPServer(("127.0.0.1", porta), criar_handler(Path(db)))
+    try:
+        servidor = ThreadingHTTPServer(("127.0.0.1", porta), criar_handler(Path(db)))
+    except OSError as e:
+        if getattr(e, "errno", None) in (98, 48, 10048) or getattr(e, "winerror", None) == 10048:
+            raise OSError(
+                f"A porta {porta} já está em uso: provavelmente outra janela do IPTU pelo CEP (talvez uma "
+                "versão antiga) continua aberta. Feche todas as janelas pretas do programa e abra de novo."
+            ) from e
+        raise
     url = f"http://127.0.0.1:{porta}/"
     print(f"IPTU pelo CEP aberto em {url}  (Ctrl+C para sair)")
     if abrir:

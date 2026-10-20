@@ -10,7 +10,9 @@ Servidor local só com a biblioteca padrão. Rotas:
 from __future__ import annotations
 
 import json
+import socket
 import sqlite3
+import sys
 import threading
 import webbrowser
 from dataclasses import asdict
@@ -177,10 +179,21 @@ def criar_handler(db: Path):
     return Handler
 
 
+class _Servidor(ThreadingHTTPServer):
+    # No Windows, SO_REUSEADDR deixaria duas janelas do programa abrirem a mesma porta
+    # (e o navegador continuaria falando com a antiga). Lá a porta precisa ser exclusiva.
+    allow_reuse_address = sys.platform != "win32"
+
+    def server_bind(self):
+        if sys.platform == "win32" and hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def servir(db: Path, porta: int = 8765, abrir: bool = True) -> None:
     # Só escuta no próprio computador: a base não fica exposta na rede.
     try:
-        servidor = ThreadingHTTPServer(("127.0.0.1", porta), criar_handler(Path(db)))
+        servidor = _Servidor(("127.0.0.1", porta), criar_handler(Path(db)))
     except OSError as e:
         if getattr(e, "errno", None) in (98, 48, 10048) or getattr(e, "winerror", None) == 10048:
             raise OSError(

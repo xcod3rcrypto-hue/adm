@@ -24,6 +24,7 @@
          font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
   h1 { font-size: 24px; margin: 0 0 4px; }
+  h1 .cidade { color: var(--accent); }
   .sub { color: var(--muted); margin: 0 0 20px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
   .busca { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -120,21 +121,27 @@
 </head>
 <body>
 <main>
-  <h1>IPTU pelo CEP</h1>
+  <h1>IPTU pelo CEP <span id="nomeCidade" class="cidade"></span></h1>
   <p class="sub">Digite o CEP da rua para ver todos os imóveis cadastrados no IPTU: casas, apartamentos, terrenos e comércios, com ou sem número.</p>
 
   <div id="importar" class="card oculto">
-    <b>Primeiro passo: importar a base do IPTU</b>
-    <p class="muted">Baixe o CSV no GeoSampa (Download de arquivos → Cadastro → IPTU) ou no Portal de Dados Abertos da Prefeitura de São Paulo e informe onde ele está. Isso é feito uma vez por ano.</p>
+    <b>Primeiro passo: importar o cadastro do IPTU</b>
+    <p class="muted">Informe onde está a planilha do cadastro imobiliário (CSV ou Excel .xlsx) recebida da Prefeitura.
+      Ela precisa ter pelo menos a coluna de CEP; o programa reconhece inscrição/cadastro, endereço, número, loteamento,
+      quadra, lote, áreas e valor venal. Nomes, CPF e CNPJ são descartados.</p>
     <div class="busca">
-      <input type="text" id="caminho" placeholder="C:\Users\voce\Downloads\IPTU_2026.csv" style="flex:1 1 320px">
+      <select id="cidadeImport" aria-label="Cidade">
+        <option value="itanhaem">Itanhaém</option>
+        <option value="sao-paulo">São Paulo (capital)</option>
+      </select>
+      <input type="text" id="caminho" placeholder="C:\Users\voce\Downloads\cadastro_iptu_itanhaem.xlsx" style="flex:1 1 320px">
       <button id="btnImportar" class="primario">Importar</button>
     </div>
   </div>
 
   <div class="card">
     <form id="form" class="busca">
-      <input type="text" id="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code" required>
+      <input type="text" id="cep" inputmode="numeric" maxlength="9" placeholder="11740-000" autocomplete="postal-code" required>
       <button class="primario" id="btnConsultar">Consultar</button>
     </form>
     <div id="infoBase" class="muted" style="margin-top:8px"></div>
@@ -187,11 +194,11 @@
       <table>
         <thead><tr>
           <th data-ord="endereco">Endereço</th>
-          <th data-ord="sql">Nº do IPTU (contribuinte)</th>
+          <th data-ord="sql" id="thInscricao">Nº do IPTU (inscrição)</th>
           <th data-ord="categoria">Tipo</th>
           <th data-ord="area_terreno" class="num">Terreno</th>
           <th data-ord="area_construida" class="num">Construída</th>
-          <th data-ord="valor_venal_estimado" class="num">Valor venal estimado</th>
+          <th data-ord="valor_venal_estimado" class="num">Valor venal</th>
           <th>Débitos</th>
         </tr></thead>
         <tbody id="linhas"></tbody>
@@ -215,8 +222,9 @@
     </div>
 
     <p class="rodape">
-      <b>Nº do IPTU</b> é o número do contribuinte (SQL) usado em todos os serviços da Prefeitura.
-      O <b>valor venal</b> é uma estimativa simplificada feita com a base aberta. O valor do carnê aparece na
+      <b>Nº do IPTU</b> é o número do cadastro do imóvel (o mesmo do carnê), usado nos serviços da Prefeitura.
+      O <b>valor venal</b> vem da planilha da Prefeitura quando ela informa; com “≈” é uma estimativa calculada
+      com as áreas e os valores do m². O valor do carnê aparece na
       <a id="link2via" target="_blank" rel="noopener">2ª via do IPTU</a>.
       <b>Débitos:</b> a Prefeitura só informa imóvel a imóvel, na certidão de débitos imobiliários (com verificação
       anti-robô). Use <b>“Consultar em sequência”</b>: o número do imóvel já vai copiado, a certidão abre sempre na mesma aba,
@@ -292,7 +300,16 @@ function mensagem(texto, tipo = "erro") {
 
 // "estatico": site publicado (Vercel), dados em arquivos por faixa de CEP.
 // "api": programa rodando no computador (python -m iptu_cep web).
-let MODO = "api", META = null;
+let MODO = "api", META = null, CIDADE = null;
+
+function aplicarCidade(c) {
+  if (!c) return;
+  CIDADE = c;
+  $("#nomeCidade").textContent = "— " + c.nome;
+  document.title = `IPTU pelo CEP — ${c.nome}`;
+  $("#thInscricao").textContent = c.rotulo_inscricao;
+  $("#cidadeImport").value = c.chave;
+}
 
 async function carregarStatus() {
   try {
@@ -300,8 +317,9 @@ async function carregarStatus() {
     if (r.ok) { META = await r.json(); MODO = "estatico"; }
   } catch {}
   const s = MODO === "estatico"
-    ? { importada: true, total: META.total, exercicio: META.exercicio }
+    ? { importada: true, total: META.total, exercicio: META.exercicio, cidade: META.cidade }
     : await fetch("/api/status").then((r) => r.json());
+  aplicarCidade(s.cidade);
   $("#importar").classList.toggle("oculto", s.importada);
   $("#infoBase").textContent = s.importada
     ? `Base do IPTU com ${s.total.toLocaleString("pt-BR")} imóveis${s.exercicio ? " (exercício " + s.exercicio + ")" : ""}.`
@@ -312,7 +330,10 @@ $("#btnImportar").addEventListener("click", async () => {
   const btn = $("#btnImportar");
   btn.disabled = true; btn.textContent = "Importando… (pode levar alguns minutos)";
   try {
-    const r = await fetch("/api/importar", { method: "POST", body: JSON.stringify({ csv: $("#caminho").value.trim() }) });
+    const r = await fetch("/api/importar", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ csv: $("#caminho").value.trim(), cidade: $("#cidadeImport").value }),
+    });
     const j = await r.json();
     if (!r.ok) mensagem(j.erro);
     else { mensagem(`${j.total.toLocaleString("pt-BR")} imóveis importados.`, "aviso"); await carregarStatus(); }
@@ -371,10 +392,10 @@ async function consultaEstatica(cepTexto) {
   } catch {
     aviso = "Não deu para consultar o endereço do CEP agora; mostrando só a base do IPTU.";
   }
-  const cidades = META.cidades || {};
-  const fora = endereco && (endereco.ibge ? !cidades[endereco.ibge]
-                                          : endereco.cidade && !Object.values(cidades).includes(endereco.cidade));
-  if (fora) return { erro: `Esse CEP é de ${endereco.cidade}/${endereco.uf}. Por enquanto só a cidade de São Paulo publica a base do IPTU que o site usa.` };
+  const cid = META.cidade;
+  const fora = endereco && cid && (endereco.ibge ? endereco.ibge !== cid.ibge
+                                                 : endereco.cidade && endereco.cidade !== cid.nome);
+  if (fora) return { erro: `Esse CEP é de ${endereco.cidade}/${endereco.uf}. A base deste site é de ${cid.nome}/${cid.uf}.` };
   let bloco;
   try { bloco = await blocoDoCep(c); }
   catch { return { erro: "Não consegui baixar os dados do IPTU. Verifique a internet e tente de novo." }; }
@@ -460,14 +481,14 @@ function desenhar() {
   $("#linhas").innerHTML = lista.map((i) => {
     const st = debitos.get(i.sql);
     return `<tr${fila && fila.atual === i.sql ? ' class="atual"' : ""}>
-      <td data-rotulo="Endereço" class="endereco-td">${esc(i.sem_numero ? (i.logradouro + ", s/n" + (i.complemento ? " - " + i.complemento : "")) : i.endereco)}
-        <div class="muted">${esc(i.uso || "")}${i.ano_construcao ? " · " + esc(i.ano_construcao) : ""}</div></td>
+      <td data-rotulo="Endereço" class="endereco-td">${esc(i.endereco)}
+        <div class="muted">${[i.loteamento && "Loteamento " + i.loteamento, i.uso, i.ano_construcao && +i.ano_construcao ? i.ano_construcao : ""].filter(Boolean).map(esc).join(" · ")}</div></td>
       <td data-rotulo="Nº do IPTU"><span class="sql">${esc(i.sql || "–")}</span>
         <div class="acoes"><button class="mini" data-copiar="${esc(i.sql)}">Copiar</button></div></td>
       <td data-rotulo="Tipo" class="tipo-td"><span class="tag">${NOMES[i.categoria]}</span></td>
       <td data-rotulo="Terreno" class="num">${area(i.area_terreno)}</td>
       <td data-rotulo="Construída" class="num">${area(i.area_construida)}</td>
-      <td data-rotulo="Valor venal" class="num">${moeda(i.valor_venal_estimado)}</td>
+      <td data-rotulo="Valor venal" class="num" title="${i.valor_venal_oficial ? "Valor venal informado pela Prefeitura" : "Estimativa calculada com áreas e valores do m²"}">${i.valor_venal_estimado == null ? "–" : (i.valor_venal_oficial ? "" : "≈ ") + moeda(i.valor_venal_estimado)}</td>
       <td data-rotulo="Débitos" class="debito-td">
         <select class="debito ${st}" data-sql="${esc(i.sql)}">
           <option value="nc"${st === "nc" ? " selected" : ""}>Não consultado</option>
@@ -501,7 +522,7 @@ async function filaMostrar() {
   }
   fila.atual = i.sql;
   $("#filaPosicao").textContent = `Faltam ${pendentes.length} · `;
-  $("#filaEndereco").textContent = i.sem_numero ? `${i.logradouro}, s/n${i.complemento ? " - " + i.complemento : ""}` : i.endereco;
+  $("#filaEndereco").textContent = i.endereco;
   $("#filaSql").textContent = i.sql;
   $("#filaCopiado").textContent = (await copiar(i.sql)) ? "copiado ✓, cole na certidão" : "copie o número";
   desenhar();
@@ -598,12 +619,15 @@ $("#arquivoBackup").addEventListener("change", (e) => {
 });
 
 $("#btnCsv").addEventListener("click", () => {
-  const cab = ["endereco", "numero", "complemento", "bairro", "cep", "numero_iptu", "tipo", "uso", "padrao",
-               "ano_construcao", "area_terreno", "area_construida", "valor_venal_estimado", "situacao_debito"];
+  const cab = ["endereco", "numero", "complemento", "loteamento", "quadra", "lote", "bairro", "cep", "numero_iptu", "tipo",
+               "uso", "padrao", "ano_construcao", "area_terreno", "area_construida", "valor_venal", "valor_venal_origem",
+               "situacao_debito"];
   const sit = { nc: "Não consultado", sem: "Sem débito", com: "Com débito" };
   const num = (v) => v == null ? "" : String(v).replace(".", ",");
-  const linhas = filtrados().map((i) => [i.logradouro, i.numero, i.complemento, i.bairro, i.cep, i.sql, NOMES[i.categoria],
-    i.uso, i.padrao, i.ano_construcao, num(i.area_terreno), num(i.area_construida), num(i.valor_venal_estimado), sit[debitos.get(i.sql)]]);
+  const linhas = filtrados().map((i) => [i.logradouro, i.numero, i.complemento, i.loteamento, i.quadra, i.lote, i.bairro,
+    i.cep, i.sql, NOMES[i.categoria], i.uso, i.padrao, i.ano_construcao, num(i.area_terreno), num(i.area_construida),
+    num(i.valor_venal_estimado), i.valor_venal_estimado == null ? "" : (i.valor_venal_oficial ? "Prefeitura" : "estimativa"),
+    sit[debitos.get(i.sql)]]);
   const csv = [cab, ...linhas].map((l) => l.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
   baixarArquivo(`iptu_${dados.cep}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
 });

@@ -15,6 +15,27 @@ from iptu_cep import __main__ as cli
 from iptu_cep import automatico, backup, base, cep, fonte, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
+ITANHAEM = Path(__file__).parent / "fixtures" / "itanhaem_amostra.csv"
+
+
+def _xlsx(caminho: Path, linhas: list[list]) -> None:
+    """Gera um .xlsx mínimo (texto em sharedStrings, números como número)."""
+    textos, xml_linhas = [], []
+    for r, linha in enumerate(linhas, 1):
+        celulas = []
+        for c, v in enumerate(linha):
+            ref = chr(65 + c) + str(r)
+            if isinstance(v, (int, float)):
+                celulas.append(f'<c r="{ref}"><v>{v}</v></c>')
+            elif v != "":
+                textos.append(v)
+                celulas.append(f'<c r="{ref}" t="s"><v>{len(textos) - 1}</v></c>')
+        xml_linhas.append(f'<row r="{r}">{"".join(celulas)}</row>')
+    ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+    from xml.sax.saxutils import escape
+    with zipfile.ZipFile(caminho, "w") as z:
+        z.writestr("xl/sharedStrings.xml", f'<sst {ns}>' + "".join(f"<si><t>{escape(t)}</t></si>" for t in textos) + "</sst>")
+        z.writestr("xl/worksheets/sheet1.xml", f'<worksheet {ns}><sheetData>{"".join(xml_linhas)}</sheetData></worksheet>')
 
 
 class TestCep(unittest.TestCase):
@@ -50,7 +71,7 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
         self.db = Path(self.tmp.name) / "iptu.sqlite"
-        self.total = base.importar_csv(AMOSTRA, self.db)
+        self.total = base.importar_csv(AMOSTRA, self.db, cidade="sao-paulo")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -97,7 +118,7 @@ class TestCli(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
         self.db = str(Path(self.tmp.name) / "iptu.sqlite")
-        base.importar_csv(AMOSTRA, self.db)
+        base.importar_csv(AMOSTRA, self.db, cidade="sao-paulo")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -140,7 +161,7 @@ class TestWeb(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory()
         self.db = Path(self.tmp.name) / "iptu.sqlite"
-        base.importar_csv(AMOSTRA, self.db)
+        base.importar_csv(AMOSTRA, self.db, cidade="sao-paulo")
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -175,7 +196,7 @@ class TestPublicar(unittest.TestCase):
     def test_gera_site(self):
         with TemporaryDirectory() as tmp:
             db, site = Path(tmp) / "iptu.sqlite", Path(tmp) / "site"
-            base.importar_csv(AMOSTRA, db)
+            base.importar_csv(AMOSTRA, db, cidade="sao-paulo")
             r = publicar.publicar(db, site)
             self.assertEqual(r["imoveis"], 4)
             self.assertEqual(sorted(p.name for p in (site / "dados").iterdir()), ["01305.bin", "01310.bin"])
@@ -227,7 +248,7 @@ class TestAutomatico(unittest.TestCase):
             zf.write(AMOSTRA, "pasta/IPTU_2026.csv")
         csv_path = automatico.preparar_csv(z, self.pasta / "trabalho")
         self.assertEqual(csv_path.name, "IPTU_2026.csv")
-        self.assertEqual(base.importar_csv(csv_path, self.pasta / "db.sqlite"), 4)
+        self.assertEqual(base.importar_csv(csv_path, self.pasta / "db.sqlite", cidade="sao-paulo"), 4)
 
     def test_zip_sem_csv(self):
         z = self.pasta / "IPTU.zip"
@@ -283,7 +304,7 @@ class TestAutomatico(unittest.TestCase):
         shutil_copy.write_bytes(AMOSTRA.read_bytes())
         db, site = self.pasta / "dados" / "iptu.sqlite", self.pasta / "site" / "iptu-cep"
         with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), redirect_stdout(io.StringIO()):
-            self.assertIsNone(automatico.tudo(db, site, publicar_online=False))
+            self.assertIsNone(automatico.tudo(db, site, publicar_online=False, cidade="sao-paulo"))
         self.assertTrue((site / "dados" / "01310.bin").is_file())
 
 
@@ -296,10 +317,10 @@ class TestAutomatico(unittest.TestCase):
         servir = lambda db, porta, abrir: servidas.append((db, porta, abrir))
         with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), redirect_stdout(io.StringIO()):
             with mock.patch.object(automatico, "obter_e_importar", wraps=automatico.obter_e_importar) as imp:
-                automatico.local(db, abrir_navegador=False, servir=servir)
-                automatico.local(db, abrir_navegador=False, servir=servir)
+                automatico.local(db, abrir_navegador=False, servir=servir, cidade="sao-paulo")
+                automatico.local(db, abrir_navegador=False, servir=servir, cidade="sao-paulo")
                 self.assertEqual(imp.call_count, 1)
-                automatico.local(db, atualizar=True, abrir_navegador=False, servir=servir)
+                automatico.local(db, atualizar=True, abrir_navegador=False, servir=servir, cidade="sao-paulo")
                 self.assertEqual(imp.call_count, 2)
         self.assertEqual(servidas, [(db, 8765, False)] * 3)
         self.assertEqual(web._status(db)["total"], 4)
@@ -393,7 +414,7 @@ class TestBackup(unittest.TestCase):
             tmp = Path(tmp)
             db = tmp / "dados" / "iptu.sqlite"
             db.parent.mkdir()
-            base.importar_csv(AMOSTRA, db)
+            base.importar_csv(AMOSTRA, db, cidade="sao-paulo")
             arquivo = backup.fazer_backup(db, tmp / "IPTU-backup")
             self.assertTrue(arquivo.name.startswith("iptu-backup-") and arquivo.suffix == ".zip")
             self.assertEqual([p.suffix for p in arquivo.parent.iterdir()], [".zip"])  # sem cópia solta
@@ -411,6 +432,98 @@ class TestBackup(unittest.TestCase):
                 z.writestr("leia.txt", "oi")
             with self.assertRaises(ValueError):
                 backup.restaurar_backup(falso, tmp / "db.sqlite")
+
+
+class TestItanhaem(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.pasta = Path(self.tmp.name)
+        self.db = self.pasta / "iptu.sqlite"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_importa_planilha_de_itanhaem(self):
+        self.assertEqual(base.importar_csv(ITANHAEM, self.db), 3)  # Itanhaém é o padrão
+        meta = base.ler_meta(self.db)
+        self.assertEqual((meta["cidade"], meta["exercicio"], meta["fora_da_cidade"]), ("itanhaem", "2026", "0"))
+        casa, terreno = sorted(base.consultar(self.db, "11740-000"), key=lambda i: i.lote)
+        self.assertEqual(casa.endereco, "AV PRESIDENTE VARGAS, 350 (Qd 12 Lt 5)")
+        self.assertEqual(terreno.endereco, "AV PRESIDENTE VARGAS, s/n (Qd 12 Lt 6)")
+        self.assertEqual(casa.loteamento, "JARDIM SUARAO")
+        self.assertEqual(casa.valor_venal_estimado, 185400.0)  # valor da Prefeitura, não estimativa
+        self.assertEqual(web.classificar(terreno), "terreno")
+
+    def test_nao_guarda_dados_do_proprietario(self):
+        base.importar_csv(ITANHAEM, self.db)
+        con = sqlite3.connect(self.db)
+        tudo = " ".join(str(v) for l in con.execute("SELECT * FROM imoveis") for v in l)
+        con.close()
+        for proibido in ("JOSE DA SILVA", "123.456.789-00", "EMPRESA LTDA", "RUA X 10", "01310"):
+            self.assertNotIn(proibido, tudo)
+
+    def test_planilha_excel(self):
+        xlsx = self.pasta / "cadastro_itanhaem.xlsx"
+        _xlsx(xlsx, [
+            ["Inscrição", "Proprietário", "Logradouro", "Número", "Loteamento", "Quadra", "Lote", "CEP", "Área do Terreno", "Valor Venal"],
+            ["03.001.0001.001", "FULANO", "RUA DAS PALMEIRAS", 45, "BALNEARIO GAIVOTA", "B", "7", 11749000, 250.5, 98000],
+            ["03.001.0002.001", "CICLANO", "RUA DAS PALMEIRAS", "", "BALNEARIO GAIVOTA", "B", "8", "11749-000", 250, 52000.75],
+        ])
+        self.assertEqual(base.importar_csv(xlsx, self.db), 2)
+        imoveis = base.consultar(self.db, "11749000")
+        self.assertEqual([i.numero for i in imoveis], ["", "45"])
+        self.assertEqual(imoveis[0].endereco, "RUA DAS PALMEIRAS, s/n (Qd B Lt 8)")
+        self.assertEqual(imoveis[0].valor_venal_estimado, 52000.75)
+        self.assertEqual(imoveis[1].area_terreno, 250.5)
+
+    def test_web_usa_cidade_e_links_de_itanhaem(self):
+        base.importar_csv(ITANHAEM, self.db)
+        itanhaem = cep.Endereco("11740000", "Avenida Presidente Vargas", "Suarão", "Itanhaém", "SP", "3522109", "ViaCEP")
+        codigo, dados = web.consultar_cep(self.db, "11740-000", buscar_endereco=lambda _: itanhaem)
+        self.assertEqual((codigo, dados["total"], dados["cidade"]["nome"]), (200, 2, "Itanhaém"))
+        self.assertIn("itanhaem.sp.gov.br", dados["links"]["debitos"])
+        self.assertTrue(dados["imoveis"][0]["valor_venal_oficial"])
+        sp = cep.Endereco("01310100", "Av Paulista", "Bela Vista", "São Paulo", "SP", "3550308", "ViaCEP")
+        codigo, dados = web.consultar_cep(self.db, "01310-100", buscar_endereco=lambda _: sp)
+        self.assertEqual(codigo, 422)
+        self.assertIn("Itanhaém", dados["erro"])
+        self.assertEqual(web._status(self.db)["cidade"]["rotulo_inscricao"], "Nº do cadastro (inscrição)")
+
+    def test_avisa_planilha_de_outra_cidade(self):
+        base.importar_csv(AMOSTRA, self.db)  # dados de São Paulo importados como Itanhaém
+        saida = io.StringIO()
+        with redirect_stdout(saida):
+            automatico.avisar_cidade(self.db)
+        self.assertIn("fora de Itanhaém", saida.getvalue())
+
+    def test_sem_planilha_explica_como_obter(self):
+        vazia = self.pasta / "Downloads"
+        vazia.mkdir()
+        with mock.patch.object(automatico, "pasta_downloads", return_value=vazia):
+            with self.assertRaises(FileNotFoundError) as erro:
+                automatico.obter_e_importar(self.db)
+        self.assertIn("PEDIDO_SIC_ITANHAEM.md", str(erro.exception))
+
+    def test_ignora_iptu_da_capital_na_pasta(self):
+        downloads = self.pasta / "Downloads"
+        downloads.mkdir()
+        (downloads / "IPTU_2025.zip").write_text("x")  # base da capital
+        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads):
+            with self.assertRaises(FileNotFoundError):
+                automatico.obter_e_importar(self.db)
+            (downloads / "cadastro_itanhaem.csv").write_bytes(ITANHAEM.read_bytes())
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(automatico.obter_e_importar(self.db), 3)
+
+    def test_site_estatico_de_itanhaem(self):
+        base.importar_csv(ITANHAEM, self.db)
+        site = self.pasta / "site"
+        publicar.publicar(self.db, site)
+        meta = json.loads((site / "meta.json").read_text(encoding="utf-8"))
+        self.assertEqual((meta["cidade"]["nome"], meta["cidade"]["ibge"]), ("Itanhaém", "3522109"))
+        bloco = json.loads(gzip.decompress((site / "dados" / "11740.bin").read_bytes()))
+        self.assertEqual(sorted(bloco["ceps"]), ["11740000", "11740005"])
+        self.assertIn("loteamento", bloco["campos"])
 
 
 if __name__ == "__main__":

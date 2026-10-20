@@ -19,9 +19,9 @@ from . import base, web
 
 # Só o que a tela mostra, para os arquivos ficarem pequenos.
 CAMPOS_SITE = [
-    "sql", "logradouro", "numero", "complemento", "bairro", "cep", "endereco",
+    "sql", "logradouro", "numero", "complemento", "loteamento", "quadra", "lote", "bairro", "cep", "endereco",
     "categoria", "sem_numero", "uso", "padrao", "ano_construcao",
-    "area_terreno", "area_construida", "valor_venal_estimado", "ano_exercicio",
+    "area_terreno", "area_construida", "valor_venal_estimado", "valor_venal_oficial", "ano_exercicio",
 ]
 
 VERCEL_JSON = {
@@ -62,6 +62,7 @@ def publicar(db_path: str | Path, destino: str | Path, progresso=None) -> dict:
         shutil.rmtree(pasta_dados)
     pasta_dados.mkdir(parents=True)
 
+    cidade = web.cidade_da_base(db_path)
     con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
     total = arquivos = bytes_total = 0
@@ -93,8 +94,8 @@ def publicar(db_path: str | Path, destino: str | Path, progresso=None) -> dict:
         "total": total,
         "exercicio": exercicio or None,
         "gerado_em": date.today().isoformat(),
-        "cidades": web.CIDADES_SUPORTADAS,
-        "links": {"debitos": web.LINK_DEBITOS, "segunda_via": web.LINK_2A_VIA},
+        "cidade": web.cidade_publica(cidade),
+        "links": web.links(cidade),
     }
     (destino / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     shutil.copyfile(web.PAGINA, destino / "index.html")

@@ -1,8 +1,18 @@
 # IPTU pelo CEP
 
-Programa de linha de comando que recebe um **CEP** e lista os imóveis daquele CEP com os dados do cadastro do IPTU: número do contribuinte (SQL), endereço, uso, padrão, áreas, valores do m² e **valor venal estimado**.
+Recebe um **CEP** e lista os imóveis daquele CEP com os dados do cadastro do IPTU: número do cadastro (inscrição), endereço, loteamento, quadra e lote, uso, áreas e **valor venal**.
 
-Hoje funciona para a **cidade de São Paulo**, que publica a base completa do IPTU como dado aberto. Só usa a biblioteca padrão do Python 3.10+, sem nada para instalar.
+**Cidade padrão: Itanhaém (SP).** Também atende a capital, São Paulo (`--cidade sao-paulo`). Só usa a biblioteca padrão do Python 3.10+, sem nada para instalar.
+
+## Itanhaém: de onde vêm os dados
+
+Itanhaém **não publica** o cadastro do IPTU na internet. A Prefeitura só mostra a 2ª via e os débitos imóvel por imóvel, pelo nº do cadastro, no portal da Fazenda (transparencia.itanhaem.sp.gov.br/fazenda). Por isso o programa trabalha com a **planilha do cadastro imobiliário**:
+
+1. Peça a planilha pela Lei de Acesso à Informação. O texto pronto está em [`PEDIDO_SIC_ITANHAEM.md`](PEDIDO_SIC_ITANHAEM.md).
+2. Salve o arquivo (CSV ou Excel `.xlsx`) na pasta Downloads com "itanhaem" ou "cadastro" no nome, e dê duplo clique em `Atualizar base.bat`. Ou importe direto:
+   `py -m iptu_cep local --arquivo "C:\caminho\cadastro_itanhaem.xlsx"`
+
+O programa reconhece as colunas mais comuns: inscrição/cadastro, logradouro, número, complemento, loteamento, quadra, lote, bairro, CEP, área do terreno, área construída, valor venal e uso. Se a planilha trouxer o valor venal, ele é mostrado direto; se não, o programa calcula uma estimativa (marcada com "≈"). Nomes, CPF/CNPJ, telefone, e-mail e endereço de correspondência do proprietário são **descartados** na importação. Se a maioria dos CEPs não for de Itanhaém (11740-000 a 11749-999), o programa avisa.
 
 ## Como funciona
 

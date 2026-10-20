@@ -9,13 +9,11 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import automatico, backup, base, cep, fonte, publicar, web
+from . import automatico, backup, base, cep, cidades, fonte, publicar, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
 # O nome da última pasta vira o nome do projeto na Vercel (iptu-cep.vercel.app).
 SITE_PADRAO = Path(__file__).resolve().parent.parent / "site" / "iptu-cep"
-CIDADES_SUPORTADAS = web.CIDADES_SUPORTADAS
-LINK_2A_VIA = web.LINK_2A_VIA
 
 
 def _moeda(v: float | None) -> str:
@@ -31,14 +29,20 @@ def _area(v: float | None) -> str:
 def cmd_importar(args) -> int:
     if not Path(args.csv).is_file():
         print(f"Arquivo não encontrado: {args.csv}\n"
-              "Baixe a base no GeoSampa ou use:  py -m iptu_cep tudo  (o programa procura e baixa sozinho)",
+              "Confira o caminho da planilha do cadastro do IPTU (CSV ou Excel .xlsx).",
               file=sys.stderr)
         return 1
     destino = Path(args.db)
     destino.parent.mkdir(parents=True, exist_ok=True)
-    print(f"Importando {args.csv} -> {destino} ...")
-    total = base.importar_csv(args.csv, destino, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
+    print(f"Importando {args.csv} -> {destino} ({cidades.obter(args.cidade)['nome']}) ...")
+    try:
+        total = base.importar_csv(args.csv, destino, cidade=args.cidade,
+                                  progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
+    except (ValueError, OSError) as e:
+        print(f"\nErro: {e}", file=sys.stderr)
+        return 1
     print(f"\nPronto: {total:,} imóveis importados.".replace(",", "."))
+    automatico.avisar_cidade(destino)
     return 0
 
 
@@ -58,12 +62,10 @@ def cmd_consultar(args) -> int:
             return 1
         except ConnectionError as e:
             print(f"Aviso: {e} Seguindo só com a base local.", file=sys.stderr)
-        if endereco and endereco.ibge and endereco.ibge not in CIDADES_SUPORTADAS:
-            print(
-                f"CEP de {endereco.cidade}/{endereco.uf}. Por enquanto só a base de São Paulo "
-                "está integrada; consulte o IPTU no site da prefeitura da sua cidade.",
-                file=sys.stderr,
-            )
+        cidade = web.cidade_da_base(Path(args.db))
+        if endereco and endereco.ibge and endereco.ibge != cidade["ibge"]:
+            print(f"CEP de {endereco.cidade}/{endereco.uf}. A base carregada é de {cidade['nome']}/{cidade['uf']}.",
+                  file=sys.stderr)
             return 1
 
     try:
@@ -106,16 +108,13 @@ def cmd_consultar(args) -> int:
 
     print(f"{len(imoveis)} imóvel(is) encontrado(s):\n")
     for i in imoveis:
-        print(f"• {i.endereco}  [contribuinte/SQL {i.sql or '-'}]")
+        print(f"• {i.endereco}  [nº {i.sql or '-'}]" + (f"  Loteamento {i.loteamento}" if i.loteamento else ""))
         print(f"    Uso: {i.uso or '-'} | Padrão: {i.padrao or '-'} | Construção: {i.ano_construcao or '-'}")
         print(f"    Terreno: {_area(i.area_terreno)} × {_moeda(i.valor_m2_terreno)}/m²"
               f" | Construída: {_area(i.area_construida)} × {_moeda(i.valor_m2_construcao)}/m²")
-        print(f"    Valor venal estimado: {_moeda(i.valor_venal_estimado)}"
+        print(f"    Valor venal{'' if i.valor_venal else ' estimado'}: {_moeda(i.valor_venal_estimado)}"
               f"{'  (exercício ' + i.ano_exercicio + ')' if i.ano_exercicio else ''}")
-    print(
-        "\nO valor venal é uma estimativa simplificada, não o valor oficial do carnê."
-        f"\nPara o valor do IPTU e a 2ª via, use o número do contribuinte em {LINK_2A_VIA}"
-    )
+    print(f"\nPara o valor do IPTU, débitos e 2ª via, use o nº do cadastro em {web.cidade_da_base(Path(args.db))['link_segunda_via']}")
     return 0
 
 
@@ -139,7 +138,8 @@ def cmd_publicar(args) -> int:
 def cmd_local(args) -> int:
     try:
         automatico.local(Path(args.db), atualizar=args.atualizar, porta=args.porta,
-                         abrir_navegador=not args.sem_navegador)
+                         abrir_navegador=not args.sem_navegador,
+                         arquivo=Path(args.arquivo) if args.arquivo else None, cidade=args.cidade)
     except KeyboardInterrupt:
         print("\nEncerrado.")
         return 0
@@ -156,6 +156,7 @@ def cmd_tudo(args) -> int:
             arquivo=Path(args.arquivo) if args.arquivo else None,
             url=args.url,
             publicar_online=not args.sem_vercel,
+            cidade=args.cidade,
         )
     except KeyboardInterrupt:
         print("\nCancelado.", file=sys.stderr)
@@ -205,7 +206,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="comando", required=True)
 
     pi = sub.add_parser("importar", help="importa o CSV do IPTU baixado da Prefeitura")
-    pi.add_argument("csv", help="caminho do CSV (ex.: IPTU_2026.csv)")
+    pi.add_argument("csv", help="caminho da planilha (CSV ou .xlsx)")
+    pi.add_argument("--cidade", choices=list(cidades.CIDADES), default=cidades.PADRAO)
     pi.set_defaults(func=cmd_importar)
 
     pc = sub.add_parser("consultar", help="lista os imóveis de um CEP")
@@ -227,6 +229,8 @@ def main(argv: list[str] | None = None) -> int:
     pl = sub.add_parser("local", help="tudo no seu computador: prepara a base se precisar e abre em localhost")
     pl.add_argument("--atualizar", action="store_true", help="reimporta a base (pega o arquivo mais novo em Downloads)")
     pl.add_argument("--porta", type=int, default=8765)
+    pl.add_argument("--arquivo", help="planilha do cadastro (CSV, .xlsx ou .zip) para importar")
+    pl.add_argument("--cidade", choices=list(cidades.CIDADES), default=cidades.PADRAO)
     pl.add_argument("--sem-navegador", action="store_true", help="não abre o navegador sozinho")
     pl.set_defaults(func=cmd_local)
 
@@ -235,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
     pt.add_argument("--url", help="link direto para o ZIP/CSV da base, se você tiver")
     pt.add_argument("--destino", default=str(SITE_PADRAO), help="pasta do site gerado")
     pt.add_argument("--sem-vercel", action="store_true", help="só gera o site, sem publicar")
+    pt.add_argument("--cidade", choices=list(cidades.CIDADES), default=cidades.PADRAO)
     pt.set_defaults(func=cmd_tudo)
 
     pb = sub.add_parser("backup", help="guarda a base importada num .zip numa pasta do computador")

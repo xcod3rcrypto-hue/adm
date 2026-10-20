@@ -18,12 +18,26 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from . import base, cep
+from . import base, cep, cidades
 
 PAGINA = Path(__file__).with_name("pagina.html")
-CIDADES_SUPORTADAS = {"3550308": "São Paulo"}  # código IBGE
-LINK_DEBITOS = "https://prefeitura.sp.gov.br/web/fazenda/w/servicos/certidoes/2407"
-LINK_2A_VIA = "https://www.prefeitura.sp.gov.br/cidade/secretarias/fazenda/servicos/iptu/"
+
+
+def cidade_da_base(db: Path) -> dict:
+    """A cidade da base importada (antes de importar: a cidade padrão, Itanhaém)."""
+    chave = base.ler_meta(db).get("cidade") if Path(db).exists() else None
+    return cidades.obter(chave)
+
+
+def links(cidade: dict) -> dict:
+    return {"debitos": cidade["link_debitos"], "segunda_via": cidade["link_segunda_via"],
+            "certidao": cidade["link_certidao"]}
+
+
+def cidade_publica(cidade: dict) -> dict:
+    """O que a página precisa saber da cidade."""
+    return {"nome": cidade["nome"], "uf": cidade["uf"], "ibge": cidade["ibge"],
+            "rotulo_inscricao": cidade["rotulo_inscricao"], "chave": cidade["chave"]}
 
 
 def classificar(imovel: base.Imovel) -> str:
@@ -40,33 +54,31 @@ def classificar(imovel: base.Imovel) -> str:
     return "outro"
 
 
-def _sem_numero(numero: str) -> bool:
-    return not numero or not numero.strip("0 ") or base._norm(numero) in {"sn", "s/n", "s/no"}
-
-
 def para_dict(imovel: base.Imovel) -> dict:
     """Dados de um imóvel como a tela usa (o site estático grava o mesmo formato)."""
     d = {k: v for k, v in asdict(imovel).items() if k != "extras"}
     d.update(
         endereco=imovel.endereco,
         categoria=classificar(imovel),
-        sem_numero=_sem_numero(imovel.numero),
+        sem_numero=imovel.sem_numero,
         valor_venal_estimado=imovel.valor_venal_estimado,
+        valor_venal_oficial=bool(imovel.valor_venal),
     )
     return d
 
 
 def _status(db: Path) -> dict:
+    cidade = cidade_publica(cidade_da_base(db))
     if not db.exists():
-        return {"importada": False, "total": 0}
+        return {"importada": False, "total": 0, "cidade": cidade}
     con = sqlite3.connect(db)
     try:
         total, ano = con.execute("SELECT COUNT(*), MAX(ano_exercicio) FROM imoveis").fetchone()
     except sqlite3.Error:
-        return {"importada": False, "total": 0}
+        return {"importada": False, "total": 0, "cidade": cidade}
     finally:
         con.close()
-    return {"importada": True, "total": total, "exercicio": ano}
+    return {"importada": True, "total": total, "exercicio": ano, "cidade": cidade}
 
 
 def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco) -> tuple[int, dict]:
@@ -82,10 +94,11 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
         return 404, {"erro": f"O CEP {cep.formatar_cep(cep_num)} não existe."}
     except ConnectionError:
         aviso = "Não deu para consultar o endereço do CEP agora; mostrando só a base do IPTU."
-    if endereco and endereco.ibge and endereco.ibge not in CIDADES_SUPORTADAS:
+    cidade = cidade_da_base(db)
+    if endereco and endereco.ibge and endereco.ibge != cidade["ibge"]:
         return 422, {
-            "erro": f"Esse CEP é de {endereco.cidade}/{endereco.uf}. Por enquanto só a cidade de São Paulo "
-                    "publica a base do IPTU que o programa usa.",
+            "erro": f"Esse CEP é de {endereco.cidade}/{endereco.uf}. A base carregada é de "
+                    f"{cidade['nome']}/{cidade['uf']}.",
             "endereco": asdict(endereco),
         }
 
@@ -101,7 +114,8 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
         "aviso": aviso,
         "total": len(lista),
         "imoveis": lista,
-        "links": {"debitos": LINK_DEBITOS, "segunda_via": LINK_2A_VIA},
+        "links": links(cidade),
+        "cidade": cidade_publica(cidade),
     }
 
 
@@ -138,16 +152,22 @@ def criar_handler(db: Path):
         def do_POST(self):
             if urlparse(self.path).path != "/api/importar":
                 return self._json(404, {"erro": "não encontrado"})
+            # Exigir JSON obriga o navegador a pedir permissão (preflight) em chamadas de
+            # outros sites, que este servidor não concede: só a própria página importa.
+            if not self.headers.get("Content-Type", "").startswith("application/json"):
+                return self._json(415, {"erro": "envie JSON"})
             try:
                 tamanho = int(self.headers.get("Content-Length", 0))
-                caminho = Path(json.loads(self.rfile.read(tamanho) or b"{}").get("csv", "")).expanduser()
+                pedido = json.loads(self.rfile.read(tamanho) or b"{}")
+                caminho = Path(str(pedido.get("csv", "")).strip().strip('"')).expanduser()
+                cidade = cidades.obter(pedido.get("cidade")).get("chave")
             except (ValueError, json.JSONDecodeError):
                 return self._json(400, {"erro": "pedido inválido"})
             if not caminho.is_file():
                 return self._json(400, {"erro": f"Arquivo não encontrado: {caminho}"})
             try:
                 db.parent.mkdir(parents=True, exist_ok=True)
-                total = base.importar_csv(caminho, db)
+                total = base.importar_csv(caminho, db, cidade=cidade)
             except (ValueError, OSError, UnicodeDecodeError) as e:
                 return self._json(400, {"erro": f"Não consegui importar: {e}"})
             self._json(200, {"total": total})

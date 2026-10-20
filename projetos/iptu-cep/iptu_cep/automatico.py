@@ -17,7 +17,10 @@ import zipfile
 from pathlib import Path
 
 GEOSAMPA = "https://geosampa.prefeitura.sp.gov.br/PaginasPublicas/_SBC.aspx"
-PADRAO_ARQUIVO = re.compile(r"iptu.*\.(csv|zip)$", re.IGNORECASE)
+PADRAO_ARQUIVO = re.compile(r"(iptu|cadastro|imobiliari|itanhaem).*\.(csv|zip|xlsx)$", re.IGNORECASE)
+# Cidades sem base pública: só planilhas com o nome da cidade ou "cadastro" no nome, para
+# não confundir com o IPTU_<ano>.zip da capital que possa estar na mesma pasta.
+PADRAO_PLANILHA_CIDADE = re.compile(r"(cadastro|imobiliari|itanhaem).*\.(csv|zip|xlsx)$", re.IGNORECASE)
 TEMPORARIOS = (".crdownload", ".part", ".download", ".tmp")
 
 
@@ -25,13 +28,13 @@ def pasta_downloads() -> Path:
     return Path.home() / "Downloads"
 
 
-def procurar_base(pasta: Path, desde: float = 0) -> Path | None:
+def procurar_base(pasta: Path, desde: float = 0, padrao: re.Pattern = PADRAO_ARQUIVO) -> Path | None:
     """O IPTU*.csv/.zip de ano mais novo da pasta (modificado depois de `desde`)."""
     if not pasta.is_dir():
         return None
     candidatos = [
         p for p in pasta.iterdir()
-        if p.is_file() and PADRAO_ARQUIVO.search(p.name) and p.stat().st_mtime >= desde
+        if p.is_file() and padrao.search(p.name) and p.stat().st_mtime >= desde
     ]
     # Maior ano no nome primeiro (IPTU_2026 antes de IPTU_2025); empate, o mais recente.
     return max(candidatos, key=lambda p: (_ano(p.name), p.stat().st_mtime), default=None)
@@ -73,13 +76,13 @@ def baixar_url(url: str, destino_dir: Path) -> Path:
 
 
 def preparar_csv(arquivo: Path, pasta_trabalho: Path) -> Path:
-    """Se for .zip, extrai o maior .csv de dentro; se for .csv, usa direto."""
+    """Se for .zip, extrai a maior planilha (.csv/.xlsx) de dentro; senão usa direto."""
     if arquivo.suffix.lower() != ".zip":
         return arquivo
     with zipfile.ZipFile(arquivo) as z:
-        csvs = [i for i in z.infolist() if i.filename.lower().endswith(".csv") and not i.is_dir()]
+        csvs = [i for i in z.infolist() if i.filename.lower().endswith((".csv", ".xlsx")) and not i.is_dir()]
         if not csvs:
-            raise ValueError(f"O arquivo {arquivo.name} não tem nenhum .csv dentro.")
+            raise ValueError(f"O arquivo {arquivo.name} não tem nenhuma planilha (.csv ou .xlsx) dentro.")
         maior = max(csvs, key=lambda i: i.file_size)
         pasta_trabalho.mkdir(parents=True, exist_ok=True)
         destino = pasta_trabalho / Path(maior.filename).name
@@ -133,11 +136,30 @@ def baixar_sozinho(pasta: Path) -> Path | None:
     return fonte.baixar_automatico(pasta)
 
 
-def obter_e_importar(db: Path, arquivo: Path | None = None, url: str | None = None) -> int:
-    """Acha (ou baixa) a base do IPTU e importa para `db`. Devolve o total de imóveis."""
-    from . import base
+SEM_BASE_PUBLICA = """
+Não achei a planilha do cadastro do IPTU de {nome} na pasta Downloads.
 
+{nome} não publica essa base na internet. Para obter:
+  1. Peça à Prefeitura pela Lei de Acesso à Informação (SIC / Ouvidoria). O texto
+     pronto do pedido está em PEDIDO_SIC_ITANHAEM.md, nesta pasta.
+  2. Quando receber, salve a planilha (CSV ou Excel .xlsx) na pasta Downloads com
+     "itanhaem" ou "cadastro" no nome (ex.: cadastro_itanhaem.xlsx), ou importe direto:
+        py -m iptu_cep local --arquivo "C:\\caminho\\da\\planilha.xlsx"
+"""
+
+
+def obter_e_importar(db: Path, arquivo: Path | None = None, url: str | None = None,
+                     cidade: str | None = None) -> int:
+    """Acha (ou baixa) a base do IPTU e importa para `db`. Devolve o total de imóveis."""
+    from . import base, cidades
+
+    info = cidades.obter(cidade)
     trabalho = db.parent
+    if arquivo is None and not url and not info["base_publica"]:
+        arquivo = procurar_base(pasta_downloads(), padrao=PADRAO_PLANILHA_CIDADE)
+        if arquivo is None:
+            raise FileNotFoundError(SEM_BASE_PUBLICA.format(nome=info["nome"]))
+        print(f"Planilha encontrada: {arquivo}")
     if url:
         arquivo = baixar_url(url, trabalho)
     if arquivo is None:
@@ -162,29 +184,43 @@ def obter_e_importar(db: Path, arquivo: Path | None = None, url: str | None = No
 
     csv_path = preparar_csv(arquivo, trabalho)
     db.parent.mkdir(parents=True, exist_ok=True)
-    print(f"Importando {csv_path.name} ...")
-    total = base.importar_csv(csv_path, db, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
+    print(f"Importando {csv_path.name} ({info['nome']}) ...")
+    total = base.importar_csv(csv_path, db, cidade=info["chave"],
+                              progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
     print(f"\nImportados: {total:,} imóveis.".replace(",", "."))
+    avisar_cidade(db)
     return total
 
 
+def avisar_cidade(db: Path) -> None:
+    """Avisa se a maioria dos CEPs da planilha não é da cidade escolhida."""
+    from . import base, cidades
+
+    meta = base.ler_meta(db)
+    total, fora = int(meta.get("total", 0) or 0), int(meta.get("fora_da_cidade", 0) or 0)
+    if total and fora > total / 2:
+        nome = cidades.obter(meta.get("cidade"))["nome"]
+        print(f"Atenção: {fora:,} de {total:,} imóveis têm CEP fora de {nome}. ".replace(",", ".")
+              + "Confira se a planilha e a opção --cidade estão certas.")
+
+
 def local(db: Path, atualizar: bool = False, porta: int = 8765, abrir_navegador: bool = True,
-          servir=None) -> None:
+          servir=None, arquivo: Path | None = None, cidade: str | None = None) -> None:
     """Tudo no próprio computador: importa a base se precisar e abre a tela em localhost."""
     from . import web
 
-    if atualizar or not web._status(db)["importada"]:
-        if not atualizar:
+    if atualizar or arquivo or not web._status(db)["importada"]:
+        if not (atualizar or arquivo):
             print("Primeira vez: preparando a base do IPTU (só acontece uma vez).")
-        obter_e_importar(db)
+        obter_e_importar(db, arquivo, cidade=cidade)
     (servir or web.servir)(db, porta=porta, abrir=abrir_navegador)
 
 
 def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = None,
-         publicar_online: bool = True, abrir_navegador: bool = True) -> str | None:
+         publicar_online: bool = True, abrir_navegador: bool = True, cidade: str | None = None) -> str | None:
     from . import publicar
 
-    obter_e_importar(db, arquivo, url)
+    obter_e_importar(db, arquivo, url, cidade=cidade)
 
     print("Gerando o site (separando por CEP) ...")
     r = publicar.publicar(db, site, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))

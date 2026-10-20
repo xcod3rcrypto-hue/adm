@@ -47,9 +47,9 @@ def classificar(imovel: base.Imovel) -> str:
         return "terreno"
     if "apartamento" in uso or "condominio" in uso:
         return "apartamento"
-    if "residen" in uso:
+    if "residen" in uso or "casa" in uso or "domicilio particular" in uso:
         return "casa"
-    if any(p in uso for p in ("comerc", "servic", "loja", "escritorio", "industr", "garage")):
+    if any(p in uso for p in ("comerc", "servic", "loja", "escritorio", "industr", "garage", "agropecuar")):
         return "comercial"
     return "outro"
 
@@ -78,7 +78,8 @@ def _status(db: Path) -> dict:
         return {"importada": False, "total": 0, "cidade": cidade}
     finally:
         con.close()
-    return {"importada": True, "total": total, "exercicio": ano, "cidade": cidade}
+    fonte = base.ler_meta(db).get("fonte", "prefeitura")
+    return {"importada": True, "total": total, "exercicio": ano, "cidade": cidade, "fonte": fonte}
 
 
 def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco) -> tuple[int, dict]:
@@ -116,6 +117,7 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
         "imoveis": lista,
         "links": links(cidade),
         "cidade": cidade_publica(cidade),
+        "fonte": base.ler_meta(db).get("fonte", "prefeitura"),
     }
 
 

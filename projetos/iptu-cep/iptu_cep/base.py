@@ -53,6 +53,8 @@ COLUNAS = {
     "padrao": ["tipo de padrao da construcao", "padrao da construcao", "padrao"],
     "testada": ["testada para calculo", "testada"],
     "fator_obsolescencia": ["fator de obsolescencia", "fator_obsolescencia"],
+    "latitude": ["=latitude", "=lat"],
+    "longitude": ["=longitude", "=lon", "=lng"],
 }
 
 # Nunca importadas, mesmo que existam no arquivo.
@@ -61,7 +63,7 @@ COLUNAS_PESSOAIS = ("nome", "cpf", "cnpj", "compromissario", "contribuinte 1", "
                     "e-mail", "rg")
 
 NUMERICOS = {
-    "valor_venal", "fracao_ideal", "area_terreno", "area_construida", "area_ocupada",
+    "valor_venal", "fracao_ideal", "latitude", "longitude", "area_terreno", "area_construida", "area_ocupada",
     "valor_m2_terreno", "valor_m2_construcao", "testada", "fator_obsolescencia",
 }
 
@@ -107,6 +109,55 @@ def mapear_colunas(cabecalho: list[str]) -> dict[str, int]:
     if "cep" not in mapa:
         raise ValueError("O arquivo não tem coluna de CEP; confira se é a base do IPTU.")
     return mapa
+
+
+# Cadastro Nacional de Endereços para Fins Estatísticos (IBGE, Censo 2022): lista todos os
+# endereços do município, com CEP e tipo, mas sem inscrição do IPTU nem valor venal.
+CNEFE_ESPECIE = {
+    "1": "Domicílio particular", "2": "Domicílio coletivo", "3": "Estabelecimento agropecuário",
+    "4": "Estabelecimento de ensino", "5": "Estabelecimento de saúde",
+    "6": "Estabelecimento comercial/serviços", "7": "Edificação em construção ou reforma",
+    "8": "Estabelecimento religioso",
+}
+CNEFE_TIPO = {"101": "Casa", "102": "Casa de vila ou condomínio", "103": "Apartamento"}
+
+
+def eh_cnefe(cabecalho: list[str]) -> bool:
+    return {"cod_especie", "nom_seglogr", "num_endereco", "cep"} <= {_norm(c) for c in cabecalho}
+
+
+def _conversor_cnefe(cabecalho: list[str]):
+    idx = {_norm(c): i for i, c in enumerate(cabecalho)}
+
+    def v(linha, nome):
+        i = idx.get(nome)
+        return linha[i].strip() if i is not None and i < len(linha) else ""
+
+    def converter(linha) -> dict:
+        logradouro = " ".join(p for p in (v(linha, "nom_tipo_seglogr"), v(linha, "nom_titulo_seglogr"),
+                                          v(linha, "nom_seglogr")) if p)
+        numero, modificador = v(linha, "num_endereco"), v(linha, "dsc_modificador")
+        if _norm(modificador) in {"sn", "s/n"}:
+            numero = ""
+        elif modificador and numero.strip("0"):
+            numero = f"{numero} {modificador}"
+        complemento = " ".join(
+            " ".join(p for p in (v(linha, f"nom_comp_elem{k}"), v(linha, f"val_comp_elem{k}")) if p)
+            for k in range(1, 6)
+        ).strip()
+        especie, tipo = v(linha, "cod_especie"), v(linha, "cod_tipo_especie")
+        uso = CNEFE_TIPO.get(tipo) if especie == "1" and tipo in CNEFE_TIPO else CNEFE_ESPECIE.get(especie, "")
+        estabelecimento = v(linha, "dsc_estabelecimento")
+        if estabelecimento and especie != "1":
+            uso = f"{uso}: {estabelecimento}"
+        return {
+            "municipio": v(linha, "cod_municipio"),
+            "logradouro": logradouro, "numero": numero, "complemento": complemento,
+            "bairro": v(linha, "dsc_localidade"), "cep": v(linha, "cep"), "uso": uso,
+            "latitude": _numero(v(linha, "latitude")), "longitude": _numero(v(linha, "longitude")),
+        }
+
+    return converter
 
 
 def _linhas_xlsx(caminho: Path):
@@ -192,16 +243,27 @@ def importar_csv(csv_path: str | Path, db_path: str | Path, progresso=None, cida
         total = 0
         leitor = _linhas(csv_path)
         try:
-            mapa = mapear_colunas(next(leitor))
+            cabecalho = next(leitor)
         except StopIteration:
             raise ValueError("O arquivo está vazio.") from None
+        if eh_cnefe(cabecalho):
+            fonte, converter_cnefe = "cnefe", _conversor_cnefe(cabecalho)
+        else:
+            fonte, mapa = "prefeitura", mapear_colunas(cabecalho)
         lote = []
         for linha in leitor:
-            registro = {}
-            for campo in campos:
-                i = mapa.get(campo)
-                bruto = linha[i].strip() if i is not None and i < len(linha) else ""
-                registro[campo] = _numero(bruto) if campo in NUMERICOS else bruto
+            if fonte == "cnefe":
+                lido = converter_cnefe(linha)
+                if lido.pop("municipio") not in ("", info_cidade["ibge"]):
+                    fora += 1
+                    continue
+                registro = {c: lido.get(c, None if c in NUMERICOS else "") for c in campos}
+            else:
+                registro = {}
+                for campo in campos:
+                    i = mapa.get(campo)
+                    bruto = linha[i].strip() if i is not None and i < len(linha) else ""
+                    registro[campo] = _numero(bruto) if campo in NUMERICOS else bruto
             try:
                 registro["cep"] = normalizar_cep(registro["cep"])
             except CepInvalido:
@@ -223,7 +285,7 @@ def importar_csv(csv_path: str | Path, db_path: str | Path, progresso=None, cida
         con.execute("CREATE TABLE meta (chave TEXT PRIMARY KEY, valor TEXT)")
         con.executemany("INSERT INTO meta VALUES (?, ?)", [
             ("cidade", info_cidade["chave"]), ("total", str(total)),
-            ("exercicio", exercicio or ""), ("fora_da_cidade", str(fora)),
+            ("exercicio", exercicio or ""), ("fora_da_cidade", str(fora)), ("fonte", fonte),
         ])
         con.commit()
     except BaseException:
@@ -263,6 +325,8 @@ class Imovel:
     padrao: str = ""
     testada: float | None = None
     fator_obsolescencia: float | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     extras: dict = field(default_factory=dict)
 
     @property

@@ -22,6 +22,7 @@ CAMPOS_SITE = [
     "sql", "logradouro", "numero", "complemento", "loteamento", "quadra", "lote", "bairro", "cep", "endereco",
     "categoria", "sem_numero", "uso", "padrao", "ano_construcao",
     "area_terreno", "area_construida", "valor_venal_estimado", "valor_venal_oficial", "ano_exercicio",
+    "latitude", "longitude",
 ]
 
 VERCEL_JSON = {
@@ -95,6 +96,7 @@ def publicar(db_path: str | Path, destino: str | Path, progresso=None) -> dict:
         "exercicio": exercicio or None,
         "gerado_em": date.today().isoformat(),
         "cidade": web.cidade_publica(cidade),
+        "fonte": base.ler_meta(db_path).get("fonte", "prefeitura"),
         "links": web.links(cidade),
     }
     (destino / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")

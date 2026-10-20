@@ -81,6 +81,7 @@
   .backup { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   .backup > div:first-child { flex: 1 1 280px; }
   .backup-botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+  a.mapa { font-size: 12px; font-weight: 400; white-space: nowrap; }
   .oculto { display: none !important; }
   @media (max-width: 760px) {
     main { padding: 16px 12px 48px; }
@@ -155,6 +156,12 @@
       <button id="btnRestaurar">Restaurar backup</button>
       <input type="file" id="arquivoBackup" accept=".json,application/json" hidden>
     </div>
+  </div>
+
+  <div id="avisoFonte" class="msg aviso oculto">
+    <b>Endereços do IBGE (Censo 2022).</b> A lista mostra todos os endereços cadastrados no CEP, com e sem número,
+    mas ainda <b>sem nº do IPTU e sem valor venal</b>: esses dados só a Prefeitura tem. Quando a planilha do cadastro
+    chegar (pedido pela Lei de Acesso à Informação), importe-a com <b>Atualizar base.bat</b>.
   </div>
 
   <div id="mensagem"></div>
@@ -321,9 +328,11 @@ async function carregarStatus() {
     : await fetch("/api/status").then((r) => r.json());
   aplicarCidade(s.cidade);
   $("#importar").classList.toggle("oculto", s.importada);
-  $("#infoBase").textContent = s.importada
-    ? `Base do IPTU com ${s.total.toLocaleString("pt-BR")} imóveis${s.exercicio ? " (exercício " + s.exercicio + ")" : ""}.`
-    : "Base do IPTU ainda não importada.";
+  const cnefe = (s.fonte || META?.fonte) === "cnefe";
+  $("#avisoFonte").classList.toggle("oculto", !(s.importada && cnefe));
+  $("#infoBase").textContent = !s.importada ? "Base do IPTU ainda não importada."
+    : cnefe ? `Endereços do IBGE (Censo 2022): ${s.total.toLocaleString("pt-BR")} registros.`
+    : `Base do IPTU com ${s.total.toLocaleString("pt-BR")} imóveis${s.exercicio ? " (exercício " + s.exercicio + ")" : ""}.`;
 }
 
 $("#btnImportar").addEventListener("click", async () => {
@@ -429,7 +438,8 @@ function mostrar() {
 
   const im = dados.imoveis;
   const conta = (f) => im.filter(f).length;
-  const soma = im.reduce((t, i) => t + (i.valor_venal_estimado || 0), 0);
+  const comValor = im.filter((i) => i.valor_venal_estimado != null);
+  const soma = comValor.length ? comValor.reduce((t, i) => t + i.valor_venal_estimado, 0) : null;
   const kpis = [
     [moeda(soma), "valor venal somado", "largo"],
     [im.length, "imóveis no CEP"],
@@ -474,28 +484,32 @@ function desenhar() {
     b.classList.toggle("ativa", b.dataset.aba === aba);
     b.setAttribute("aria-selected", b.dataset.aba === aba);
   });
-  $("#btnFila").textContent = fila ? "Consultando…" : `Consultar em sequência (${conta.nc})`;
-  $("#btnFila").disabled = !!fila || !conta.nc;
+  const consultaveis = base.filter((i) => i.sql && debitos.get(i.sql) === "nc").length;
+  $("#btnFila").textContent = fila ? "Consultando…" : `Consultar em sequência (${consultaveis})`;
+  $("#btnFila").disabled = !!fila || !consultaveis;
 
   const lista = filtrados();
   $("#linhas").innerHTML = lista.map((i) => {
     const st = debitos.get(i.sql);
     return `<tr${fila && fila.atual === i.sql ? ' class="atual"' : ""}>
-      <td data-rotulo="Endereço" class="endereco-td">${esc(i.endereco)}
+      <td data-rotulo="Endereço" class="endereco-td">${esc(i.endereco)}${i.latitude != null && i.longitude != null
+        ? ` <a class="mapa" href="https://www.google.com/maps?q=${+i.latitude},${+i.longitude}" target="_blank" rel="noopener">Mapa ↗</a>` : ""}
         <div class="muted">${[i.loteamento && "Loteamento " + i.loteamento, i.uso, i.ano_construcao && +i.ano_construcao ? i.ano_construcao : ""].filter(Boolean).map(esc).join(" · ")}</div></td>
-      <td data-rotulo="Nº do IPTU"><span class="sql">${esc(i.sql || "–")}</span>
-        <div class="acoes"><button class="mini" data-copiar="${esc(i.sql)}">Copiar</button></div></td>
+      <td data-rotulo="Nº do IPTU">${i.sql
+        ? `<span class="sql">${esc(i.sql)}</span><div class="acoes"><button class="mini" data-copiar="${esc(i.sql)}">Copiar</button></div>`
+        : `<span class="muted">sem dado da Prefeitura</span>`}</td>
       <td data-rotulo="Tipo" class="tipo-td"><span class="tag">${NOMES[i.categoria]}</span></td>
       <td data-rotulo="Terreno" class="num">${area(i.area_terreno)}</td>
       <td data-rotulo="Construída" class="num">${area(i.area_construida)}</td>
       <td data-rotulo="Valor venal" class="num" title="${i.valor_venal_oficial ? "Valor venal informado pela Prefeitura" : "Estimativa calculada com áreas e valores do m²"}">${i.valor_venal_estimado == null ? "–" : (i.valor_venal_oficial ? "" : "≈ ") + moeda(i.valor_venal_estimado)}</td>
-      <td data-rotulo="Débitos" class="debito-td">
+      <td data-rotulo="Débitos" class="debito-td">${i.sql ? `
         <select class="debito ${st}" data-sql="${esc(i.sql)}">
           <option value="nc"${st === "nc" ? " selected" : ""}>Não consultado</option>
           <option value="sem"${st === "sem" ? " selected" : ""}>Sem débito</option>
           <option value="com"${st === "com" ? " selected" : ""}>Com débito</option>
         </select>
-        <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar débitos ↗</button></div>
+        <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar débitos ↗</button></div>`
+        : `<span class="muted">precisa do nº do cadastro (carnê)</span>`}
       </td></tr>`;
   }).join("");
   $("#contagem").textContent = lista.length
@@ -511,7 +525,7 @@ function abrirCertidao() {
 }
 
 async function filaMostrar() {
-  const pendentes = filtrados(false).filter((i) => debitos.get(i.sql) === "nc" && !fila.pulados.has(i.sql));
+  const pendentes = filtrados(false).filter((i) => i.sql && debitos.get(i.sql) === "nc" && !fila.pulados.has(i.sql));
   const i = pendentes[0];
   if (!i) {
     const pulados = fila.pulados.size;

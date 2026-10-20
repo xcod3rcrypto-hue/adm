@@ -161,6 +161,39 @@ def baixar_automatico(pasta: Path, avisar=print) -> Path | None:
 
 
 
+CNEFE_RAIZ = ("https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/"
+              "Censo_Demografico_2022/Arquivos_CNEFE/")
+
+
+def links_cnefe(ibge: str, pasta_uf: str, ler=_texto) -> list[str]:
+    """Links do ZIP do município no FTP do IBGE: procura na listagem das pastas e,
+    se não achar, usa o caminho conhecido (CSV/Municipio/<UF>/<código>_<NOME>.zip)."""
+    achados = []
+    for pasta in (f"CSV/Municipio/{pasta_uf}/", f"Municipio/{pasta_uf}/", f"CSV/{pasta_uf}/", ""):
+        try:
+            conteudo = ler(CNEFE_RAIZ + pasta)
+        except (OSError, ValueError):
+            continue
+        for href in re.findall(r"""href\s*=\s*["']([^"']+)["']""", conteudo, re.IGNORECASE):
+            if ibge in href and href.lower().endswith(".zip"):
+                achados.append(urllib.parse.urljoin(CNEFE_RAIZ + pasta, html.unescape(href)))
+        if achados:
+            break
+    return achados
+
+
+def baixar_cnefe(ibge: str, pasta_uf: str, pasta: Path, avisar=print) -> Path | None:
+    avisar("Baixando os endereços do IBGE (CNEFE, Censo 2022) ...")
+    for url in links_cnefe(ibge, pasta_uf):
+        avisar(f"  {url}")
+        arquivo = baixar(url, pasta, f"cnefe_{ibge}",
+                         progresso=lambda feito, total: print(f"    {feito / 1e6:,.1f} MB", end="\r"))
+        if arquivo:
+            avisar("")
+            return arquivo
+    return None
+
+
 def _testar(url: str) -> str:
     try:
         with _abrir(url) as r:

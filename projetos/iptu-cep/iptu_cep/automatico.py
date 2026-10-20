@@ -131,19 +131,27 @@ def publicar_vercel(pasta_site: Path, executar=subprocess.run, popen=subprocess.
     return extrair_url_publica("".join(linhas))
 
 
+def baixar_cnefe(info: dict, pasta: Path) -> Path | None:
+    from . import fonte
+    return fonte.baixar_cnefe(info["ibge"], info["cnefe_uf"], pasta)
+
+
 def baixar_sozinho(pasta: Path) -> Path | None:
     from . import fonte
     return fonte.baixar_automatico(pasta)
 
 
 SEM_BASE_PUBLICA = """
-Não achei a planilha do cadastro do IPTU de {nome} na pasta Downloads.
+Não achei a planilha do cadastro do IPTU de {nome} na pasta Downloads, e não consegui
+baixar os endereços do IBGE.
 
-{nome} não publica essa base na internet. Para obter:
-  1. Peça à Prefeitura pela Lei de Acesso à Informação (SIC / Ouvidoria). O texto
-     pronto do pedido está em PEDIDO_SIC_ITANHAEM.md, nesta pasta.
-  2. Quando receber, salve a planilha (CSV ou Excel .xlsx) na pasta Downloads com
-     "itanhaem" ou "cadastro" no nome (ex.: cadastro_itanhaem.xlsx), ou importe direto:
+1. Endereços do IBGE (servem já, sem nº do IPTU): abra
+   https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/
+   entre em CSV > Municipio > {uf} e baixe o arquivo que começa com {ibge}. Deixe na
+   pasta Downloads e rode de novo.
+2. Planilha do IPTU da Prefeitura: peça pela Lei de Acesso à Informação (texto pronto
+   em PEDIDO_SIC_ITANHAEM.md). Quando receber, salve em Downloads com "itanhaem" ou
+   "cadastro" no nome (ex.: cadastro_itanhaem.xlsx), ou importe direto:
         py -m iptu_cep local --arquivo "C:\\caminho\\da\\planilha.xlsx"
 """
 
@@ -156,10 +164,19 @@ def obter_e_importar(db: Path, arquivo: Path | None = None, url: str | None = No
     info = cidades.obter(cidade)
     trabalho = db.parent
     if arquivo is None and not url and not info["base_publica"]:
+        # 1º planilha da Prefeitura; 2º endereços do IBGE já baixados; 3º baixar do IBGE.
         arquivo = procurar_base(pasta_downloads(), padrao=PADRAO_PLANILHA_CIDADE)
+        if arquivo:
+            print(f"Planilha da Prefeitura encontrada: {arquivo}")
+        else:
+            padrao_cnefe = re.compile(rf"({info['ibge']}|cnefe).*\.(zip|csv)$", re.IGNORECASE)
+            arquivo = procurar_base(pasta_downloads(), padrao=padrao_cnefe) or procurar_base(trabalho, padrao=padrao_cnefe)
+            if arquivo:
+                print(f"Endereços do IBGE encontrados: {arquivo}")
+            else:
+                arquivo = baixar_cnefe(info, trabalho)
         if arquivo is None:
-            raise FileNotFoundError(SEM_BASE_PUBLICA.format(nome=info["nome"]))
-        print(f"Planilha encontrada: {arquivo}")
+            raise FileNotFoundError(SEM_BASE_PUBLICA.format(nome=info["nome"], uf=info["cnefe_uf"], ibge=info["ibge"]))
     if url:
         arquivo = baixar_url(url, trabalho)
     if arquivo is None:

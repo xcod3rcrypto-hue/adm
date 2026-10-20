@@ -16,6 +16,7 @@ from iptu_cep import automatico, backup, base, cep, fonte, publicar, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 ITANHAEM = Path(__file__).parent / "fixtures" / "itanhaem_amostra.csv"
+CNEFE = Path(__file__).parent / "fixtures" / "cnefe_itanhaem.csv"
 
 
 def _xlsx(caminho: Path, linhas: list[list]) -> None:
@@ -499,7 +500,8 @@ class TestItanhaem(unittest.TestCase):
     def test_sem_planilha_explica_como_obter(self):
         vazia = self.pasta / "Downloads"
         vazia.mkdir()
-        with mock.patch.object(automatico, "pasta_downloads", return_value=vazia):
+        with mock.patch.object(automatico, "pasta_downloads", return_value=vazia), \
+                mock.patch.object(automatico, "baixar_cnefe", return_value=None), redirect_stdout(io.StringIO()):
             with self.assertRaises(FileNotFoundError) as erro:
                 automatico.obter_e_importar(self.db)
         self.assertIn("PEDIDO_SIC_ITANHAEM.md", str(erro.exception))
@@ -508,7 +510,8 @@ class TestItanhaem(unittest.TestCase):
         downloads = self.pasta / "Downloads"
         downloads.mkdir()
         (downloads / "IPTU_2025.zip").write_text("x")  # base da capital
-        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads):
+        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), \
+                mock.patch.object(automatico, "baixar_cnefe", return_value=None), redirect_stdout(io.StringIO()):
             with self.assertRaises(FileNotFoundError):
                 automatico.obter_e_importar(self.db)
             (downloads / "cadastro_itanhaem.csv").write_bytes(ITANHAEM.read_bytes())
@@ -524,6 +527,70 @@ class TestItanhaem(unittest.TestCase):
         bloco = json.loads(gzip.decompress((site / "dados" / "11740.bin").read_bytes()))
         self.assertEqual(sorted(bloco["ceps"]), ["11740000", "11740005"])
         self.assertIn("loteamento", bloco["campos"])
+
+
+class TestCnefe(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.pasta = Path(self.tmp.name)
+        self.db = self.pasta / "iptu.sqlite"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_importa_enderecos_do_ibge(self):
+        self.assertEqual(base.importar_csv(CNEFE, self.db), 4)  # o de São Paulo é descartado
+        meta = base.ler_meta(self.db)
+        self.assertEqual((meta["fonte"], meta["fora_da_cidade"]), ("cnefe", "1"))
+        construcao, casa, apto = base.consultar(self.db, "11740-000")
+        self.assertEqual((casa.endereco, casa.uso, casa.sql), ("AVENIDA PRESIDENTE VARGAS, 350", "Casa", ""))
+        self.assertEqual(construcao.endereco, "AVENIDA PRESIDENTE VARGAS, s/n")
+        self.assertEqual(construcao.uso, "Edificação em construção ou reforma")
+        self.assertEqual(apto.endereco, "AVENIDA PRESIDENTE VARGAS, 400 - APARTAMENTO 12 BLOCO B")
+        self.assertEqual(web.classificar(apto), "apartamento")
+        self.assertEqual(web.classificar(casa), "casa")
+        self.assertEqual((casa.latitude, casa.longitude), (-24.1951, -46.7882))
+        [loja] = base.consultar(self.db, "11740-005")
+        self.assertEqual((loja.uso, web.classificar(loja)), ("Estabelecimento comercial/serviços: PADARIA BOM PAO", "comercial"))
+        self.assertIsNone(loja.valor_venal_estimado)
+
+    def test_status_e_consulta_indicam_fonte(self):
+        base.importar_csv(CNEFE, self.db)
+        self.assertEqual(web._status(self.db)["fonte"], "cnefe")
+        itanhaem = cep.Endereco("11740000", "Avenida Presidente Vargas", "Suarão", "Itanhaém", "SP", "3522109", "ViaCEP")
+        codigo, dados = web.consultar_cep(self.db, "11740000", buscar_endereco=lambda _: itanhaem)
+        self.assertEqual((codigo, dados["total"], dados["fonte"]), (200, 3, "cnefe"))
+
+    def test_zip_do_ibge_na_pasta_downloads(self):
+        downloads = self.pasta / "Downloads"
+        downloads.mkdir()
+        with zipfile.ZipFile(downloads / "3522109_ITANHAEM.zip", "w") as z:
+            z.write(CNEFE, "3522109_ITANHAEM.csv")
+        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), \
+                mock.patch.object(automatico, "baixar_cnefe", side_effect=AssertionError("não deveria baixar")), \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(automatico.obter_e_importar(self.db), 4)
+            # a planilha da Prefeitura tem prioridade sobre os endereços do IBGE
+            (downloads / "cadastro_itanhaem.csv").write_bytes(ITANHAEM.read_bytes())
+            self.assertEqual(automatico.obter_e_importar(self.db), 3)
+        self.assertEqual(base.ler_meta(self.db)["fonte"], "prefeitura")
+
+    def test_baixa_do_ibge_quando_nao_ha_nada(self):
+        baixado = self.pasta / "dados" / "cnefe_3522109.zip"
+        baixado.parent.mkdir()
+        with zipfile.ZipFile(baixado, "w") as z:
+            z.write(CNEFE, "3522109_ITANHAEM.csv")
+        with mock.patch.object(automatico, "procurar_base", return_value=None), \
+                mock.patch.object(automatico, "baixar_cnefe", return_value=baixado) as baixar, \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(automatico.obter_e_importar(self.pasta / "dados" / "iptu.sqlite"), 4)
+        baixar.assert_called_once()
+
+    def test_links_cnefe_pela_listagem(self):
+        listagem = '<a href="3522000_ITAI.zip">x</a><a href="3522109_ITANHAEM.zip">3522109_ITANHAEM.zip</a>'
+        links = fonte.links_cnefe("3522109", "35_SP", ler=lambda url: listagem if url.endswith("35_SP/") else "")
+        self.assertEqual(links, [fonte.CNEFE_RAIZ + "CSV/Municipio/35_SP/3522109_ITANHAEM.zip"])
+        self.assertEqual(fonte.links_cnefe("3522109", "35_SP", ler=lambda url: ""), [])
 
 
 if __name__ == "__main__":

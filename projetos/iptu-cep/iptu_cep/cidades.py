@@ -16,6 +16,7 @@ CIDADES = {
         "link_segunda_via": "https://transparencia.itanhaem.sp.gov.br/fazenda/",
         "link_certidao": "https://www.itanhaem.sp.gov.br/servicos/",
         "base_publica": False,
+        "cnefe_uf": "35_SP",
     },
     "sao-paulo": {
         "nome": "São Paulo",
@@ -27,6 +28,7 @@ CIDADES = {
         "link_segunda_via": "https://www.prefeitura.sp.gov.br/cidade/secretarias/fazenda/servicos/iptu/",
         "link_certidao": "https://prefeitura.sp.gov.br/web/fazenda/w/servicos/certidoes/2407",
         "base_publica": True,  # GeoSampa publica o cadastro do IPTU todo ano
+        "cnefe_uf": "35_SP",
     },
 }
 

@@ -12,6 +12,8 @@ Itanhaém **não publica** o cadastro do IPTU na internet. A Prefeitura só most
 2. Salve o arquivo (CSV ou Excel `.xlsx`) na pasta Downloads com "itanhaem" ou "cadastro" no nome, e dê duplo clique em `Atualizar base.bat`. Ou importe direto:
    `py -m iptu_cep local --arquivo "C:\caminho\cadastro_itanhaem.xlsx"`
 
+**Enquanto a planilha não chega: endereços do IBGE.** Sem a planilha, o programa usa o **CNEFE** (Cadastro Nacional de Endereços para Fins Estatísticos, do Censo 2022 do IBGE), que é público: todos os endereços de Itanhaém por CEP, com e sem número, com o tipo (casa, apartamento, comércio, em construção) e o link do mapa. Ele **não tem nº do IPTU nem valor venal**. Na primeira vez, o `Abrir IPTU.bat` tenta baixar o arquivo do IBGE sozinho. Se não conseguir, baixe manualmente em ftp.ibge.gov.br → `Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/Municipio/35_SP/`, arquivo que começa com `3522109`, e deixe na pasta Downloads. Quando a planilha da Prefeitura estiver em Downloads, ela tem prioridade.
+
 O programa reconhece as colunas mais comuns: inscrição/cadastro, logradouro, número, complemento, loteamento, quadra, lote, bairro, CEP, área do terreno, área construída, valor venal e uso. Se a planilha trouxer o valor venal, ele é mostrado direto; se não, o programa calcula uma estimativa (marcada com "≈"). Nomes, CPF/CNPJ, telefone, e-mail e endereço de correspondência do proprietário são **descartados** na importação. Se a maioria dos CEPs não for de Itanhaém (11740-000 a 11749-999), o programa avisa.
 
 ## Como funciona

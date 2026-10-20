@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPTU pelo CEP</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #16181d; --muted: #5f6672; --line: #e2e5ea;
+    --accent: #1f6feb; --accent-soft: #e8f0fe; --ok: #1a7f37; --ok-soft: #e6f4ea;
+    --bad: #c62828; --bad-soft: #fdecea; --warn-soft: #fff6e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115; --card: #171a21; --text: #e8eaed; --muted: #9aa1ad; --line: #2a2f39;
+      --accent: #58a6ff; --accent-soft: #15233a; --ok: #3fb950; --ok-soft: #12261a;
+      --bad: #ff7b72; --bad-soft: #2d1414; --warn-soft: #2a2412;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .busca { display: flex; gap: 8px; flex-wrap: wrap; }
+  input, select, button { font: inherit; color: inherit; }
+  input[type=text], select { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  #cep { font-size: 20px; letter-spacing: 1px; width: 180px; }
+  button { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+  button.primario { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .msg { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; }
+  .msg.erro { background: var(--bad-soft); color: var(--bad); }
+  .msg.aviso { background: var(--warn-soft); }
+  .endereco { font-size: 18px; font-weight: 600; }
+  .resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+  .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 20px; overflow-wrap: anywhere; }
+  .kpi span { color: var(--muted); font-size: 13px; }
+  .filtros { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .chip { border-radius: 999px; padding: 6px 12px; }
+  .chip.ativo { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .filtros input[type=text] { flex: 1 1 200px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
+  td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .sql { font-family: ui-monospace, Consolas, monospace; white-space: nowrap; }
+  .mini { padding: 3px 8px; font-size: 12px; border-radius: 6px; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .muted { color: var(--muted); font-size: 13px; }
+  select.debito { padding: 5px 8px; font-size: 13px; }
+  select.debito.com { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); }
+  select.debito.sem { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+  .acoes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .rodape { color: var(--muted); font-size: 13px; }
+  .oculto { display: none !important; }
+  @media (max-width: 760px) {
+    thead { display: none; }
+    tr { display: block; border-bottom: 1px solid var(--line); padding: 10px 0; }
+    td { display: flex; justify-content: space-between; gap: 12px; border: 0; padding: 4px 0; }
+    td::before { content: attr(data-rotulo); color: var(--muted); font-size: 13px; }
+    td.num { text-align: right; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>IPTU pelo CEP</h1>
+  <p class="sub">Digite o CEP da rua para ver todos os imóveis cadastrados no IPTU: casas, apartamentos, terrenos e comércios, com ou sem número.</p>
+
+  <div id="importar" class="card oculto">
+    <b>Primeiro passo: importar a base do IPTU</b>
+    <p class="muted">Baixe o CSV no GeoSampa (Download de arquivos → Cadastro → IPTU) ou no Portal de Dados Abertos da Prefeitura de São Paulo e informe onde ele está. Isso é feito uma vez por ano.</p>
+    <div class="busca">
+      <input type="text" id="caminho" placeholder="C:\Users\voce\Downloads\IPTU_2026.csv" style="flex:1 1 320px">
+      <button id="btnImportar" class="primario">Importar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <form id="form" class="busca">
+      <input type="text" id="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code" required>
+      <button class="primario" id="btnConsultar">Consultar</button>
+    </form>
+    <div id="infoBase" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <div id="mensagem"></div>
+
+  <section id="resultado" class="oculto">
+    <div class="card">
+      <div class="endereco" id="tituloEndereco"></div>
+      <div class="muted" id="subEndereco"></div>
+      <div class="resumo" id="resumo"></div>
+    </div>
+
+    <div class="card">
+      <div class="filtros" id="filtros">
+        <button class="chip ativo" data-cat="todos">Todos</button>
+        <button class="chip" data-cat="casa">Casas</button>
+        <button class="chip" data-cat="apartamento">Apartamentos</button>
+        <button class="chip" data-cat="terreno">Terrenos</button>
+        <button class="chip" data-cat="comercial">Comércio</button>
+        <button class="chip" data-cat="outro">Outros</button>
+        <label class="muted"><input type="checkbox" id="soSemNumero"> só sem número</label>
+        <select id="filtroDebito">
+          <option value="">Débitos: todos</option>
+          <option value="com">Com débito</option>
+          <option value="sem">Sem débito</option>
+          <option value="nc">Não consultado</option>
+        </select>
+        <input type="text" id="texto" placeholder="Filtrar por número, complemento ou nº do IPTU">
+        <button id="btnCsv">Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead><tr>
+          <th data-ord="endereco">Endereço</th>
+          <th data-ord="sql">Nº do IPTU (contribuinte)</th>
+          <th data-ord="categoria">Tipo</th>
+          <th data-ord="area_terreno" class="num">Terreno</th>
+          <th data-ord="area_construida" class="num">Construída</th>
+          <th data-ord="valor_venal_estimado" class="num">Valor venal estimado</th>
+          <th>Débitos</th>
+        </tr></thead>
+        <tbody id="linhas"></tbody>
+      </table>
+      <p class="muted" id="contagem"></p>
+    </div>
+
+    <p class="rodape">
+      <b>Nº do IPTU</b> é o número do contribuinte (SQL) usado em todos os serviços da Prefeitura.
+      O <b>valor venal</b> é uma estimativa simplificada feita com a base aberta. O valor do carnê aparece na
+      <a id="link2via" target="_blank" rel="noopener">2ª via do IPTU</a>.
+      <b>Débitos:</b> a Prefeitura só informa imóvel a imóvel, na certidão de débitos imobiliários. O botão
+      “Consultar” copia o número e abre a página oficial. Marque o resultado na lista: ele fica salvo neste navegador.
+    </p>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const moeda = (v) => v == null ? "–" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const area = (v) => v == null ? "–" : v.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + " m²";
+const NOMES = { casa: "Casa", apartamento: "Apartamento", terreno: "Terreno", comercial: "Comércio", outro: "Outro" };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let dados = null, categoria = "todos", ordem = { campo: "endereco", asc: true };
+
+// Situação de débitos marcada pelo usuário, salva só neste navegador.
+const debitos = (() => {
+  let m = {};
+  try { m = JSON.parse(localStorage.getItem("iptu-debitos") || "{}"); } catch {}
+  return {
+    get: (sql) => m[sql] || "nc",
+    set: (sql, v) => { m[sql] = v; try { localStorage.setItem("iptu-debitos", JSON.stringify(m)); } catch {} },
+  };
+})();
+
+$("#cep").addEventListener("input", (e) => {
+  const d = e.target.value.replace(/\D/g, "").slice(0, 8);
+  e.target.value = d.length > 5 ? d.slice(0, 5) + "-" + d.slice(5) : d;
+});
+
+function mensagem(texto, tipo = "erro") {
+  $("#mensagem").innerHTML = texto ? `<div class="msg ${tipo}">${esc(texto)}</div>` : "";
+}
+
+async function carregarStatus() {
+  const s = await fetch("/api/status").then((r) => r.json());
+  $("#importar").classList.toggle("oculto", s.importada);
+  $("#infoBase").textContent = s.importada
+    ? `Base do IPTU com ${s.total.toLocaleString("pt-BR")} imóveis${s.exercicio ? " (exercício " + s.exercicio + ")" : ""}.`
+    : "Base do IPTU ainda não importada.";
+}
+
+$("#btnImportar").addEventListener("click", async () => {
+  const btn = $("#btnImportar");
+  btn.disabled = true; btn.textContent = "Importando… (pode levar alguns minutos)";
+  try {
+    const r = await fetch("/api/importar", { method: "POST", body: JSON.stringify({ csv: $("#caminho").value.trim() }) });
+    const j = await r.json();
+    if (!r.ok) mensagem(j.erro);
+    else { mensagem(`${j.total.toLocaleString("pt-BR")} imóveis importados.`, "aviso"); await carregarStatus(); }
+  } finally { btn.disabled = false; btn.textContent = "Importar"; }
+});
+
+$("#form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("#btnConsultar");
+  btn.disabled = true; btn.textContent = "Consultando…";
+  mensagem("");
+  try {
+    const r = await fetch("/api/consulta?cep=" + encodeURIComponent($("#cep").value));
+    const j = await r.json();
+    if (!r.ok) { $("#resultado").classList.add("oculto"); mensagem(j.erro); return; }
+    dados = j;
+    history.replaceState(null, "", "?cep=" + j.cep);
+    if (j.aviso) mensagem(j.aviso, "aviso");
+    mostrar();
+  } catch {
+    mensagem("Não consegui falar com o programa. Ele ainda está aberto?");
+  } finally { btn.disabled = false; btn.textContent = "Consultar"; }
+});
+
+function mostrar() {
+  const e = dados.endereco;
+  $("#tituloEndereco").textContent = e ? `${e.logradouro || "CEP geral da cidade"} — CEP ${dados.cep}` : `CEP ${dados.cep}`;
+  $("#subEndereco").textContent = e ? `${e.bairro}, ${e.cidade}/${e.uf} · endereço via ${e.fonte}` : "";
+  $("#link2via").href = dados.links.segunda_via;
+
+  const im = dados.imoveis;
+  const conta = (f) => im.filter(f).length;
+  const soma = im.reduce((t, i) => t + (i.valor_venal_estimado || 0), 0);
+  const kpis = [
+    [im.length, "imóveis no CEP"],
+    [conta((i) => i.categoria === "casa"), "casas"],
+    [conta((i) => i.categoria === "apartamento"), "apartamentos"],
+    [conta((i) => i.categoria === "terreno"), "terrenos"],
+    [conta((i) => i.categoria === "comercial"), "comércios"],
+    [conta((i) => i.sem_numero), "sem número"],
+    [conta((i) => debitos.get(i.sql) === "com"), "marcados com débito"],
+    [moeda(soma), "valor venal somado"],
+  ];
+  $("#resumo").innerHTML = kpis.map(([v, r]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(r)}</span></div>`).join("");
+  $("#resultado").classList.remove("oculto");
+  if (!im.length) mensagem("Nenhum imóvel desse CEP está na base do IPTU. CEPs de prédio ou de caixa postal às vezes não aparecem; tente o CEP da rua.", "aviso");
+  desenhar();
+}
+
+function filtrados() {
+  const t = $("#texto").value.trim().toLowerCase();
+  const fd = $("#filtroDebito").value;
+  const lista = dados.imoveis.filter((i) =>
+    (categoria === "todos" || i.categoria === categoria) &&
+    (!$("#soSemNumero").checked || i.sem_numero) &&
+    (!fd || debitos.get(i.sql) === fd) &&
+    (!t || [i.numero, i.complemento, i.sql, i.logradouro].join(" ").toLowerCase().includes(t)));
+  const { campo, asc } = ordem;
+  lista.sort((a, b) => {
+    let x = a[campo], y = b[campo];
+    if (campo === "endereco") { x = [a.logradouro, (+a.numero || 0).toString().padStart(6, "0"), a.complemento].join("|"); y = [b.logradouro, (+b.numero || 0).toString().padStart(6, "0"), b.complemento].join("|"); }
+    if (x == null) return 1; if (y == null) return -1;
+    const r = typeof x === "number" ? x - y : String(x).localeCompare(String(y), "pt-BR", { numeric: true });
+    return asc ? r : -r;
+  });
+  return lista;
+}
+
+function desenhar() {
+  const lista = filtrados();
+  $("#linhas").innerHTML = lista.map((i) => {
+    const st = debitos.get(i.sql);
+    return `<tr>
+      <td data-rotulo="Endereço">${esc(i.sem_numero ? (i.logradouro + ", s/n" + (i.complemento ? " - " + i.complemento : "")) : i.endereco)}
+        <div class="muted">${esc(i.uso || "")}${i.ano_construcao ? " · " + esc(i.ano_construcao) : ""}</div></td>
+      <td data-rotulo="Nº do IPTU"><span class="sql">${esc(i.sql || "–")}</span>
+        <div class="acoes"><button class="mini" data-copiar="${esc(i.sql)}">Copiar</button></div></td>
+      <td data-rotulo="Tipo"><span class="tag">${NOMES[i.categoria]}</span></td>
+      <td data-rotulo="Terreno" class="num">${area(i.area_terreno)}</td>
+      <td data-rotulo="Construída" class="num">${area(i.area_construida)}</td>
+      <td data-rotulo="Valor venal" class="num">${moeda(i.valor_venal_estimado)}</td>
+      <td data-rotulo="Débitos">
+        <select class="debito ${st}" data-sql="${esc(i.sql)}">
+          <option value="nc"${st === "nc" ? " selected" : ""}>Não consultado</option>
+          <option value="sem"${st === "sem" ? " selected" : ""}>Sem débito</option>
+          <option value="com"${st === "com" ? " selected" : ""}>Com débito</option>
+        </select>
+        <div class="acoes"><button class="mini" data-debito="${esc(i.sql)}">Consultar ↗</button></div>
+      </td></tr>`;
+  }).join("");
+  $("#contagem").textContent = `Mostrando ${lista.length} de ${dados.imoveis.length} imóveis.`;
+}
+
+async function copiar(texto) {
+  try { await navigator.clipboard.writeText(texto); return true; } catch { return false; }
+}
+
+$("#linhas").addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.copiar !== undefined) {
+    b.textContent = (await copiar(b.dataset.copiar)) ? "Copiado ✓" : "Copie manualmente";
+    setTimeout(() => (b.textContent = "Copiar"), 1500);
+  }
+  if (b.dataset.debito !== undefined) {
+    await copiar(b.dataset.debito);
+    window.open(dados.links.debitos, "_blank", "noopener");
+    b.textContent = "Nº copiado, cole na página";
+    setTimeout(() => (b.textContent = "Consultar ↗"), 3000);
+  }
+});
+
+$("#linhas").addEventListener("change", (e) => {
+  if (!e.target.matches("select.debito")) return;
+  debitos.set(e.target.dataset.sql, e.target.value);
+  mostrar();
+});
+
+$("#filtros").addEventListener("click", (e) => {
+  const c = e.target.closest(".chip");
+  if (!c) return;
+  categoria = c.dataset.cat;
+  document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("ativo", x === c));
+  desenhar();
+});
+["#texto", "#soSemNumero", "#filtroDebito"].forEach((s) => $(s).addEventListener("input", desenhar));
+
+document.querySelector("thead").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-ord]");
+  if (!th) return;
+  ordem = { campo: th.dataset.ord, asc: ordem.campo === th.dataset.ord ? !ordem.asc : true };
+  desenhar();
+});
+
+$("#btnCsv").addEventListener("click", () => {
+  const cab = ["endereco", "numero", "complemento", "bairro", "cep", "numero_iptu", "tipo", "uso", "padrao",
+               "ano_construcao", "area_terreno", "area_construida", "valor_venal_estimado", "situacao_debito"];
+  const sit = { nc: "Não consultado", sem: "Sem débito", com: "Com débito" };
+  const num = (v) => v == null ? "" : String(v).replace(".", ",");
+  const linhas = filtrados().map((i) => [i.logradouro, i.numero, i.complemento, i.bairro, i.cep, i.sql, NOMES[i.categoria],
+    i.uso, i.padrao, i.ano_construcao, num(i.area_terreno), num(i.area_construida), num(i.valor_venal_estimado), sit[debitos.get(i.sql)]]);
+  const csv = [cab, ...linhas].map((l) => l.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `iptu_${dados.cep}.csv`;
+  a.click();
+});
+
+carregarStatus();
+const inicial = new URLSearchParams(location.search).get("cep");
+if (inicial) { $("#cep").value = inicial; $("#form").requestSubmit(); }
+</script>
+</body>
+</html>

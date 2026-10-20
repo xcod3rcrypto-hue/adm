@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 from iptu_cep import __main__ as cli
-from iptu_cep import base, cep
+from iptu_cep import base, cep, web
 
 AMOSTRA = Path(__file__).parent / "fixtures" / "iptu_amostra.csv"
 
@@ -52,18 +52,18 @@ class TestBase(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_importa_e_descarta_linha_sem_cep(self):
-        self.assertEqual(self.total, 3)
+        self.assertEqual(self.total, 4)
 
     def test_nao_guarda_nome_de_pessoa(self):
         con = sqlite3.connect(self.db)
         conteudo = " ".join(str(v) for linha in con.execute("SELECT * FROM imoveis") for v in linha)
         con.close()
-        for nome in ("FULANO", "CICLANO", "BELTRANO"):
+        for nome in ("FULANO", "FULANA", "CICLANO", "BELTRANO"):
             self.assertNotIn(nome, conteudo)
 
     def test_consulta_por_cep_e_numero(self):
         todos = base.consultar(self.db, "01310100")
-        self.assertEqual(len(todos), 2)
+        self.assertEqual(len(todos), 3)
         so_1000 = base.consultar(self.db, "01310-100", numero="1000")
         self.assertEqual(len(so_1000), 2)  # "01000" e "1000" são o mesmo número
         self.assertEqual(base.consultar(self.db, "01310100", numero="7"), [])
@@ -74,7 +74,7 @@ class TestBase(unittest.TestCase):
         self.assertEqual(imovel.area_terreno, 300.0)
 
     def test_valor_venal_estimado(self):
-        [apto, _] = base.consultar(self.db, "01310100")
+        apto = next(i for i in base.consultar(self.db, "01310100") if i.sql == "0100010001-1")
         # 2000 × 15000 × 0,025 + 120 × 3200,50 × 0,80
         self.assertAlmostEqual(apto.valor_venal_estimado, 750000 + 307248, places=2)
 
@@ -107,7 +107,7 @@ class TestCli(unittest.TestCase):
     def test_texto_offline(self):
         codigo, saida = self._rodar("consultar", "01310-100", "--offline")
         self.assertEqual(codigo, 0)
-        self.assertIn("2 imóvel(is)", saida)
+        self.assertIn("3 imóvel(is)", saida)
         self.assertIn("0100010001-1", saida)
         self.assertIn("R$ 1.057.248,00", saida)
 
@@ -117,7 +117,7 @@ class TestCli(unittest.TestCase):
             codigo, saida = self._rodar("consultar", "01310100", "-f", "json")
         dados = json.loads(saida)
         self.assertEqual(codigo, 0)
-        self.assertEqual(dados["total"], 2)
+        self.assertEqual(dados["total"], 3)
         self.assertEqual(dados["endereco"]["cidade"], "São Paulo")
 
     def test_cidade_fora_de_sp(self):
@@ -130,6 +130,41 @@ class TestCli(unittest.TestCase):
         codigo, saida = self._rodar("consultar", "04538-133", "--offline")
         self.assertEqual(codigo, 1)
         self.assertIn("Nenhum imóvel", saida)
+
+
+class TestWeb(unittest.TestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.db = Path(self.tmp.name) / "iptu.sqlite"
+        base.importar_csv(AMOSTRA, self.db)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_lista_com_categorias_e_sem_numero(self):
+        def sem_rede(_):
+            raise ConnectionError("offline")
+
+        codigo, dados = web.consultar_cep(self.db, "01310-100", buscar_endereco=sem_rede)
+        self.assertEqual(codigo, 200)
+        self.assertIsNotNone(dados["aviso"])
+        por_sql = {i["sql"]: i for i in dados["imoveis"]}
+        self.assertEqual(por_sql["0100010003-7"]["categoria"], "terreno")
+        self.assertTrue(por_sql["0100010003-7"]["sem_numero"])
+        self.assertEqual(por_sql["0100010001-1"]["categoria"], "apartamento")
+        self.assertFalse(por_sql["0100010001-1"]["sem_numero"])
+        self.assertIn("debitos", dados["links"])
+
+    def test_erros(self):
+        self.assertEqual(web.consultar_cep(self.db, "123")[0], 400)
+        rio = cep.Endereco("20040002", "Rua X", "Centro", "Rio de Janeiro", "RJ", "3304557", "ViaCEP")
+        self.assertEqual(web.consultar_cep(self.db, "20040002", buscar_endereco=lambda _: rio)[0], 422)
+        sem_base = Path(self.tmp.name) / "nada.sqlite"
+        self.assertEqual(web.consultar_cep(sem_base, "01310100", buscar_endereco=lambda _: None)[0], 409)
+
+    def test_status(self):
+        self.assertEqual(web._status(self.db)["total"], 4)
+        self.assertFalse(web._status(Path(self.tmp.name) / "nada.sqlite")["importada"])
 
 
 if __name__ == "__main__":

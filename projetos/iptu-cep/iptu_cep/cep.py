@@ -32,8 +32,9 @@ class Endereco:
 
 def normalizar_cep(cep: str) -> str:
     digitos = re.sub(r"\D", "", str(cep))
-    # Bases antigas guardam o CEP como número e perdem o zero à esquerda.
-    if 0 < len(digitos) < 8:
+    # Planilhas guardam o CEP como número e perdem o zero à esquerda
+    # (todo CEP de SP começa com 0).
+    if len(digitos) == 7:
         digitos = digitos.zfill(8)
     if len(digitos) != 8:
         raise CepInvalido(f"CEP inválido: {cep!r} (use 8 dígitos, ex.: 01310-100)")

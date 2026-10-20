@@ -9,11 +9,11 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import base, cep
+from . import base, cep, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
-CIDADES_SUPORTADAS = {"3550308": "São Paulo"}  # código IBGE
-LINK_2A_VIA = "https://www.prefeitura.sp.gov.br/cidade/secretarias/fazenda/servicos/iptu/"
+CIDADES_SUPORTADAS = web.CIDADES_SUPORTADAS
+LINK_2A_VIA = web.LINK_2A_VIA
 
 
 def _moeda(v: float | None) -> str:
@@ -112,6 +112,11 @@ def cmd_consultar(args) -> int:
     return 0
 
 
+def cmd_web(args) -> int:
+    web.servir(Path(args.db), porta=args.porta, abrir=not args.sem_navegador)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="iptu_cep", description="Consulta imóveis e IPTU pelo CEP (São Paulo).")
     p.add_argument("--db", default=str(DB_PADRAO), help=f"arquivo SQLite da base (padrão: {DB_PADRAO})")
@@ -127,6 +132,11 @@ def main(argv: list[str] | None = None) -> int:
     pc.add_argument("-f", "--formato", choices=["texto", "json", "csv"], default="texto")
     pc.add_argument("--offline", action="store_true", help="não consulta a API de CEP")
     pc.set_defaults(func=cmd_consultar)
+
+    pw = sub.add_parser("web", help="abre a tela no navegador")
+    pw.add_argument("--porta", type=int, default=8765)
+    pw.add_argument("--sem-navegador", action="store_true", help="não abre o navegador sozinho")
+    pw.set_defaults(func=cmd_web)
 
     args = p.parse_args(argv)
     return args.func(args)

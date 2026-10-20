@@ -106,44 +106,53 @@ def importar_csv(csv_path: str | Path, db_path: str | Path, progresso=None) -> i
     """Lê o CSV da Prefeitura e grava em SQLite indexado por CEP. Retorna o total."""
     csv_path, db_path = Path(csv_path), Path(db_path)
     campos = list(COLUNAS)
-    con = sqlite3.connect(db_path)
-    con.execute("DROP TABLE IF EXISTS imoveis")
-    con.execute(
-        "CREATE TABLE imoveis (" + ", ".join(
-            f"{c} {'REAL' if c in NUMERICOS else 'TEXT'}" for c in campos
-        ) + ")"
-    )
-    total = 0
-    with _abrir_texto(csv_path) as f:
-        amostra = f.read(4096)
-        f.seek(0)
-        sep = ";" if amostra.count(";") > amostra.count(",") else ","
-        leitor = csv.reader(f, delimiter=sep)
-        mapa = mapear_colunas(next(leitor))
-        lote = []
-        for linha in leitor:
-            registro = {}
-            for campo in campos:
-                i = mapa.get(campo)
-                bruto = linha[i].strip() if i is not None and i < len(linha) else ""
-                registro[campo] = _numero(bruto) if campo in NUMERICOS else bruto
-            try:
-                registro["cep"] = normalizar_cep(registro["cep"])
-            except CepInvalido:
-                continue
-            lote.append(tuple(registro[c] for c in campos))
-            if len(lote) >= 20000:
+    # Grava num arquivo temporário: se a importação falhar, a base atual continua valendo.
+    temp = db_path.with_name(db_path.name + ".importando")
+    temp.unlink(missing_ok=True)
+    con = sqlite3.connect(temp)
+    try:
+        con.execute("DROP TABLE IF EXISTS imoveis")
+        con.execute(
+            "CREATE TABLE imoveis (" + ", ".join(
+                f"{c} {'REAL' if c in NUMERICOS else 'TEXT'}" for c in campos
+            ) + ")"
+        )
+        total = 0
+        with _abrir_texto(csv_path) as f:
+            amostra = f.read(4096)
+            f.seek(0)
+            sep = ";" if amostra.count(";") > amostra.count(",") else ","
+            leitor = csv.reader(f, delimiter=sep)
+            mapa = mapear_colunas(next(leitor))
+            lote = []
+            for linha in leitor:
+                registro = {}
+                for campo in campos:
+                    i = mapa.get(campo)
+                    bruto = linha[i].strip() if i is not None and i < len(linha) else ""
+                    registro[campo] = _numero(bruto) if campo in NUMERICOS else bruto
+                try:
+                    registro["cep"] = normalizar_cep(registro["cep"])
+                except CepInvalido:
+                    continue
+                lote.append(tuple(registro[c] for c in campos))
+                if len(lote) >= 20000:
+                    con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * len(campos))})", lote)
+                    total += len(lote)
+                    lote.clear()
+                    if progresso:
+                        progresso(total)
+            if lote:
                 con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * len(campos))})", lote)
                 total += len(lote)
-                lote.clear()
-                if progresso:
-                    progresso(total)
-        if lote:
-            con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * len(campos))})", lote)
-            total += len(lote)
-    con.execute("CREATE INDEX idx_cep ON imoveis(cep)")
-    con.commit()
+        con.execute("CREATE INDEX idx_cep ON imoveis(cep)")
+        con.commit()
+    except BaseException:
+        con.close()
+        temp.unlink(missing_ok=True)
+        raise
     con.close()
+    temp.replace(db_path)
     return total
 
 

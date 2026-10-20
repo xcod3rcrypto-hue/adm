@@ -10,7 +10,26 @@ Hoje funciona para a **cidade de São Paulo**, que publica a base completa do IP
 2. Os imóveis são buscados numa base local em SQLite, montada a partir do CSV oficial da Prefeitura e indexada por CEP. Assim a consulta é instantânea, mesmo com mais de 3 milhões de imóveis.
 3. O resultado sai como texto, JSON ou CSV.
 
-## Uso
+## Tela (recomendado)
+
+```bash
+cd projetos/iptu-cep
+python3 -m iptu_cep web
+```
+
+O navegador abre em `http://127.0.0.1:8765`. Na primeira vez, a tela pede o caminho do CSV do IPTU para importar. Depois é só digitar o CEP. A tela mostra:
+
+- **todos os imóveis do CEP**: casas, apartamentos, terrenos e comércios, com ou sem número (`s/n`)
+- **nº do IPTU** (número do contribuinte/SQL), com botão de copiar
+- áreas, uso, padrão, ano da construção e **valor venal estimado**
+- um resumo do CEP: quantos imóveis de cada tipo, quantos sem número e o valor venal somado
+- filtros por tipo, "só sem número", situação de débito e busca por número, complemento ou nº do IPTU; as colunas ordenam com um clique
+- **Débitos:** o botão "Consultar ↗" copia o nº do IPTU e abre a página oficial da certidão de débitos imobiliários da Prefeitura. Você marca o resultado (sem débito / com débito) e a marcação fica salva no seu navegador
+- exportação da lista filtrada em CSV, já com a situação de débito marcada
+
+> **Por que os débitos não vêm automáticos:** a Prefeitura não publica débitos na base aberta. Ela só informa imóvel a imóvel, na certidão de débitos ou no DUC, que pede Senha Web. O programa não tenta driblar essa proteção. Ele leva você direto ao lugar certo, com o número pronto para colar.
+
+## Uso na linha de comando
 
 ```bash
 cd projetos/iptu-cep

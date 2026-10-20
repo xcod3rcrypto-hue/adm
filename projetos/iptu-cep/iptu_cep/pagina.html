@@ -81,6 +81,17 @@
   .backup { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   .backup > div:first-child { flex: 1 1 280px; }
   .backup-botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .titulo-card { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
+  .titulo-card input { flex: 0 1 260px; }
+  .grade-bairros { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; }
+  .grade-bairros button { text-align: left; padding: 8px 10px; }
+  .grade-bairros small { display: block; color: var(--muted); }
+  table.ruas td, table.ruas th { padding: 6px 8px; }
+  table.ruas tr { cursor: pointer; }
+  table.ruas tr:hover td { background: var(--accent-soft); }
+  .cep-chip { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line);
+              font: 12px ui-monospace, Consolas, monospace; background: var(--card); cursor: pointer; }
+  .cep-chip:hover { border-color: var(--accent); color: var(--accent); }
   a.mapa { font-size: 12px; font-weight: 400; white-space: nowrap; }
   .oculto { display: none !important; }
   @media (max-width: 760px) {
@@ -110,6 +121,10 @@
     td.debito-td .acoes { margin: 0; }
     td.debito-td .mini, td .mini { padding: 8px 12px; font-size: 14px; }
     #contagem { padding: 0 4px; }
+    table.ruas thead { display: none; }
+    table.ruas tr { display: block; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0; margin: 0; }
+    table.ruas td { display: block; padding: 2px 0; }
+    table.ruas td::before { display: none; }
     .abas { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
     .aba { flex: 0 0 auto; }
     #btnFila { flex: 0 0 auto; }
@@ -145,7 +160,19 @@
       <input type="text" id="cep" inputmode="numeric" maxlength="9" placeholder="11740-000" autocomplete="postal-code" required>
       <button class="primario" id="btnConsultar">Consultar</button>
     </form>
+    <form id="formBairro" class="busca oculto" style="margin-top:10px">
+      <input type="text" id="bairro" list="listaBairros" placeholder="ou digite o bairro (ex.: Bopiranga)" autocomplete="off" style="flex:1 1 220px">
+      <datalist id="listaBairros"></datalist>
+      <button id="btnBairro">Ver bairro</button>
+      <button type="button" id="btnTodosBairros">Todos os bairros</button>
+    </form>
     <div id="infoBase" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <div id="cardBairros" class="card oculto">
+    <div class="titulo-card"><b id="tituloBairros">Bairros</b>
+      <input type="text" id="filtroBairros" placeholder="Filtrar bairros"></div>
+    <div class="grade-bairros" id="gradeBairros"></div>
   </div>
 
   <div class="card backup">
@@ -171,6 +198,15 @@
       <div class="endereco" id="tituloEndereco"></div>
       <div class="muted" id="subEndereco"></div>
       <div class="resumo" id="resumo"></div>
+    </div>
+
+    <div id="cardRuas" class="card oculto">
+      <div class="titulo-card"><b id="tituloRuas">Ruas e CEPs do bairro</b>
+        <button type="button" class="mini" id="limparRua">Mostrar todas</button></div>
+      <table class="ruas">
+        <thead><tr><th>Rua</th><th>CEP(s)</th><th class="num">Endereços</th></tr></thead>
+        <tbody id="linhasRuas"></tbody>
+      </table>
     </div>
 
     <div class="card">
@@ -296,6 +332,115 @@ async function restaurarBackup(arquivo) {
   if (dados) mostrar();
 }
 
+const fmtCep = (c) => (c && c.length === 8 ? c.slice(0, 5) + "-" + c.slice(5) : c || "");
+let BAIRROS = [];
+
+async function carregarBairros() {
+  try {
+    const r = await fetch(MODO === "estatico" ? "bairros.json" : "/api/bairros");
+    if (!r.ok) return;
+    const j = await r.json();
+    BAIRROS = Array.isArray(j) ? j : j.bairros || [];
+  } catch { BAIRROS = []; }
+  $("#formBairro").classList.toggle("oculto", !BAIRROS.length);
+  $("#listaBairros").innerHTML = BAIRROS.map((b) => `<option value="${esc(b.bairro)}">${b.total} endereços · ${b.ceps.length} CEP(s)</option>`).join("");
+  $("#tituloBairros").textContent = `Bairros${CIDADE ? " de " + CIDADE.nome : ""} (${BAIRROS.length})`;
+  desenharBairros();
+}
+
+function desenharBairros() {
+  const t = ($("#filtroBairros").value || "").trim().toLowerCase();
+  $("#gradeBairros").innerHTML = BAIRROS.filter((b) => !t || b.bairro.toLowerCase().includes(t)).map((b) =>
+    `<button type="button" data-bairro="${esc(b.bairro)}"><b>${esc(b.bairro)}</b><small>${b.total.toLocaleString("pt-BR")} endereços · ${b.ceps.length} CEP(s)</small></button>`).join("")
+    || '<span class="muted">Nenhum bairro com esse nome.</span>';
+}
+
+function resumoRuas(imoveis) {
+  const ruas = new Map();
+  for (const i of imoveis) {
+    const nome = i.logradouro || "(sem nome)";
+    const r = ruas.get(nome) || { rua: nome, ceps: new Set(), total: 0 };
+    r.ceps.add(fmtCep(i.cep)); r.total++;
+    ruas.set(nome, r);
+  }
+  return [...ruas.values()].sort((a, b) => a.rua.localeCompare(b.rua, "pt-BR"))
+    .map((r) => ({ ...r, ceps: [...r.ceps].sort() }));
+}
+
+async function consultaBairroApi(nome) {
+  const r = await fetch("/api/bairro?nome=" + encodeURIComponent(nome));
+  const j = await r.json();
+  return r.ok ? { dados: j } : { erro: j.erro };
+}
+
+async function consultaBairroEstatica(nome) {
+  const b = BAIRROS.find((x) => x.bairro === nome);
+  if (!b) return { erro: `Bairro não encontrado: ${nome}.` };
+  const imoveis = [];
+  try {
+    for (const p of [...new Set(b.ceps.map((c) => c.slice(0, 5)))]) {
+      const bloco = await blocoDoCep(p + "000");
+      for (const [c, linhas] of Object.entries(bloco.ceps)) {
+        if (!b.ceps.includes(c)) continue;
+        for (const l of linhas) {
+          const i = Object.fromEntries(bloco.campos.map((k, n) => [k, l[n]]));
+          if (i.bairro === nome) imoveis.push(i);
+        }
+      }
+    }
+  } catch { return { erro: "Não consegui baixar os dados do bairro. Verifique a internet e tente de novo." }; }
+  return { dados: { cep: null, bairro: nome, ceps: b.ceps.map(fmtCep), endereco: null, aviso: null, total: imoveis.length,
+                    imoveis, links: META.links, cidade: META.cidade, fonte: META.fonte, busca: "bairro" } };
+}
+
+async function abrirBairro(nome) {
+  const btn = $("#btnBairro");
+  btn.disabled = true; btn.textContent = "Carregando…";
+  mensagem("");
+  try {
+    const { dados: j, erro } = await (MODO === "estatico" ? consultaBairroEstatica : consultaBairroApi)(nome);
+    if (erro) { $("#resultado").classList.add("oculto"); mensagem(erro); return; }
+    dados = j;
+    if (fila) filaSair();
+    $("#texto").value = "";
+    $("#bairro").value = nome;
+    history.replaceState(null, "", "?bairro=" + encodeURIComponent(nome));
+    $("#cardBairros").classList.add("oculto");
+    mostrar();
+    $("#resultado").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {
+    mensagem("Algo deu errado ao carregar o bairro. Tente de novo.");
+  } finally { btn.disabled = false; btn.textContent = "Ver bairro"; }
+}
+
+$("#formBairro").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = $("#bairro").value.trim();
+  if (!v) return;
+  const exato = BAIRROS.find((b) => b.bairro.toLowerCase() === v.toLowerCase())
+    || BAIRROS.find((b) => b.bairro.toLowerCase().includes(v.toLowerCase()));
+  if (!exato) { mensagem(`Não achei o bairro "${v}". Veja a lista em "Todos os bairros".`); return; }
+  abrirBairro(exato.bairro);
+});
+$("#btnTodosBairros").addEventListener("click", () => {
+  $("#cardBairros").classList.toggle("oculto");
+  desenharBairros();
+});
+$("#filtroBairros").addEventListener("input", desenharBairros);
+$("#gradeBairros").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-bairro]");
+  if (b) abrirBairro(b.dataset.bairro);
+});
+$("#linhasRuas").addEventListener("click", (e) => {
+  const chip = e.target.closest(".cep-chip");
+  const tr = e.target.closest("tr[data-rua]");
+  if (!tr && !chip) return;
+  $("#texto").value = chip ? chip.dataset.cep : tr.dataset.rua;
+  desenhar();
+  document.querySelector(".lista").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("#limparRua").addEventListener("click", () => { $("#texto").value = ""; desenhar(); });
+
 $("#cep").addEventListener("input", (e) => {
   const d = e.target.value.replace(/\D/g, "").slice(0, 8);
   e.target.value = d.length > 5 ? d.slice(0, 5) + "-" + d.slice(5) : d;
@@ -327,6 +472,7 @@ async function carregarStatus() {
     ? { importada: true, total: META.total, exercicio: META.exercicio, cidade: META.cidade }
     : await fetch("/api/status").then((r) => r.json());
   aplicarCidade(s.cidade);
+  if (s.importada) carregarBairros();
   $("#importar").classList.toggle("oculto", s.importada);
   const cnefe = (s.fonte || META?.fonte) === "cnefe";
   $("#avisoFonte").classList.toggle("oculto", !(s.importada && cnefe));
@@ -423,6 +569,7 @@ $("#form").addEventListener("submit", async (e) => {
     dados = j;
     if (fila) filaSair();
     history.replaceState(null, "", "?cep=" + j.cep);
+    $("#texto").value = "";
     if (j.aviso) mensagem(j.aviso, "aviso");
     mostrar();
   } catch {
@@ -432,8 +579,21 @@ $("#form").addEventListener("submit", async (e) => {
 
 function mostrar() {
   const e = dados.endereco;
-  $("#tituloEndereco").textContent = e ? `${e.logradouro || "CEP geral da cidade"} — CEP ${dados.cep}` : `CEP ${dados.cep}`;
-  $("#subEndereco").textContent = e ? `${e.bairro}, ${e.cidade}/${e.uf} · endereço via ${e.fonte}` : "";
+  const ruas = resumoRuas(dados.imoveis);
+  if (dados.busca === "bairro") {
+    $("#tituloEndereco").textContent = `Bairro ${dados.bairro}`;
+    $("#subEndereco").textContent = `${dados.total.toLocaleString("pt-BR")} endereços em ${ruas.length} rua(s) e ${dados.ceps.length} CEP(s)` +
+      (CIDADE ? ` · ${CIDADE.nome}/${CIDADE.uf}` : "");
+  } else {
+    $("#tituloEndereco").textContent = e ? `${e.logradouro || "CEP geral da cidade"} — CEP ${dados.cep}` : `CEP ${dados.cep}`;
+    $("#subEndereco").textContent = e ? `${e.bairro}, ${e.cidade}/${e.uf} · endereço via ${e.fonte}` : "";
+  }
+  const verRuas = dados.busca === "bairro" || ruas.length > 1;
+  $("#cardRuas").classList.toggle("oculto", !verRuas);
+  $("#tituloRuas").textContent = dados.busca === "bairro" ? `Ruas e CEPs do bairro ${dados.bairro} (${ruas.length})` : `Ruas (${ruas.length})`;
+  $("#linhasRuas").innerHTML = ruas.map((r) => `<tr data-rua="${esc(r.rua)}"><td>${esc(r.rua)}</td>
+    <td>${r.ceps.map((c) => `<span class="cep-chip" data-cep="${esc(c)}">${esc(c)}</span>`).join("")}</td>
+    <td class="num">${r.total}</td></tr>`).join("");
   $("#link2via").href = dados.links.segunda_via;
 
   const im = dados.imoveis;
@@ -442,7 +602,7 @@ function mostrar() {
   const soma = comValor.length ? comValor.reduce((t, i) => t + i.valor_venal_estimado, 0) : null;
   const kpis = [
     [moeda(soma), "valor venal somado", "largo"],
-    [im.length, "imóveis no CEP"],
+    [im.length, dados.busca === "bairro" ? "endereços no bairro" : "imóveis no CEP"],
     [conta((i) => i.categoria === "casa"), "casas"],
     [conta((i) => i.categoria === "apartamento"), "apartamentos"],
     [conta((i) => i.categoria === "terreno"), "terrenos"],
@@ -452,7 +612,7 @@ function mostrar() {
   ];
   $("#resumo").innerHTML = kpis.map(([v, r, c = ""]) => `<div class="kpi ${c}"><b>${esc(v)}</b><span>${esc(r)}</span></div>`).join("");
   $("#resultado").classList.remove("oculto");
-  if (!im.length) mensagem("Nenhum imóvel desse CEP está na base do IPTU. CEPs de prédio ou de caixa postal às vezes não aparecem; tente o CEP da rua.", "aviso");
+  if (!im.length) mensagem("Nenhum endereço desse CEP nem dessa rua está na base. Tente buscar pelo bairro, logo abaixo do CEP, ou veja \"Todos os bairros\".", "aviso");
   desenhar();
 }
 
@@ -463,7 +623,7 @@ function filtrados(comAba = true) {
     (categoria === "todos" || i.categoria === categoria) &&
     (!$("#soSemNumero").checked || i.sem_numero) &&
     (!comAba || aba === "todos" || debitos.get(i.sql) === aba) &&
-    (!t || [i.numero, i.complemento, i.sql, i.logradouro].join(" ").toLowerCase().includes(t)));
+    (!t || [i.numero, i.complemento, i.sql, i.logradouro, i.bairro, i.loteamento, i.cep, fmtCep(i.cep)].join(" ").toLowerCase().includes(t)));
   const { campo, asc } = ordem;
   lista.sort((a, b) => {
     let x = a[campo], y = b[campo];
@@ -643,11 +803,13 @@ $("#btnCsv").addEventListener("click", () => {
     num(i.valor_venal_estimado), i.valor_venal_estimado == null ? "" : (i.valor_venal_oficial ? "Prefeitura" : "estimativa"),
     sit[debitos.get(i.sql)]]);
   const csv = [cab, ...linhas].map((l) => l.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
-  baixarArquivo(`iptu_${dados.cep}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+  baixarArquivo(`iptu_${dados.busca === "bairro" ? "bairro_" + dados.bairro.replace(/\W+/g, "_") : dados.cep}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
 });
 
 const inicial = new URLSearchParams(location.search).get("cep");
 carregarStatus().finally(() => {
+  const bairroInicial = new URLSearchParams(location.search).get("bairro");
+  if (bairroInicial) carregarBairros().then(() => abrirBairro(bairroInicial));
   if (inicial) {
     $("#cep").value = inicial;
     $("#cep").dispatchEvent(new Event("input"));

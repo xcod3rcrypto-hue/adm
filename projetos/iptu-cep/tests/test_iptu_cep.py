@@ -598,6 +598,41 @@ class TestCnefe(unittest.TestCase):
             self.assertEqual(automatico.obter_e_importar(self.pasta / "dados" / "iptu.sqlite"), 4)
         baixar.assert_called_once()
 
+    def test_nome_da_rua(self):
+        self.assertEqual(base.nome_da_rua("Av. Dr. João Mariano"), base.nome_da_rua("AVENIDA DOUTOR JOAO MARIANO"))
+        self.assertEqual(base.nome_da_rua("Rua das Palmeiras"), "palmeiras")
+        self.assertEqual(base.nome_da_rua("Avenida Presidente Vargas"), "presidente vargas")
+
+    def test_cep_que_o_ibge_nao_tem_busca_pela_rua(self):
+        base.importar_csv(CNEFE, self.db)
+        # Correios: 11749-572 é a Av. Presidente Vargas; no IBGE ela está com 11740-000
+        correios = cep.Endereco("11749572", "Avenida Presidente Vargas", "Suarão", "Itanhaém", "SP", "3522109", "ViaCEP")
+        codigo, dados = web.consultar_cep(self.db, "11749-572", buscar_endereco=lambda _: correios)
+        self.assertEqual((codigo, dados["total"], dados["busca"]), (200, 3, "rua"))
+        self.assertIn("11740-000", dados["aviso"])
+        outra = cep.Endereco("11749999", "Rua Inexistente", "X", "Itanhaém", "SP", "3522109", "ViaCEP")
+        codigo, dados = web.consultar_cep(self.db, "11749-999", buscar_endereco=lambda _: outra)
+        self.assertEqual((dados["total"], dados["busca"]), (0, "cep"))
+
+    def test_bairros_e_consulta_por_bairro(self):
+        base.importar_csv(CNEFE, self.db)
+        codigo, dados = web.bairros(self.db)
+        self.assertEqual(codigo, 200)
+        self.assertEqual([(b["bairro"], b["total"], b["ceps"]) for b in dados["bairros"]],
+                         [("CENTRO", 1, ["11740005"]), ("SUARAO", 3, ["11740000"])])  # São Paulo fica de fora
+        codigo, dados = web.consultar_bairro(self.db, "SUARAO")
+        self.assertEqual((codigo, dados["total"], dados["ceps"], dados["busca"]), (200, 3, ["11740-000"], "bairro"))
+        self.assertEqual(dados["ruas"], [{"rua": "AVENIDA PRESIDENTE VARGAS", "ceps": ["11740-000"], "total": 3}])
+        self.assertEqual(web.consultar_bairro(self.db, "NAO EXISTE")[0], 404)
+        self.assertEqual(web.consultar_bairro(self.db, "")[0], 400)
+
+    def test_site_estatico_tem_bairros(self):
+        base.importar_csv(CNEFE, self.db)
+        site = self.pasta / "site"
+        publicar.publicar(self.db, site)
+        bairros = json.loads((site / "bairros.json").read_text(encoding="utf-8"))
+        self.assertEqual([b["bairro"] for b in bairros], ["CENTRO", "SUARAO"])
+
     def test_links_cnefe_pela_listagem(self):
         listagem = '<a href="3522000_ITAI.zip">x</a><a href="3522109_ITANHAEM.zip">3522109_ITANHAEM.zip</a>'
         links = fonte.links_cnefe("3522109", "35_SP", ler=lambda url: listagem if url.endswith("35_SP/") else "")

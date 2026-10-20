@@ -110,6 +110,16 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
     except FileNotFoundError:
         return 409, {"erro": "A base do IPTU ainda não foi importada."}
 
+    busca = "cep"
+    if not imoveis and endereco and endereco.logradouro:
+        # O IBGE (e às vezes a Prefeitura) usa outro CEP para a rua: procura pelo nome.
+        imoveis = base.consultar_por_rua(db, endereco.logradouro, *cidade["ceps"])
+        if imoveis:
+            busca = "rua"
+            ceps_achados = sorted({cep.formatar_cep(i.cep) for i in imoveis})
+            aviso = (f"A base não tem o CEP {cep.formatar_cep(cep_num)}. Mostrando os endereços de "
+                     f"{endereco.logradouro} encontrados pelo nome da rua "
+                     f"(cadastrados com CEP {', '.join(ceps_achados[:5])}{'…' if len(ceps_achados) > 5 else ''}).")
     lista = [para_dict(i) for i in imoveis]
     return 200, {
         "cep": cep.formatar_cep(cep_num),
@@ -120,6 +130,50 @@ def consultar_cep(db: Path, cep_texto: str, buscar_endereco=cep.buscar_endereco)
         "links": links(cidade),
         "cidade": cidade_publica(cidade),
         "fonte": base.ler_meta(db).get("fonte", "prefeitura"),
+        "busca": busca,
+    }
+
+
+def resumo_ruas(imoveis: list) -> list[dict]:
+    """Ruas de uma lista de imóveis, com os CEPs e a quantidade de cada uma."""
+    ruas: dict[str, dict] = {}
+    for i in imoveis:
+        r = ruas.setdefault(i.logradouro or "(sem nome)", {"rua": i.logradouro or "(sem nome)", "ceps": set(), "total": 0})
+        r["ceps"].add(cep.formatar_cep(i.cep))
+        r["total"] += 1
+    return [{**r, "ceps": sorted(r["ceps"])} for r in sorted(ruas.values(), key=lambda r: r["rua"])]
+
+
+def bairros(db: Path) -> tuple[int, dict]:
+    if not Path(db).exists():
+        return 409, {"erro": "A base do IPTU ainda não foi importada."}
+    cidade = cidade_da_base(db)
+    return 200, {"cidade": cidade_publica(cidade), "bairros": base.listar_bairros(db, *cidade["ceps"])}
+
+
+def consultar_bairro(db: Path, nome: str) -> tuple[int, dict]:
+    nome = (nome or "").strip()
+    if not nome:
+        return 400, {"erro": "Escolha um bairro."}
+    if not Path(db).exists():
+        return 409, {"erro": "A base do IPTU ainda não foi importada."}
+    cidade = cidade_da_base(db)
+    imoveis = base.consultar_bairro(db, nome)
+    if not imoveis:
+        return 404, {"erro": f"Nenhum imóvel no bairro {nome}."}
+    return 200, {
+        "cep": None,
+        "bairro": nome,
+        "ceps": sorted({cep.formatar_cep(i.cep) for i in imoveis}),
+        "ruas": resumo_ruas(imoveis),
+        "endereco": None,
+        "aviso": None,
+        "total": len(imoveis),
+        "imoveis": [para_dict(i) for i in imoveis],
+        "links": links(cidade),
+        "cidade": cidade_publica(cidade),
+        "fonte": base.ler_meta(db).get("fonte", "prefeitura"),
+        "busca": "bairro",
     }
 
 
@@ -147,6 +201,10 @@ def criar_handler(db: Path):
                 self.wfile.write(corpo)
             elif url.path == "/api/status":
                 self._json(200, _status(db))
+            elif url.path == "/api/bairros":
+                self._json(*bairros(db))
+            elif url.path == "/api/bairro":
+                self._json(*consultar_bairro(db, parse_qs(url.query).get("nome", [""])[0]))
             elif url.path == "/api/consulta":
                 cep_texto = parse_qs(url.query).get("cep", [""])[0]
                 self._json(*consultar_cep(db, cep_texto))

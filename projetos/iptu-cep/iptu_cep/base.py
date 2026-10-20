@@ -17,7 +17,7 @@ import sqlite3
 import unicodedata
 import xml.etree.ElementTree as ET
 import zipfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from . import cidades
@@ -237,7 +237,7 @@ def importar_csv(csv_path: str | Path, db_path: str | Path, progresso=None, cida
         con.execute("DROP TABLE IF EXISTS imoveis")
         con.execute(
             "CREATE TABLE imoveis (" + ", ".join(
-                f"{c} {'REAL' if c in NUMERICOS else 'TEXT'}" for c in campos
+                [f"{c} {'REAL' if c in NUMERICOS else 'TEXT'}" for c in campos] + ["rua_busca TEXT"]
             ) + ")"
         )
         total = 0
@@ -270,17 +270,18 @@ def importar_csv(csv_path: str | Path, db_path: str | Path, progresso=None, cida
                 continue
             if not cidades.cep_da_cidade(info_cidade, registro["cep"]):
                 fora += 1
-            lote.append(tuple(registro[c] for c in campos))
+            lote.append(tuple(registro[c] for c in campos) + (nome_da_rua(registro["logradouro"]),))
             if len(lote) >= 20000:
-                con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * len(campos))})", lote)
+                con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * (len(campos) + 1))})", lote)
                 total += len(lote)
                 lote.clear()
                 if progresso:
                     progresso(total)
         if lote:
-            con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * len(campos))})", lote)
+            con.executemany(f"INSERT INTO imoveis VALUES ({','.join('?' * (len(campos) + 1))})", lote)
             total += len(lote)
         con.execute("CREATE INDEX idx_cep ON imoveis(cep)")
+        con.execute("CREATE INDEX idx_rua ON imoveis(rua_busca)")
         exercicio = con.execute("SELECT MAX(ano_exercicio) FROM imoveis").fetchone()[0]
         con.execute("CREATE TABLE meta (chave TEXT PRIMARY KEY, valor TEXT)")
         con.executemany("INSERT INTO meta VALUES (?, ?)", [
@@ -396,4 +397,88 @@ def consultar(db_path: str | Path, cep: str, numero: str | None = None) -> list[
     sql += " ORDER BY logradouro, CAST(numero AS INTEGER), complemento"
     linhas = con.execute(sql, args).fetchall()
     con.close()
-    return [Imovel(**dict(l)) for l in linhas]
+    return [para_imovel(l) for l in linhas]
+
+
+_CAMPOS_IMOVEL = None
+
+
+def para_imovel(linha) -> "Imovel":
+    """Linha do banco -> Imovel, ignorando colunas internas (ex.: rua_busca)."""
+    global _CAMPOS_IMOVEL
+    if _CAMPOS_IMOVEL is None:
+        _CAMPOS_IMOVEL = {f.name for f in fields(Imovel)}
+    return Imovel(**{k: v for k, v in dict(linha).items() if k in _CAMPOS_IMOVEL})
+
+
+TIPOS_LOGRADOURO = {
+    "rua", "r", "avenida", "av", "ave", "travessa", "tv", "trav", "alameda", "al", "estrada", "estr", "est",
+    "praca", "pca", "pc", "rodovia", "rod", "viela", "largo", "lgo", "beco", "passagem", "pass", "servidao",
+    "via", "viaduto", "ladeira", "acesso", "caminho", "parque", "jardim", "vila", "conjunto", "residencial",
+    "loteamento", "quadra", "trevo", "marginal", "rotatoria", "calcadao", "ponte", "ramal",
+}
+TITULOS = {
+    "dr": "doutor", "dra": "doutora", "pres": "presidente", "prof": "professor", "profa": "professora",
+    "eng": "engenheiro", "cel": "coronel", "gen": "general", "cap": "capitao", "ten": "tenente",
+    "sgt": "sargento", "mal": "marechal", "alm": "almirante", "gov": "governador", "sen": "senador",
+    "dep": "deputado", "ver": "vereador", "pe": "padre", "fr": "frei", "d": "dom", "sto": "santo",
+    "sta": "santa", "s": "sao", "n": "nossa", "sra": "senhora", "vsc": "visconde", "bar": "barao",
+    "cde": "conde", "maj": "major", "com": "comendador", "cmte": "comandante", "irma": "irma",
+}
+
+
+def nome_da_rua(logradouro: str) -> str:
+    """Nome da rua comparável entre fontes: sem tipo (Rua, Av.), sem pontuação, títulos por extenso.
+    "Av. Dr. João Mariano" e "AVENIDA DOUTOR JOAO MARIANO" viram "doutor joao mariano"."""
+    palavras = re.sub(r"[^a-z0-9 ]", " ", _norm(logradouro or "")).split()
+    while len(palavras) > 1 and palavras[0] in TIPOS_LOGRADOURO:
+        palavras = palavras[1:]
+    palavras = [TITULOS.get(p, p) for p in palavras]
+    return " ".join(p for p in palavras if p not in {"de", "da", "do", "das", "dos", "e"})
+
+
+def consultar_por_rua(db_path: str | Path, logradouro: str, cep_inicio: str, cep_fim: str) -> list[Imovel]:
+    """Imóveis da cidade cujo nome de rua bate com `logradouro` (para CEPs que a base não tem)."""
+    nome = nome_da_rua(logradouro)
+    if not nome:
+        return []
+    con = sqlite3.connect(db_path)
+    con.row_factory = sqlite3.Row
+    try:
+        linhas = con.execute(
+            "SELECT * FROM imoveis WHERE rua_busca = ? AND cep BETWEEN ? AND ? "
+            "ORDER BY logradouro, CAST(numero AS INTEGER), complemento",
+            (nome, cep_inicio, cep_fim),
+        ).fetchall()
+    except sqlite3.OperationalError:
+        linhas = []  # base importada antes da busca por rua: reimportar para habilitar
+    finally:
+        con.close()
+    return [para_imovel(l) for l in linhas]
+
+
+def listar_bairros(db_path: str | Path, cep_inicio: str = "00000000", cep_fim: str = "99999999") -> list[dict]:
+    """Bairros da base com quantos imóveis e quais CEPs cada um tem."""
+    con = sqlite3.connect(db_path)
+    try:
+        linhas = con.execute(
+            "SELECT bairro, COUNT(*), GROUP_CONCAT(DISTINCT cep) FROM imoveis "
+            "WHERE bairro <> '' AND cep BETWEEN ? AND ? GROUP BY bairro ORDER BY bairro",
+            (cep_inicio, cep_fim),
+        ).fetchall()
+    finally:
+        con.close()
+    return [{"bairro": b, "total": n, "ceps": sorted((c or "").split(","))} for b, n, c in linhas]
+
+
+def consultar_bairro(db_path: str | Path, bairro: str) -> list[Imovel]:
+    con = sqlite3.connect(db_path)
+    con.row_factory = sqlite3.Row
+    try:
+        linhas = con.execute(
+            "SELECT * FROM imoveis WHERE bairro = ? ORDER BY cep, logradouro, CAST(numero AS INTEGER), complemento",
+            (bairro,),
+        ).fetchall()
+    finally:
+        con.close()
+    return [para_imovel(l) for l in linhas]

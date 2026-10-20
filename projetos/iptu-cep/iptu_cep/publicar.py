@@ -71,7 +71,7 @@ def publicar(db_path: str | Path, destino: str | Path, progresso=None) -> dict:
     atual, ceps = None, {}
     try:
         for linha in con.execute("SELECT * FROM imoveis ORDER BY cep, logradouro, numero, complemento"):
-            imovel = base.Imovel(**dict(linha))
+            imovel = base.para_imovel(linha)
             prefixo = imovel.cep[:5]
             if prefixo != atual:
                 if ceps:
@@ -99,6 +99,8 @@ def publicar(db_path: str | Path, destino: str | Path, progresso=None) -> dict:
         "fonte": base.ler_meta(db_path).get("fonte", "prefeitura"),
         "links": web.links(cidade),
     }
+    lista_bairros = base.listar_bairros(db_path, *cidade["ceps"])
+    (destino / "bairros.json").write_text(json.dumps(lista_bairros, ensure_ascii=False), encoding="utf-8")
     (destino / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     shutil.copyfile(web.PAGINA, destino / "index.html")
     (destino / "vercel.json").write_text(json.dumps(VERCEL_JSON, indent=2), encoding="utf-8")

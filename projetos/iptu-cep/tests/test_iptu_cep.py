@@ -290,6 +290,21 @@ class TestFonte(unittest.TestCase):
         self.assertIn(("https://download.geosampa.prefeitura.sp.gov.br/PaginasPublicas/downloadArquivo.aspx"
                        "?orig=DownloadCadastro&arq=IPTU%5CIPTU_2025.zip&arqTipo=CADASTRO"), [u for _, u in achados])
 
+    def test_links_nos_metadados(self):
+        xml = ("<gmd:linkage><gmd:URL>https://download.geosampa.prefeitura.sp.gov.br/PaginasPublicas/"
+               "downloadArquivo.aspx?orig=DownloadIPTU&amp;arq=IPTU_2025.zip</gmd:URL></gmd:linkage>")
+        achados = fonte.links_nos_metadados(["abc"], ler=lambda _: xml)
+        self.assertEqual(achados, [(2025, "https://download.geosampa.prefeitura.sp.gov.br/PaginasPublicas/"
+                                          "downloadArquivo.aspx?orig=DownloadIPTU&arq=IPTU_2025.zip")])
+
+    def test_diagnostico_nao_quebra_sem_rede(self):
+        def falha(_):
+            raise OSError("sem rede")
+        saida = []
+        with mock.patch.object(fonte, "candidatos", return_value=[]):
+            fonte.diagnostico(ler=falha, avisar=saida.append)
+        self.assertTrue(any("falhou" in l for l in saida))
+
     def test_links_no_ckan(self):
         resposta = json.dumps({"result": {"results": [{"resources": [
             {"name": "IPTU 2025", "format": "ZIP", "url": "https://dados.exemplo/iptu_2025.zip"},

@@ -9,7 +9,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from . import automatico, base, cep, publicar, web
+from . import automatico, base, cep, fonte, publicar, web
 
 DB_PADRAO = Path(__file__).resolve().parent.parent / "dados" / "iptu_sp.sqlite"
 # O nome da última pasta vira o nome do projeto na Vercel (iptu-cep.vercel.app).
@@ -160,6 +160,11 @@ def cmd_tudo(args) -> int:
     return 0
 
 
+def cmd_diagnostico(args) -> int:
+    fonte.diagnostico()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="iptu_cep", description="Consulta imóveis e IPTU pelo CEP (São Paulo).")
     p.add_argument("--db", default=str(DB_PADRAO), help=f"arquivo SQLite da base (padrão: {DB_PADRAO})")
@@ -191,6 +196,9 @@ def main(argv: list[str] | None = None) -> int:
     pt.add_argument("--destino", default=str(SITE_PADRAO), help="pasta do site gerado")
     pt.add_argument("--sem-vercel", action="store_true", help="só gera o site, sem publicar")
     pt.set_defaults(func=cmd_tudo)
+
+    pd = sub.add_parser("diagnostico", help="mostra onde o programa procura a base do IPTU e o que encontra")
+    pd.set_defaults(func=cmd_diagnostico)
 
     args = p.parse_args(argv)
     return args.func(args)

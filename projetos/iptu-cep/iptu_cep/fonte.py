@@ -2,7 +2,8 @@
 
 A Prefeitura não publica um link fixo para o arquivo do ano. O programa tenta,
 nesta ordem:
-  1. procurar links IPTU_<ano>.zip nas páginas de download do GeoSampa;
+  1. procurar links IPTU_<ano>.zip nas páginas do GeoSampa e nas fichas de
+     metadados da camada (GeoNetwork);
   2. procurar o conjunto "IPTU" na API do Portal de Dados Abertos (CKAN);
   3. montar o link no formato usado pelo GeoSampa para os downloads
      (downloadArquivo.aspx?orig=...&arq=...&arqTipo=...), para os últimos anos.
@@ -27,8 +28,13 @@ PAGINAS_GEOSAMPA = [
     "https://download.geosampa.prefeitura.sp.gov.br/",
     "https://geosampa.prefeitura.sp.gov.br/PaginasPublicas/_SBC.aspx",
 ]
+# Fichas de metadados do GeoSampa (GeoNetwork) ligadas ao IPTU / camada Lote.
+METADADOS = "https://metadados.geosampa.prefeitura.sp.gov.br/geonetwork/srv/api/records/{}/formatters/xml"
+FICHAS_IPTU = ["62c1113c-36a4-43d1-b763-81ec63b58116", "b971efa1-aad5-42f3-ad28-18f1f4efe270"]
 CKAN_BUSCA = "https://dados.prefeitura.sp.gov.br/api/3/action/package_search?q=IPTU&rows=20"
 LINK_IPTU = re.compile(r"""(?:href|value|url)\s*[=:]\s*["']([^"']*IPTU[_-]?(\d{4})[^"']*)["']""", re.IGNORECASE)
+# URL solta no texto (ex.: <gmd:URL>...</gmd:URL> nas fichas de metadados)
+URL_IPTU = re.compile(r"""(https?://[^\s"'<>]*IPTU[^\s"'<>]*?(\d{4})[^\s"'<>]*)""", re.IGNORECASE)
 
 
 def _abrir(url: str):
@@ -47,11 +53,15 @@ def links_nas_paginas(paginas=PAGINAS_GEOSAMPA, ler=_texto) -> list[tuple[int, s
             conteudo = ler(pagina)
         except (OSError, ValueError):
             continue
-        for bruto, ano in LINK_IPTU.findall(conteudo):
+        for bruto, ano in LINK_IPTU.findall(conteudo) + URL_IPTU.findall(conteudo):
             url = urllib.parse.urljoin(pagina, html.unescape(bruto))
             if url.startswith("http"):
                 achados.append((int(ano), url))
     return achados
+
+
+def links_nos_metadados(fichas=FICHAS_IPTU, ler=_texto) -> list[tuple[int, str]]:
+    return links_nas_paginas([METADADOS.format(f) for f in fichas], ler=ler)
 
 
 def links_no_ckan(ler=_texto) -> list[tuple[int, str]]:
@@ -86,7 +96,7 @@ def links_montados(hoje: date | None = None) -> list[tuple[int, str]]:
 
 def candidatos() -> list[tuple[int, str]]:
     vistos, lista = set(), []
-    for ano, url in links_nas_paginas() + links_no_ckan() + links_montados():
+    for ano, url in links_nas_paginas() + links_nos_metadados() + links_no_ckan() + links_montados():
         if url not in vistos:
             vistos.add(url)
             lista.append((ano, url))
@@ -148,3 +158,23 @@ def baixar_automatico(pasta: Path, avisar=print) -> Path | None:
             return arquivo
     return None
 
+
+
+def diagnostico(ler=_texto, avisar=print) -> None:
+    """Mostra o que cada fonte devolve, para descobrir o link certo da base."""
+    for nome, url in [("GeoSampa", u) for u in PAGINAS_GEOSAMPA] + \
+                     [("Ficha de metadados", METADADOS.format(f)) for f in FICHAS_IPTU] + [("Dados Abertos", CKAN_BUSCA)]:
+        try:
+            conteudo = ler(url)
+            urls = sorted(set(re.findall(r"""https?://[^\s"'<>]+""", conteudo)))
+            relevantes = [u for u in urls if re.search(r"iptu|download|\.zip|\.csv", u, re.I)]
+            avisar(f"\n[{nome}] {url}\n  OK, {len(conteudo):,} caracteres; links relevantes:")
+            for u in relevantes[:40]:
+                avisar(f"    {html.unescape(u)}")
+            if not relevantes:
+                avisar("    (nenhum)")
+        except (OSError, ValueError) as e:
+            avisar(f"\n[{nome}] {url}\n  falhou: {e}")
+    avisar("\nCandidatos que o programa vai tentar:")
+    for ano, url in candidatos():
+        avisar(f"  {ano}: {url}")

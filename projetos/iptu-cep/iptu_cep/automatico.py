@@ -133,9 +133,9 @@ def baixar_sozinho(pasta: Path) -> Path | None:
     return fonte.baixar_automatico(pasta)
 
 
-def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = None,
-         publicar_online: bool = True, abrir_navegador: bool = True) -> str | None:
-    from . import base, publicar
+def obter_e_importar(db: Path, arquivo: Path | None = None, url: str | None = None) -> int:
+    """Acha (ou baixa) a base do IPTU e importa para `db`. Devolve o total de imóveis."""
+    from . import base
 
     trabalho = db.parent
     if url:
@@ -150,11 +150,9 @@ def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = No
             inicio = time.time()
             print(
                 "\nNão consegui baixar a base sozinho (o site da Prefeitura pode ter mudado).\n"
-                "Vou abrir o GeoSampa. Lá, clique em: Download de arquivos > Cadastro > IPTU\n"
-                "e baixe o arquivo do ano mais recente. O programa continua sozinho quando o\n"
-                "download terminar (Ctrl+C para cancelar).\n"
-                "Dica: se preferir, clique com o botão direito no arquivo do IPTU, copie o link e rode\n"
-                '  py -m iptu_cep tudo --url "LINK_COPIADO"'
+                "Vou abrir o GeoSampa. Lá, vá em Cadastro > Cadastro Fiscal > seta de download ao lado\n"
+                "de 'Lote' > Cadastro > IPTU e baixe o ano mais recente. O programa continua sozinho\n"
+                "quando o download terminar (Ctrl+C para cancelar)."
             )
             webbrowser.open(GEOSAMPA)
             arquivo = esperar_download(pasta_downloads(), inicio)
@@ -167,6 +165,26 @@ def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = No
     print(f"Importando {csv_path.name} ...")
     total = base.importar_csv(csv_path, db, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))
     print(f"\nImportados: {total:,} imóveis.".replace(",", "."))
+    return total
+
+
+def local(db: Path, atualizar: bool = False, porta: int = 8765, abrir_navegador: bool = True,
+          servir=None) -> None:
+    """Tudo no próprio computador: importa a base se precisar e abre a tela em localhost."""
+    from . import web
+
+    if atualizar or not web._status(db)["importada"]:
+        if not atualizar:
+            print("Primeira vez: preparando a base do IPTU (só acontece uma vez).")
+        obter_e_importar(db)
+    (servir or web.servir)(db, porta=porta, abrir=abrir_navegador)
+
+
+def tudo(db: Path, site: Path, arquivo: Path | None = None, url: str | None = None,
+         publicar_online: bool = True, abrir_navegador: bool = True) -> str | None:
+    from . import publicar
+
+    obter_e_importar(db, arquivo, url)
 
     print("Gerando o site (separando por CEP) ...")
     r = publicar.publicar(db, site, progresso=lambda n: print(f"  {n:,} imóveis".replace(",", "."), end="\r"))

@@ -136,6 +136,19 @@ def cmd_publicar(args) -> int:
     return 0
 
 
+def cmd_local(args) -> int:
+    try:
+        automatico.local(Path(args.db), atualizar=args.atualizar, porta=args.porta,
+                         abrir_navegador=not args.sem_navegador)
+    except KeyboardInterrupt:
+        print("\nEncerrado.")
+        return 0
+    except (FileNotFoundError, TimeoutError, ValueError, OSError) as e:
+        print(f"\nErro: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def cmd_tudo(args) -> int:
     try:
         endereco = automatico.tudo(
@@ -210,6 +223,12 @@ def main(argv: list[str] | None = None) -> int:
     pp = sub.add_parser("publicar", help="gera o site estático para a Vercel")
     pp.add_argument("--destino", default=str(SITE_PADRAO), help=f"pasta do site (padrão: {SITE_PADRAO})")
     pp.set_defaults(func=cmd_publicar)
+
+    pl = sub.add_parser("local", help="tudo no seu computador: prepara a base se precisar e abre em localhost")
+    pl.add_argument("--atualizar", action="store_true", help="reimporta a base (pega o arquivo mais novo em Downloads)")
+    pl.add_argument("--porta", type=int, default=8765)
+    pl.add_argument("--sem-navegador", action="store_true", help="não abre o navegador sozinho")
+    pl.set_defaults(func=cmd_local)
 
     pt = sub.add_parser("tudo", help="acha/baixa a base, importa, gera o site e publica na Vercel")
     pt.add_argument("--arquivo", help="CSV ou ZIP da base (se não informar, procura na pasta Downloads)")

@@ -287,6 +287,24 @@ class TestAutomatico(unittest.TestCase):
         self.assertTrue((site / "dados" / "01310.bin").is_file())
 
 
+    def test_local_importa_so_na_primeira_vez(self):
+        downloads = self.pasta / "Downloads"
+        downloads.mkdir()
+        (downloads / "IPTU_2026.csv").write_bytes(AMOSTRA.read_bytes())
+        db = self.pasta / "dados" / "iptu.sqlite"
+        servidas = []
+        servir = lambda db, porta, abrir: servidas.append((db, porta, abrir))
+        with mock.patch.object(automatico, "pasta_downloads", return_value=downloads), redirect_stdout(io.StringIO()):
+            with mock.patch.object(automatico, "obter_e_importar", wraps=automatico.obter_e_importar) as imp:
+                automatico.local(db, abrir_navegador=False, servir=servir)
+                automatico.local(db, abrir_navegador=False, servir=servir)
+                self.assertEqual(imp.call_count, 1)
+                automatico.local(db, atualizar=True, abrir_navegador=False, servir=servir)
+                self.assertEqual(imp.call_count, 2)
+        self.assertEqual(servidas, [(db, 8765, False)] * 3)
+        self.assertEqual(web._status(db)["total"], 4)
+
+
 class TestFonte(unittest.TestCase):
     def test_links_nas_paginas(self):
         pagina = ('<a href="downloadArquivo.aspx?orig=DownloadCadastro&amp;arq=IPTU%5CIPTU_2025.zip&amp;arqTipo=CADASTRO">2025</a>'

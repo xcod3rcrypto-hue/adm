@@ -10,15 +10,18 @@ Hoje funciona para a **cidade de São Paulo**, que publica a base completa do IP
 2. Os imóveis são buscados numa base local em SQLite, montada a partir do CSV oficial da Prefeitura e indexada por CEP. Assim a consulta é instantânea, mesmo com mais de 3 milhões de imóveis.
 3. O resultado sai como texto, JSON ou CSV.
 
-## Atalhos (Windows, duplo clique)
+## Rodar tudo no seu computador (localhost)
+
+Dê **duplo clique em `Abrir IPTU.bat`** (ou rode `py -m iptu_cep local`). Na primeira vez ele prepara a base do IPTU sozinho: pega o arquivo `IPTU_<ano>.zip` mais novo da pasta Downloads (ou tenta baixar, ou abre o GeoSampa e espera o download) e importa. Depois abre a tela em **http://127.0.0.1:8765**. Nas próximas vezes abre direto, em segundos.
 
 | Arquivo | O que faz |
 |---|---|
-| `Abrir IPTU.bat` | abre a tela no navegador do seu PC |
-| `Atualizar e publicar.bat` | acha/baixa a base, importa, gera o site e publica na Vercel (`tudo`) |
+| `Abrir IPTU.bat` | abre a tela em http://127.0.0.1:8765 (importa a base na primeira vez) |
+| `Atualizar base.bat` | reimporta com o arquivo IPTU mais novo da pasta Downloads e abre a tela |
 | `Fazer backup.bat` | salva a base em `Documentos\IPTU-backup` |
+| `Publicar na Vercel (opcional).bat` | gera o site estático e publica na internet (`tudo`) |
 
-A pasta funciona sozinha: pode ser copiada para qualquer lugar (ex.: `C:\Users\voce\Documents\IPTU`) junto com a subpasta `dados`.
+Enquanto a janela preta estiver aberta, a tela funciona; fechar a janela encerra. Tudo fica no seu PC: o servidor só aceita conexões do próprio computador. A pasta funciona sozinha e pode ser copiada para qualquer lugar (ex.: `C:\Users\voce\Documents\IPTU`) junto com a subpasta `dados`.
 
 ## Jeito mais fácil: um comando faz tudo
 

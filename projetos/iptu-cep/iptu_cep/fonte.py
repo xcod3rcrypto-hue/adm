@@ -32,9 +32,10 @@ PAGINAS_GEOSAMPA = [
 METADADOS = "https://metadados.geosampa.prefeitura.sp.gov.br/geonetwork/srv/api/records/{}/formatters/xml"
 FICHAS_IPTU = ["62c1113c-36a4-43d1-b763-81ec63b58116", "b971efa1-aad5-42f3-ad28-18f1f4efe270"]
 CKAN_BUSCA = "https://dados.prefeitura.sp.gov.br/api/3/action/package_search?q=IPTU&rows=20"
-LINK_IPTU = re.compile(r"""(?:href|value|url)\s*[=:]\s*["']([^"']*IPTU[_-]?(\d{4})[^"']*)["']""", re.IGNORECASE)
+ANO = r"((?:19|20)\d{2})(?!\d)"
+LINK_IPTU = re.compile(r"""(?:href|value|url)\s*[=:]\s*["']([^"']*IPTU[_-]?""" + ANO + r"""[^"']*)["']""", re.IGNORECASE)
 # URL solta no texto (ex.: <gmd:URL>...</gmd:URL> nas fichas de metadados)
-URL_IPTU = re.compile(r"""(https?://[^\s"'<>]*IPTU[^\s"'<>]*?(\d{4})[^\s"'<>]*)""", re.IGNORECASE)
+URL_IPTU = re.compile(r"""(https?://[^\s"'<>]*IPTU[_-]?""" + ANO + r"""[^\s"'<>]*)""", re.IGNORECASE)
 
 
 def _abrir(url: str):
@@ -160,21 +161,36 @@ def baixar_automatico(pasta: Path, avisar=print) -> Path | None:
 
 
 
-def diagnostico(ler=_texto, avisar=print) -> None:
+def _testar(url: str) -> str:
+    try:
+        with _abrir(url) as r:
+            inicio = r.read(4096)
+            tipo = r.headers.get("Content-Type", "?")
+            tamanho = r.headers.get("Content-Length", "?")
+    except (OSError, ValueError) as e:
+        return f"falhou: {e}"
+    if _parece_base(inicio):
+        return f"É A BASE! ({tipo}, {tamanho} bytes)"
+    trecho = re.sub(r"\s+", " ", inicio[:160].decode("latin-1"))
+    return f"não é a base ({tipo}): {trecho}"
+
+
+def diagnostico(ler=_texto, avisar=print, testar=_testar) -> None:
     """Mostra o que cada fonte devolve, para descobrir o link certo da base."""
-    for nome, url in [("GeoSampa", u) for u in PAGINAS_GEOSAMPA] + \
-                     [("Ficha de metadados", METADADOS.format(f)) for f in FICHAS_IPTU] + [("Dados Abertos", CKAN_BUSCA)]:
+    fontes = [("GeoSampa", u) for u in PAGINAS_GEOSAMPA] + \
+             [("Ficha de metadados", METADADOS.format(f)) for f in FICHAS_IPTU]
+    for nome, url in fontes:
         try:
             conteudo = ler(url)
-            urls = sorted(set(re.findall(r"""https?://[^\s"'<>]+""", conteudo)))
-            relevantes = [u for u in urls if re.search(r"iptu|download|\.zip|\.csv", u, re.I)]
-            avisar(f"\n[{nome}] {url}\n  OK, {len(conteudo):,} caracteres; links relevantes:")
-            for u in relevantes[:40]:
-                avisar(f"    {html.unescape(u)}")
-            if not relevantes:
-                avisar("    (nenhum)")
         except (OSError, ValueError) as e:
             avisar(f"\n[{nome}] {url}\n  falhou: {e}")
-    avisar("\nCandidatos que o programa vai tentar:")
+            continue
+        avisar(f"\n[{nome}] {url}\n  OK, {len(conteudo):,} caracteres. Trechos com 'IPTU':")
+        trechos = [m.start() for m in re.finditer("iptu", conteudo, re.IGNORECASE)]
+        for i in trechos[:25]:
+            avisar("    ..." + re.sub(r"\s+", " ", conteudo[max(0, i - 120): i + 160]) + "...")
+        if not trechos:
+            avisar("    (nenhum)")
+    avisar("\nTestando os links candidatos:")
     for ano, url in candidatos():
-        avisar(f"  {ano}: {url}")
+        avisar(f"  {ano}: {url}\n      -> {testar(url)}")

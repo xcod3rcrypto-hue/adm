@@ -305,6 +305,10 @@ class TestFonte(unittest.TestCase):
             fonte.diagnostico(ler=falha, avisar=saida.append)
         self.assertTrue(any("falhou" in l for l in saida))
 
+    def test_nao_confunde_parametro_com_ano(self):
+        pagina = '<a href="http://www.prefeitura.sp.gov.br/servicos/iptu/index.php?p=2453">IPTU</a>'
+        self.assertEqual(fonte.links_nas_paginas(["https://x.sp.gov.br/"], ler=lambda _: pagina), [])
+
     def test_links_no_ckan(self):
         resposta = json.dumps({"result": {"results": [{"resources": [
             {"name": "IPTU 2025", "format": "ZIP", "url": "https://dados.exemplo/iptu_2025.zip"},

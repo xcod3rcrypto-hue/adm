@@ -10,6 +10,16 @@ Hoje funciona para a **cidade de São Paulo**, que publica a base completa do IP
 2. Os imóveis são buscados numa base local em SQLite, montada a partir do CSV oficial da Prefeitura e indexada por CEP. Assim a consulta é instantânea, mesmo com mais de 3 milhões de imóveis.
 3. O resultado sai como texto, JSON ou CSV.
 
+## Atalhos (Windows, duplo clique)
+
+| Arquivo | O que faz |
+|---|---|
+| `Abrir IPTU.bat` | abre a tela no navegador do seu PC |
+| `Atualizar e publicar.bat` | acha/baixa a base, importa, gera o site e publica na Vercel (`tudo`) |
+| `Fazer backup.bat` | salva a base em `Documentos\IPTU-backup` |
+
+A pasta funciona sozinha: pode ser copiada para qualquer lugar (ex.: `C:\Users\voce\Documents\IPTU`) junto com a subpasta `dados`.
+
 ## Jeito mais fácil: um comando faz tudo
 
 ```powershell
